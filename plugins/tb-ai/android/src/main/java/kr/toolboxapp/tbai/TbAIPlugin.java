@@ -98,7 +98,9 @@ public class TbAIPlugin extends Plugin {
     }
 
     private static boolean isAppLink(Intent i) {
-        return i != null && Intent.ACTION_VIEW.equals(i.getAction()) && i.getDataString() != null && i.getDataString().startsWith("kr.toolboxapp.app:");
+        if (i == null || !Intent.ACTION_VIEW.equals(i.getAction()) || i.getDataString() == null) return false;
+        String u = i.getDataString();
+        return u.startsWith("kr.toolboxapp.app:") || u.startsWith("https://muddy-pond-0d55.khe121795.workers.dev/applogin");
     }
 
     /** 앱이 꺼져 있다가 링크로 열렸을 때 그 링크 (한 번 꺼내면 비워요) */

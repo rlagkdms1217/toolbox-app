@@ -30,6 +30,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="kr.toolboxapp.app" android:host="login" />
             </intent-filter>
+            <!-- 검증된 https 링크(App Links): 사이트의 /.well-known/assetlinks.json 이 이 앱 서명을 가리켜야 열려요 -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="muddy-pond-0d55.khe121795.workers.dev" android:pathPrefix="/applogin" />
+            </intent-filter>
 
             <!-- 갤러리·카톡·파일 앱에서 '공유 → 툴박스' -->
             <intent-filter>
