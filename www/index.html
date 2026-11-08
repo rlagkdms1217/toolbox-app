@@ -219,6 +219,7 @@ canvas.ed{width:100%;height:auto;display:block;border-radius:var(--r);background
 .cmp2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cmp2.hidden{display:none}@media(max-width:560px){.cmp2{grid-template-columns:1fr}}.cmp-col{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:var(--r);padding:10px;background:var(--surface)}.cmp-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}.cmp-b{width:22px;height:22px;border-radius:6px;background:var(--ink);color:var(--on-ink);display:inline-flex;align-items:center;justify-content:center;font-size:12px}
 .mail-who,.reply-dir{display:flex;flex-direction:column;gap:8px}.mail-who.hidden,.reply-dir.hidden{display:none}.mw-row{gap:8px}.reply-dir input{margin-top:2px}
 .tr-bar{display:flex;align-items:flex-end;gap:8px}.tr-bar.hidden{display:none}.tr-l{flex:1;min-width:0}.tr-sw{flex:0 0 auto;width:40px;height:40px;font-size:18px;margin-bottom:1px}.tr-det.warn-t{color:var(--danger,#b4232f);font-weight:600}
+.ex-t{border-collapse:collapse;margin:6px 0 0;font-size:13px;width:100%}.ex-t th{text-align:left;font-weight:500;color:var(--muted);padding:2px 10px 2px 0;white-space:nowrap;vertical-align:top}.ex-t td{padding:2px 0;word-break:keep-all;overflow-wrap:anywhere}.ex-t td a{white-space:nowrap}.ex-t .warn-t{color:var(--danger,#b4232f)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
 .files .item{cursor:default}
 .prev{max-height:220px;object-fit:contain;width:100%;border-radius:var(--r);background:var(--sunken)}
@@ -1042,8 +1043,8 @@ const ic = (n, s = 18, w = 1.7) => `<svg width="${s}" height="${s}" viewBox="0 0
 document.querySelectorAll("[data-i]").forEach(el => el.outerHTML = ic(el.dataset.i, 22));
 
 /* ---------- catalog ---------- */
-const TYPE_ICON = {chat:"sparkle", research:"search", ppt:"slides", summary:"doc", formula:"calc", mask:"mask", scan:"scan", sign:"sign", data:"data", chart:"chart", audio:"audio", zip:"zip", color:"color", calc:"calc", upscale:"upscale", bg:"cut", erase:"eraser", form:"doc", diff:"diff", qr:"qr", rename:"label", video:"video", convert:"swap", meeting:"mic", writing:"mail", ocr:"scan", capture:"pen", image:"image", pdf:"pdf", count:"count", pdfedit:"pdf"};
-const TYPE_LABEL = {chat:"AI 대화", research:"리서치", ppt:"PPT", summary:"문서 요약", formula:"수식", mask:"개인정보 가리기", scan:"문서 스캔", sign:"PDF 서명", data:"표 정리", chart:"차트", audio:"오디오 편집", zip:"ZIP", color:"색상 추출", calc:"계산", upscale:"화질 개선", bg:"누끼 따기", erase:"사람·물체 지우기", form:"공문·품의서", diff:"텍스트 비교", qr:"QR 만들기", rename:"파일명 변경", video:"영상 요약", convert:"파일 변환", meeting:"회의록", writing:"글쓰기", ocr:"글자 추출", capture:"캡처 편집", image:"이미지 변환", pdf:"PDF 합치기", count:"글자 수", pdfedit:"PDF 편집"};
+const TYPE_ICON = {chat:"sparkle", research:"search", ppt:"slides", summary:"doc", formula:"calc", mask:"mask", scan:"scan", sign:"sign", data:"data", chart:"chart", audio:"audio", zip:"zip", color:"color", exif:"shield", calc:"calc", upscale:"upscale", bg:"cut", erase:"eraser", form:"doc", diff:"diff", qr:"qr", rename:"label", video:"video", convert:"swap", meeting:"mic", writing:"mail", ocr:"scan", capture:"pen", image:"image", pdf:"pdf", count:"count", pdfedit:"pdf"};
+const TYPE_LABEL = {chat:"AI 대화", research:"리서치", ppt:"PPT", summary:"문서 요약", formula:"수식", mask:"개인정보 가리기", scan:"문서 스캔", sign:"PDF 서명", data:"표 정리", chart:"차트", audio:"오디오 편집", zip:"ZIP", color:"색상 추출", exif:"사진 정보 보기·지우기", calc:"계산", upscale:"화질 개선", bg:"누끼 따기", erase:"사람·물체 지우기", form:"공문·품의서", diff:"텍스트 비교", qr:"QR 만들기", rename:"파일명 변경", video:"영상 요약", convert:"파일 변환", meeting:"회의록", writing:"글쓰기", ocr:"글자 추출", capture:"캡처 편집", image:"이미지 변환", pdf:"PDF 합치기", count:"글자 수", pdfedit:"PDF 편집"};
 const CATS = [
   {id:"meet", name:"회의록", icon:"mic", hint:"녹음·파일로 회의록", tools:[
     {id:"meeting", rec:true, name:"녹음하기", desc:"빨간 버튼으로 녹음 시작 · 끝나면 회의록·메일까지 정리", kw:"회의 녹음 stt 회의록 요약 결정 할일 얼라인 메일"},
@@ -1068,6 +1069,7 @@ const CATS = [
     {id:"upscale", name:"화질 개선", desc:"작고 흐린 사진을 4배 선명하게", kw:"업스케일 확대 해상도"},
     {id:"mask", name:"개인정보 가리기", desc:"전화번호·이메일·얼굴 가리기", kw:"마스킹 블러 개인정보"},
     {id:"color", name:"색상 추출", desc:"대표 색·색상 코드 뽑기", kw:"컬러 hex 팔레트"},
+    {id:"exif", name:"사진 정보 지우기", desc:"찍은 위치·기기·날짜 보기·지우기", kw:"exif 메타데이터 위치 gps 개인정보 촬영정보"},
     {id:"image", name:"형식 변환·압축", desc:"JPG·PNG·WEBP·HEIC, 크기·용량 줄이기", kw:"용량 이미지 변환 heic svg jpg png webp"},
     {id:"convert", group:"image", target:"pdf", name:"사진 → PDF", desc:"여러 장을 PDF 한 파일로 (HEIC도)", kw:"heic 아이폰"}]},
   {id:"doc", name:"PDF·문서", icon:"pdf", hint:"스캔·서명·HWP", tools:[
@@ -1132,7 +1134,7 @@ CATS.forEach(c => {
   c.tools = out.concat([...by.values()]);
 });
 const POPULAR = ["녹음하기", "PDF 편집", "파일 변환 (전체)", "메일 쓰기", "누끼 따기", "유튜브·영상 요약"];
-const TOOL_TITLE = {viewer:"문서 뷰어", pdfcover:"PDF 표지", jsontool:"JSON·XML·마크다운", strconv:"문자열 변환", mdedit:"마크다운 에디터", imgstyle:"이미지 스타일", research:"리서치", ppt:"PPT 만들기", summary:"문서 요약·질문", formula:"수식 도우미", mask:"개인정보 가리기", scan:"문서 스캔", sign:"PDF 서명", data:"표 합치기·정리·비교", chart:"차트 만들기", audio:"오디오 자르기·합치기", zip:"ZIP 묶기·풀기", color:"색상 추출", calc:"날짜·단위·부가세 계산", upscale:"화질 개선", bg:"누끼 따기", erase:"사람·물체 지우기", form:"공문·품의서 양식", diff:"텍스트 비교", qr:"QR 만들기", rename:"파일명 일괄 변경", video:"영상 요약", convert:"파일 변환", meeting:"회의록 만들기", writing:"글쓰기", ocr:"이미지 글자 추출", capture:"캡처 편집", image:"형식 변환·압축", pdf:"PDF 합치기", count:"글자 수 세기", pdfedit:"PDF 편집"};
+const TOOL_TITLE = {viewer:"문서 뷰어", pdfcover:"PDF 표지", jsontool:"JSON·XML·마크다운", strconv:"문자열 변환", mdedit:"마크다운 에디터", imgstyle:"이미지 스타일", research:"리서치", ppt:"PPT 만들기", summary:"문서 요약·질문", formula:"수식 도우미", mask:"개인정보 가리기", scan:"문서 스캔", sign:"PDF 서명", data:"표 합치기·정리·비교", chart:"차트 만들기", audio:"오디오 자르기·합치기", zip:"ZIP 묶기·풀기", color:"색상 추출", exif:"사진 정보 보기·지우기", calc:"날짜·단위·부가세 계산", upscale:"화질 개선", bg:"누끼 따기", erase:"사람·물체 지우기", form:"공문·품의서 양식", diff:"텍스트 비교", qr:"QR 만들기", rename:"파일명 일괄 변경", video:"영상 요약", convert:"파일 변환", meeting:"회의록 만들기", writing:"글쓰기", ocr:"이미지 글자 추출", capture:"캡처 편집", image:"형식 변환·압축", pdf:"PDF 합치기", count:"글자 수 세기", pdfedit:"PDF 편집"};
 const TOOL_META = {
   viewer:{cat:"PDF·문서", icon:"eye", desc:"PDF·워드·한글·엑셀·PPT를 프로그램 설치 없이 바로 열어 봐요"},
   pdfcover:{cat:"PDF·문서", icon:"doc", desc:"PDF 맨 앞에 표지를 만들어 넣거나, 첫 쪽을 표지로 바꿔요"},
@@ -1152,6 +1154,7 @@ const TOOL_META = {
   audio:{cat:"영상·오디오", icon:"audio", desc:"녹음·음악·영상 소리를 자르고 이어 붙여요"},
   zip:{cat:"변환·유틸", icon:"zip", desc:"여러 파일을 ZIP으로 묶거나 ZIP을 풀어요"},
   color:{cat:"이미지", icon:"color", desc:"로고·사진에서 대표 색과 색상 코드를 뽑아요"},
+  exif:{cat:"이미지", icon:"shield", desc:"사진에 몰래 들어 있는 찍은 위치·기기·날짜를 보여 주고, 화질 그대로 지워요"},
   calc:{cat:"변환·유틸", icon:"calc", desc:"영업일·D-day, 평↔㎡ 같은 단위, 부가세를 계산해요"},
   upscale:{cat:"이미지", icon:"upscale", desc:"작고 흐린 사진을 AI로 4배 선명하게 키워요. 기기 안에서 처리해요"},
   bg:{cat:"이미지", icon:"cut", desc:"사진에서 사람·물건만 남기고 배경을 지워요. 기기 안에서 처리해요"},
@@ -1175,7 +1178,7 @@ const PROC = {meeting: "ai", writing: "ai", form: "ai", ppt: "ai", research: "ai
 const PROC_TAG = {ai: ["AI", (window.TB_CONFIG && window.TB_CONFIG.api) ? "AI 서버에서 처리해요. 쓴 만큼 포인트가 차감돼요" : "AI 서버에서 처리해요. 설정의 API 키가 필요해요"], dai: ["기기 AI", "AI 모델을 한 번 내려받아 이 기기에서 실행해요. 사진은 기기 밖으로 나가지 않아요"], mix: ["기기 · AI 선택", "기본은 이 기기에서 처리하고, AI 기능은 고를 때만 써요"], dev: ["기기에서 처리", "파일이 이 기기 밖으로 나가지 않아요"]};
 function entryIcon(t) {
   const m = t.mode, g = t.group, tg = t.target, o = t.opts || {};
-  const by = {meeting: t.pick ? "up" : "mic", form: "form", ppt: "slides", summary: "doc", capture: "pen", bg: "cut", erase: "eraser", upscale: "upscale", mask: "mask", color: "color", image: "image", scan: "scan", pdfedit: "pen", pdf: "layers", sign: "sign", chart: "chart", formula: "calc", diff: "diff", count: "count", qr: "qr", rename: "label", zip: "zip", calc: "calendar", video: "video", audio: "audio"};
+  const by = {meeting: t.pick ? "up" : "mic", form: "form", ppt: "slides", summary: "doc", capture: "pen", bg: "cut", erase: "eraser", upscale: "upscale", mask: "mask", color: "color", exif: "shield", image: "image", scan: "scan", pdfedit: "pen", pdf: "layers", sign: "sign", chart: "chart", formula: "calc", diff: "diff", count: "count", qr: "qr", rename: "label", zip: "zip", calc: "calendar", video: "video", audio: "audio"};
   if (t.id === "writing") return {mail: "mail", reply: "reply", report: "report", polish: "sparkle", translate: "translate"}[m] || "mail";
   if (t.id === "research") return {company: "building", topic: "search", url: "link", compare: "columns"}[m] || "search";
   if (t.id === "ocr") return {table: "table", card: "idcard", receipt: "receipt"}[m] || "scan";
@@ -1701,7 +1704,7 @@ function planHTML() {
   <section class="sect" style="gap:8px"><h2 class="h2">포인트는 이렇게 써요</h2><div class="card out">${tbHintHTML()}</div></section>
   <section class="sect" style="gap:8px"><h2 class="h2">자주 묻는 질문</h2><div class="faq-box">${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></section>
   <p class="ai-warn">${ic("shield", 13, 1.8)}ToolBox는 AI이므로 실수를 할 수 있습니다. 결과물의 중요한 내용은 확인한 뒤에 사용해 주세요.</p>
-  <div class="row" style="gap:14px"><a class="link" href="terms.html" target="_blank" rel="noopener">이용약관</a><a class="link" href="privacy.html" target="_blank" rel="noopener">개인정보처리방침</a><a class="link" href="licenses.html" target="_blank" rel="noopener">오픈소스 라이선스</a></div>
+  <div class="row" style="gap:14px"><a class="link" href="terms.html" target="_blank" rel="noopener">이용약관</a><a class="link" href="privacy.html" target="_blank" rel="noopener">개인정보처리방침</a><a class="link" href="licenses.html" target="_blank" rel="noopener">오픈소스 라이선스</a><a class="link" href="security.html" target="_blank" rel="noopener">내 파일은 어디로 가나요?</a></div>
   ${biz ? `<p class="biz">${[biz.name && "상호 " + biz.name, biz.owner && "대표 " + biz.owner, biz.regNo && "사업자등록번호 " + biz.regNo, biz.mailOrderNo && "통신판매업 신고 " + biz.mailOrderNo, biz.addr && "주소 " + biz.addr, biz.email && "이메일 " + biz.email, biz.tel && "전화 " + biz.tel].filter(Boolean).map(esc).join(" · ")}</p>` : ""}
   </div>`;
 }
@@ -2547,6 +2550,7 @@ function settingsPanes() {
       <details class="more"><summary>포인트는 이렇게 써요</summary><div style="margin-top:8px">${tbHintHTML()}</div></details>` : `<p class="sub">내 API 키로 쓰고 있어서 포인트 한도가 없어요.</p>`)
   + pane("privacy", "개인정보 보호", (logged ? row("이 기기에만 저장", "켜면 회의록·기록이 서버로 올라가지 않고, 이미 올라간 기록도 지워요. 대신 폰·PC 사이 동기화가 꺼져요.", `<label class="sw"><input type="checkbox" id="sLocal" ${u.nosync ? "checked" : ""}><span></span></label>`) + `<p class="sub" style="font-size:12.5px" id="sSyncSt">${u.nosync ? "지금은 이 기기에만 저장 중이에요." : "기록이 계정에 동기화돼요. 폰·PC 어디서든 같은 기록이 보여요."}</p>` : "")
       + row("작업 기록 모두 지우기", "이 기기와 계정에 있는 작업 기록을 한 번에 지워요. 되돌릴 수 없어요.", `<button class="btn sm danger-link" id="sWipe">모두 지우기</button>`)
+      + row("내 파일은 어디로 가나요?", "도구마다 기기 안에서만 처리하는지, AI 서버로 보내는지 한눈에 볼 수 있어요.", `<a class="link" href="security.html" target="_blank" rel="noopener">보기 ↗</a>`)
       + row("AI에 보내는 내용", "AI 도구에 넣은 글·파일은 결과를 만들기 위해 외부 AI로 보내요. 툴박스 서버는 입력을 저장하지 않아요.", `<a class="link" href="privacy.html" target="_blank" rel="noopener">자세히</a>`)
       + row("개인정보처리방침", "", `<a class="link" href="privacy.html" target="_blank" rel="noopener">보기 ↗</a>`) + row("이용약관", "", `<a class="link" href="terms.html" target="_blank" rel="noopener">보기 ↗</a>`) + row("오픈소스 라이선스", "", `<a class="link" href="licenses.html" target="_blank" rel="noopener">보기 ↗</a>`)
       + (logged ? "" : `<p class="sub" style="font-size:12.5px">로그인하지 않으면 기록은 이 브라우저에만 남아요. 브라우저 데이터를 지우면 함께 지워져요.</p>`)
@@ -3154,6 +3158,11 @@ function imageTool(v, o) {
         <label class="f" style="flex:1;min-width:120px">형식<select id="iFmt"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WEBP</option></select></label>
         <label class="f" style="flex:1;min-width:120px">가로 크기<select id="iW"><option value="0">원본 그대로</option><option value="1920">1920px</option><option value="1280">1280px</option><option value="800">800px</option></select></label>
       </div>
+      <div class="row">
+        <label class="f" style="flex:1;min-width:150px">목표 용량<select id="iT"><option value="0">맞추지 않기</option><option value="100">100KB 이하</option><option value="200">200KB 이하</option><option value="300">300KB 이하</option><option value="500">500KB 이하</option><option value="1024">1MB 이하</option><option value="2048">2MB 이하</option><option value="-1">직접 입력</option></select></label>
+        <label class="f hidden" id="iTcL" style="flex:1;min-width:120px">KB 이하<input type="number" id="iTc" min="10" max="20000" step="10" value="150" inputmode="numeric"></label>
+      </div>
+      <p class="sub hidden" id="iTHint" style="font-size:12.5px;margin:-4px 0 0">정부24·채용 사이트처럼 용량 제한이 있을 때 써요. 화질을 알아서 맞추고, 그래도 크면 크기를 줄여요.</p>
       <label class="f" id="iQL">화질 <span id="iQv">85%</span><input type="range" id="iQ" min="40" max="100" value="85"></label>
       <button class="btn pri block" id="iGo">변환하기</button>
     </div>`)}
@@ -3172,22 +3181,51 @@ function imageTool(v, o) {
   if (o.files && o.files[0]) use(o.files[0]);
   $("#iQ").oninput = () => $("#iQv").textContent = $("#iQ").value + "%";
   { const m = $("#iMulti"); if (m) m.onclick = () => openTool("convert", {group: "image", title: "형식 변환·압축 (여러 장)", desc: "여러 장을 한 번에 JPG·PNG·WEBP·PDF로 바꿔요", back: S.opts.back}); }
-  $("#iFmt").onchange = () => $("#iQL").classList.toggle("hidden", $("#iFmt").value === "image/png");
+  const target = () => { const v = +$("#iT").value; return v === -1 ? Math.max(10, +$("#iTc").value || 0) : v; };
+  const syncT = () => { const on = +$("#iT").value !== 0; $("#iTcL").classList.toggle("hidden", +$("#iT").value !== -1); $("#iTHint").classList.toggle("hidden", !on); $("#iQL").classList.toggle("hidden", on || $("#iFmt").value === "image/png"); };
+  $("#iT").onchange = () => { if (+$("#iT").value !== 0 && $("#iFmt").value === "image/png") $("#iFmt").value = "image/jpeg"; syncT(); };   // PNG는 화질로 용량을 못 줄여서 JPG로
+  $("#iFmt").onchange = () => { if ($("#iFmt").value === "image/png" && +$("#iT").value !== 0) { $("#iT").value = "0"; toast("PNG는 용량 맞추기를 못 해서 '맞추지 않기'로 바꿨어요. 용량을 맞추려면 JPG·WEBP를 고르세요."); } syncT(); };
   $("#iReset").onclick = () => { img = null; $("#iEd").classList.add("hidden"); $("#iLoaded").classList.add("hidden"); $("#iWait").classList.remove("hidden"); $("#iDrop").classList.remove("hidden"); $("#iOut").innerHTML = ph("변환하면 여기에 결과가 나와요"); };
-  $("#iGo").onclick = () => {
-    const tw = +$("#iW").value, s = tw && img.naturalWidth > tw ? tw / img.naturalWidth : 1;
-    const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
-    const x = c.getContext("2d"), fmt = $("#iFmt").value;
+  const render = (scale, fmt) => {
+    const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.naturalWidth * scale)); c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    const x = c.getContext("2d");
     if (fmt === "image/jpeg") { x.fillStyle = "#FFFFFF"; x.fillRect(0, 0, c.width, c.height); }
-    drawScaled(x, img, c.width, c.height);
-    c.toBlob(b => {
-      if (!b) { toast("이 형식으로는 바꿀 수 없어요."); return; }
-      const ext = fmt === "image/jpeg" ? "jpg" : fmt.split("/")[1];
-      const nm = file.name.replace(/\.[^.]+$/, "") + "." + ext;
-      const pct = Math.round((1 - b.size / file.size) * 100);
-      $("#iOut").innerHTML = `<div class="sect"><p><b>${esc(nm)}</b></p><p class="sub">${c.width}×${c.height} · ${kb(file.size)} → ${kb(b.size)} ${pct > 0 ? `(${pct}% 줄었어요)` : ""}</p><div class="row"><span class="sp"></span><button class="btn pri" id="iSave">${ic("save", 16)}저장</button></div></div>`;
-      $("#iSave").onclick = async () => { await saveFile(nm, b); saveItem({type: "image", title: "이미지 변환 · " + nm.slice(0, 28), data: {note: `${kb(file.size)} → ${kb(b.size)}, ${c.width}×${c.height}`}}); };
-    }, fmt, +$("#iQ").value / 100);
+    drawScaled(x, img, c.width, c.height); return c;
+  };
+  const enc = (c, fmt, q) => new Promise(r => c.toBlob(r, fmt, q));
+  /* 목표 용량 맞추기: 화질을 이분 탐색으로 낮추고(최저 35%), 그래도 크면 크기를 0.85배씩 줄여요 */
+  async function fitSize(scale, fmt, limit) {
+    let tries = 0;
+    for (let sc = scale; sc > .05 && tries < 14; sc *= .85, tries++) {
+      const c = render(sc, fmt);
+      const hi = await enc(c, fmt, .92); if (hi && hi.size <= limit) return {c, b: hi, q: .92};
+      const lo = await enc(c, fmt, .35); if (!lo || lo.size > limit) continue;
+      let a = .35, z = .92, best = lo, bq = .35;
+      for (let k = 0; k < 7; k++) { const m = (a + z) / 2, b = await enc(c, fmt, m); if (b && b.size <= limit) { best = b; bq = m; a = m; } else z = m; }
+      return {c, b: best, q: bq};
+    }
+    return null;
+  }
+  $("#iGo").onclick = async () => {
+    const tw = +$("#iW").value, s = tw && img.naturalWidth > tw ? tw / img.naturalWidth : 1, fmt = $("#iFmt").value, tKB = target();
+    let c, b, q = +$("#iQ").value / 100;
+    if (tKB > 0 && fmt !== "image/png" && file.type === fmt && file.size <= tKB * 1024 && s === 1) {   // 원본이 이미 목표 이하면 그대로
+      const nm0 = file.name;
+      $("#iOut").innerHTML = `<div class="sect"><p><b>${esc(nm0)}</b></p><p class="sub">원본이 이미 ${kb(file.size)}라 목표보다 작아서 그대로 뒀어요.</p><div class="row"><span class="sp"></span><button class="btn pri" id="iSave">${ic("save", 16)}저장</button></div></div>`;
+      $("#iSave").onclick = () => saveFile(nm0, file); return;
+    }
+    if (tKB > 0 && fmt !== "image/png") {
+      $("#iGo").disabled = true; $("#iOut").innerHTML = thinking(`${tKB >= 1024 ? (tKB / 1024).toFixed(tKB % 1024 ? 1 : 0) + "MB" : tKB + "KB"} 이하로 맞추는 중…`);
+      try { const r = await fitSize(s, fmt, tKB * 1024); if (!r) { $("#iOut").innerHTML = `<p class="note">이 크기로는 맞출 수 없었어요. 목표 용량을 조금 늘려 보세요.</p>`; return; } ({c, b, q} = r); }
+      finally { $("#iGo").disabled = false; }
+    } else { c = render(s, fmt); b = await enc(c, fmt, q); }
+    if (!b) { toast("이 형식으로는 바꿀 수 없어요."); return; }
+    const ext = fmt === "image/jpeg" ? "jpg" : fmt.split("/")[1];
+    const nm = file.name.replace(/\.[^.]+$/, "") + "." + ext;
+    const pct = Math.round((1 - b.size / file.size) * 100);
+    const fitNote = tKB > 0 && fmt !== "image/png" ? ` · 화질 ${Math.round(q * 100)}%${c.width < Math.round(img.naturalWidth * s) ? ", 크기도 줄였어요" : ""}` : "";
+    $("#iOut").innerHTML = `<div class="sect"><p><b>${esc(nm)}</b></p><p class="sub">${c.width}×${c.height} · ${kb(file.size)} → ${kb(b.size)} ${pct > 0 ? `(${pct}% 줄었어요)` : ""}${fitNote}</p><div class="row"><span class="sp"></span><button class="btn pri" id="iSave">${ic("save", 16)}저장</button></div></div>`;
+    $("#iSave").onclick = async () => { await saveFile(nm, b); saveItem({type: "image", title: "이미지 변환 · " + nm.slice(0, 28), data: {note: `${kb(file.size)} → ${kb(b.size)}, ${c.width}×${c.height}`}}); };
   };
 }
 
@@ -7560,7 +7598,7 @@ function bindTodo() {
 /* ---------- quick sheet (＋) & file recommendations ---------- */
 function recommendFor(f) {
   const e = extOf(f), t = f.type || "";
-  if (/^image\//.test(t) || ["heic", "heif"].includes(e)) return [["bg", "누끼 따기"], ["erase", "사람·물체 지우기"], ["capture", "캡처 편집"], ["ocr", "글자 추출"], ["mask", "개인정보 가리기"], ["upscale", "화질 개선"], ["convert", "형식 변환·PDF로"], ["color", "색상 추출"]];
+  if (/^image\//.test(t) || ["heic", "heif"].includes(e)) return [["bg", "누끼 따기"], ["erase", "사람·물체 지우기"], ["capture", "캡처 편집"], ["ocr", "글자 추출"], ["mask", "개인정보 가리기"], ["upscale", "화질 개선"], ["convert", "형식 변환·PDF로"], ["exif", "위치·촬영 정보 지우기"], ["color", "색상 추출"]];
   if (e === "pdf") return [["pdfedit", "편집하기 (쪽 정리·내용 고치기)"], ["summary", "요약·질문하기"], ["convert", "PDF 변환·나누기"], ["sign", "서명 넣기"], ["pdf", "다른 PDF와 합치기"]];
   if (["docx", "hwp", "hwpx", "txt", "md"].includes(e)) return [["summary", "요약·질문하기"], ["convert", "형식 변환"], ["diff", "다른 버전과 비교"]];
   if (["xlsx", "xls", "csv", "tsv", "json", "ods"].includes(e)) return [["data", "병합·중복 제거·비교"], ["chart", "차트 만들기"], ["convert", "형식 변환"], ["formula", "수식 도우미"]];
@@ -7665,7 +7703,7 @@ function bindTools() {
 
 /* ---------- history (search · favorites · groups) ---------- */
 const HGROUPS = [["all", "전체"], ["fav", "고정됨"], ["meet", "회의"], ["write", "글·메일"], ["research", "리서치"], ["image", "이미지"], ["doc", "문서·변환"], ["data", "데이터"]];
-const HG = {meet: ["meeting"], write: ["writing", "form", "ppt", "chat"], research: ["research", "summary"], image: ["bg", "erase", "capture", "image", "mask", "upscale", "color"], doc: ["ocr", "scan", "pdf", "pdfedit", "sign", "convert", "rename", "zip", "diff"], data: ["data", "chart", "formula", "count", "calc"]};
+const HG = {meet: ["meeting"], write: ["writing", "form", "ppt", "chat"], research: ["research", "summary"], image: ["bg", "erase", "capture", "image", "mask", "upscale", "color", "exif"], doc: ["ocr", "scan", "pdf", "pdfedit", "sign", "convert", "rename", "zip", "diff"], data: ["data", "chart", "formula", "count", "calc"]};
 let histFilter = "all", histQ = "";
 function itemRow(h) {
   const mk = markOf(h.id), pj = mk.project && projOf(mk.project);
@@ -9613,6 +9651,152 @@ function zipTool(v, o) {
   if (o.files) { if (extOf(o.files[0]) === "zip") { document.querySelector('#zpMode [data-m="open"]').click(); } add(o.files); }
 }
 
+/* ---------- tool: 사진 정보(EXIF) 보기·지우기 ---------- */
+/* 사진 속 숨은 정보(찍은 위치 GPS, 촬영 기기, 날짜)를 보여 주고 지워요.
+   JPG·PNG는 화질 손실 없이 정보 부분만 잘라내요(다시 압축하지 않음). 그 밖의 형식은 JPG로 다시 저장해요. 모두 기기 안에서. */
+const EXIF_TAGS = {0x010F: "make", 0x0110: "model", 0x0112: "orient", 0x0131: "software", 0x0132: "date", 0x013B: "artist", 0x8298: "copyright", 0x9003: "dateOrig", 0x829A: "exposure", 0x829D: "fnum", 0x8827: "iso", 0x920A: "focal", 0xA434: "lens", 0xA433: "lensMake", 0xA420: "uid", 0xA430: "owner", 0xA431: "serial", 0x9010: "tz"};
+function exifParse(buf) {
+  const u = new Uint8Array(buf), n = Math.min(u.length, 4 << 20);
+  let t = -1;   // "Exif\0\0" 뒤의 TIFF 머리(II*\0 / MM\0*)를 찾아요 — JPG·HEIC·WEBP 공통
+  for (let i = 0; i < n - 10; i++) if (u[i] === 0x45 && u[i + 1] === 0x78 && u[i + 2] === 0x69 && u[i + 3] === 0x66 && u[i + 4] === 0 && u[i + 5] === 0 && ((u[i + 6] === 0x49 && u[i + 7] === 0x49) || (u[i + 6] === 0x4D && u[i + 7] === 0x4D))) { t = i + 6; break; }
+  if (t < 0) return null;
+  const dv = new DataView(buf), le = u[t] === 0x49, g16 = o => dv.getUint16(t + o, le), g32 = o => dv.getUint32(t + o, le);
+  const out = {}, SZ = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8};
+  const val = (type, cnt, off) => {
+    const size = (SZ[type] || 1) * cnt, p = size <= 4 ? off : g32(off);
+    if (t + p + size > u.length) return null;
+    if (type === 2) { let s = ""; for (let k = 0; k < cnt; k++) { const c = u[t + p + k]; if (!c) break; s += String.fromCharCode(c); } try { return decodeURIComponent(escape(s)).trim(); } catch (e) { return s.trim(); } }
+    if (type === 3) return cnt === 1 ? g16(p) : Array.from({length: cnt}, (_, k) => g16(p + 2 * k));
+    if (type === 4) return cnt === 1 ? g32(p) : Array.from({length: cnt}, (_, k) => g32(p + 4 * k));
+    if (type === 5 || type === 10) { const r = Array.from({length: cnt}, (_, k) => { const a = type === 5 ? g32(p + 8 * k) : dv.getInt32(t + p + 8 * k, le), b = type === 5 ? g32(p + 8 * k + 4) : dv.getInt32(t + p + 8 * k + 4, le); return b ? a / b : 0; }); return cnt === 1 ? r[0] : r; }
+    if (type === 7) return Array.from(u.subarray(t + p, t + p + Math.min(cnt, 64)));
+    return null;
+  };
+  const ifd = (off, map, depth) => {
+    if (depth > 3 || off <= 0 || t + off + 2 > u.length) return;
+    const cnt = g16(off); if (cnt > 400) return;
+    for (let k = 0; k < cnt; k++) {
+      const e = off + 2 + k * 12; if (t + e + 12 > u.length) break;
+      const tag = g16(e), type = g16(e + 2), c = g32(e + 4);
+      if (tag === 0x8769) { ifd(g32(e + 8), EXIF_TAGS, depth + 1); continue; }
+      if (tag === 0x8825) { out.gps = {}; gps(g32(e + 8)); continue; }
+      const name = map[tag]; if (!name) continue;
+      try { const v = val(type, c, e + 8); if (v != null && v !== "") out[name] = v; } catch (x) {}
+    }
+  };
+  const gps = off => {
+    if (t + off + 2 > u.length) return; const cnt = g16(off); if (cnt > 100) return;
+    for (let k = 0; k < cnt; k++) { const e = off + 2 + k * 12, tag = g16(e), type = g16(e + 2), c = g32(e + 4); try { out.gps[tag] = val(type, c, e + 8); } catch (x) {} }
+  };
+  ifd(g32(4), EXIF_TAGS, 0);
+  if (out.gps) {
+    const G = out.gps, dms = a => Array.isArray(a) ? a[0] + (a[1] || 0) / 60 + (a[2] || 0) / 3600 : null;
+    const lat = dms(G[2]), lon = dms(G[4]);
+    if (lat != null && lon != null && (lat || lon)) { out.lat = (G[1] === "S" ? -1 : 1) * lat; out.lon = (G[3] === "W" ? -1 : 1) * lon; }
+    delete out.gps;
+  }
+  return out;
+}
+/* JPG: APP1(Exif·XMP)·APP13(포토샵 IPTC)·COM(주석) 구간만 빼고 나머지 바이트는 그대로 → 화질 손실 0 */
+function exifStripJpeg(buf) {
+  const u = new Uint8Array(buf); if (u[0] !== 0xFF || u[1] !== 0xD8) return null;
+  const parts = [u.subarray(0, 2)]; let i = 2;
+  while (i + 4 <= u.length) {
+    if (u[i] !== 0xFF) return null;
+    const m = u[i + 1];
+    if (m === 0xDA) { parts.push(u.subarray(i)); break; }          // 여기부터는 사진 데이터
+    if (m === 0xD9) { parts.push(u.subarray(i)); break; }
+    if (m >= 0xD0 && m <= 0xD7 || m === 0x01) { parts.push(u.subarray(i, i + 2)); i += 2; continue; }
+    const len = (u[i + 2] << 8) | u[i + 3];
+    const drop = m === 0xE1 || m === 0xED || m === 0xFE || (m >= 0xE3 && m <= 0xEF && m !== 0xEE);   // APP0(JFIF)·APP2(색 프로필)·APP14(Adobe)는 남겨요
+    if (!drop) parts.push(u.subarray(i, i + 2 + len));
+    i += 2 + len;
+  }
+  return new Blob(parts, {type: "image/jpeg"});
+}
+/* PNG: tEXt·iTXt·zTXt·eXIf·tIME 청크만 빼요 */
+function exifStripPng(buf) {
+  const u = new Uint8Array(buf), dv = new DataView(buf); if (u[0] !== 0x89 || u[1] !== 0x50) return null;
+  const parts = [u.subarray(0, 8)]; let i = 8;
+  while (i + 12 <= u.length) {
+    const len = dv.getUint32(i), type = String.fromCharCode(u[i + 4], u[i + 5], u[i + 6], u[i + 7]);
+    if (!["tEXt", "iTXt", "zTXt", "eXIf", "tIME"].includes(type)) parts.push(u.subarray(i, i + 12 + len));
+    i += 12 + len; if (type === "IEND") break;
+  }
+  return new Blob(parts, {type: "image/png"});
+}
+function exifTool(v, o) {
+  v.innerHTML = `${toolHead("exif")}
+  <div class="steps">
+  ${step(1, "사진 넣기", "JPG·PNG·HEIC·WEBP. 여러 장도 한 번에 돼요", `
+    <div class="drop" id="exDrop">${ic("shield", 26, 1.5)}<p>정보를 확인할 사진을 고르거나 끌어다 놓으세요</p><span class="btn file">사진 고르기<input type="file" id="exIn" accept="image/*,.heic,.heif" multiple aria-label="사진 고르기"></span></div>`)}
+  ${step(2, "숨은 정보", "사진에는 찍은 위치·기기·날짜가 몰래 들어 있을 수 있어요", `<div id="exList">${ph("사진을 넣으면 들어 있는 정보를 보여 드려요")}</div>`)}
+  ${step(3, "지우고 저장", "JPG·PNG는 화질 그대로 정보만 지워요. 기기 안에서만 처리해요", `<p class="sub" id="exNote" style="font-size:13px"></p><button class="btn pri block" id="exGo" disabled>${ic("shield", 16)}정보 지우고 저장</button>`)}
+  </div>`;
+  let items = [];
+  const fmtDate = s => s ? String(s).replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1.$2.$3") : "";
+  const rows = (m) => {
+    const r = [];
+    if (m.lat != null) r.push(["찍은 위치", `<b class="warn-t">${m.lat.toFixed(5)}, ${m.lon.toFixed(5)}</b><br><a class="link" href="https://www.openstreetmap.org/?mlat=${m.lat}&mlon=${m.lon}#map=16/${m.lat}/${m.lon}" target="_blank" rel="noopener">지도에서 보기 ↗</a>`]);
+    const dev = [m.make, m.model].filter(Boolean).join(" ").replace(/^(\w+) \1/i, "$1"); if (dev) r.push(["촬영 기기", esc(dev)]);
+    if (m.lens) r.push(["렌즈", esc(m.lens)]);
+    if (m.dateOrig || m.date) r.push(["찍은 날짜", esc(fmtDate(m.dateOrig || m.date))]);
+    const set = [m.fnum && "f/" + (+m.fnum).toFixed(1), m.exposure && (m.exposure < 1 ? "1/" + Math.round(1 / m.exposure) : m.exposure + "") + "초", m.iso && "ISO " + m.iso, m.focal && Math.round(m.focal) + "mm"].filter(Boolean).join(" · "); if (set) r.push(["촬영 설정", esc(set)]);
+    if (m.software) r.push(["편집 프로그램", esc(m.software)]);
+    if (m.artist || m.owner || m.copyright) r.push(["이름·저작권", esc([m.artist, m.owner, m.copyright].filter(Boolean).join(" · "))]);
+    if (m.serial) r.push(["기기 일련번호", esc(m.serial)]);
+    return r;
+  };
+  const render = () => {
+    if (!items.length) { $("#exList").innerHTML = ph("사진을 넣으면 들어 있는 정보를 보여 드려요"); $("#exGo").disabled = true; $("#exNote").textContent = ""; return; }
+    $("#exList").innerHTML = items.map((it, i) => {
+      const r = it.meta ? rows(it.meta) : [];
+      return `<div class="card out" style="margin-bottom:8px"><div class="row" style="align-items:flex-start;gap:10px"><img src="${it.url}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex:none"><div style="flex:1;min-width:0"><p style="margin:0"><b>${esc(it.file.name)}</b> <span class="sub">${kb(it.file.size)}</span></p>
+        ${r.length ? `<table class="ex-t">${r.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("")}</table>` : `<p class="sub" style="margin:4px 0 0">숨은 정보가 없어요. 그대로 올려도 돼요.</p>`}
+        ${it.meta && it.meta.lat != null ? `<p class="note" style="margin:6px 0 0;font-size:13px">이 사진에는 <b>찍은 장소</b>가 들어 있어요. 올리기 전에 지우는 게 좋아요.</p>` : ""}</div>
+        <button class="ib" data-x="${i}" aria-label="빼기">${ic("x", 18)}</button></div></div>`;
+    }).join("");
+    document.querySelectorAll("#exList [data-x]").forEach(b => b.onclick = () => { URL.revokeObjectURL(items[+b.dataset.x].url); items.splice(+b.dataset.x, 1); render(); });
+    const withGps = items.filter(it => it.meta && it.meta.lat != null).length, withAny = items.filter(it => it.meta && rows(it.meta).length).length;
+    $("#exNote").textContent = withAny ? `${items.length}장 중 ${withAny}장에 정보가 있어요${withGps ? ` (위치 ${withGps}장)` : ""}. ${items.length > 1 ? "지운 사진은 ZIP 하나로 저장해요." : ""}` : "지울 정보가 없지만, 그래도 깨끗하게 다시 저장할 수 있어요.";
+    $("#exGo").disabled = false;
+  };
+  const add = async fs => {
+    for (const f of fs) {
+      if (!/^image\//.test(f.type) && !/\.(hei[cf]|jpe?g|png|webp|tiff?)$/i.test(f.name)) continue;
+      let meta = null; try { meta = exifParse(await f.arrayBuffer()); } catch (e) {}
+      let url; try { url = /hei[cf]/i.test(f.type) || /\.hei[cf]$/i.test(f.name) ? (await imageCanvas(f, 200)).toDataURL("image/jpeg", .7) : URL.createObjectURL(f); } catch (e) { url = ""; }
+      items.push({file: f, meta, url});
+    }
+    render();
+  };
+  $("#exIn").onchange = e => { add([...e.target.files]); e.target.value = ""; };
+  dropZone($("#exDrop"), add);
+  if (o.files) add([...o.files]);
+  const clean = async it => {
+    const f = it.file, buf = await f.arrayBuffer(), base = f.name.replace(/\.[^.]+$/, "");
+    const orient = it.meta && it.meta.orient;
+    if ((/jpe?g/i.test(f.type) || /\.jpe?g$/i.test(f.name)) && (!orient || orient === 1)) { const b = exifStripJpeg(buf); if (b) return {name: base + ".jpg", blob: b, lossless: true}; }
+    if (/png/i.test(f.type) || /\.png$/i.test(f.name)) { const b = exifStripPng(buf); if (b) return {name: base + ".png", blob: b, lossless: true}; }
+    // 회전 정보가 있는 JPG·HEIC·WEBP 등: 바로 세운 모습 그대로 다시 저장(높은 화질)
+    const c = await imageCanvas(f, 0);
+    const b = await new Promise(r => c.toBlob(r, "image/jpeg", .95));
+    return {name: base + ".jpg", blob: b, lossless: false};
+  };
+  $("#exGo").onclick = async () => {
+    const btn = $("#exGo"); btn.disabled = true;
+    try {
+      const res = []; for (const it of items) res.push(await clean(it));
+      if (res.length === 1) await saveFile(res[0].name, res[0].blob);
+      else { await loadLib("jszip"); const z = new JSZip(); const used = {}; res.forEach(r => { let n = r.name; while (used[n]) n = n.replace(/(\.\w+)$/, "_" + (++used[r.name]) + "$1"); used[n] = 1; z.file(n, r.blob); }); await saveFile("정보지운사진.zip", await z.generateAsync({type: "blob"})); }
+      const lossy = res.filter(r => !r.lossless).length;
+      toast(lossy ? `${res.length}장 저장했어요. ${lossy}장은 회전·형식 때문에 JPG로 다시 저장했어요.` : `${res.length}장 저장했어요. 화질은 그대로예요.`);
+      saveItem({type: "exif", title: "사진 정보 지우기 · " + (res.length > 1 ? res.length + "장" : res[0].name.slice(0, 26)), data: {note: `${res.length}장 정보 지움`}});
+    } catch (e) { toast("저장하지 못했어요: " + (e.message || e)); }
+    finally { btn.disabled = false; }
+  };
+}
+
 /* ---------- tool: color palette ---------- */
 function colorTool(v, o) {
   v.innerHTML = `${toolHead("color")}
@@ -10198,7 +10382,7 @@ function imgStyleTool(v, o) {
   if (o.files && o.files[0]) use(o.files[0]);
 }
 
-const TOOLS = {viewer: viewerTool, pdfcover: pdfCoverTool, jsontool: jsonTool, strconv: strTool, mdedit: mdTool, imgstyle: imgStyleTool, research: researchTool, ppt: pptTool, summary: summaryTool, formula: formulaTool, mask: maskTool, scan: scanTool, sign: signTool, data: dataTool, chart: chartTool, audio: audioTool, zip: zipTool, color: colorTool, calc: calcTool, upscale: upscaleTool, bg: bgTool, erase: eraseTool, form: formTool, diff: diffTool, qr: qrTool, rename: renameTool, video: videoTool, convert: convertTool, meeting: meetingTool, writing: writingTool, ocr: ocrTool, capture: captureTool, image: imageTool, pdf: pdfTool, count: countTool, pdfedit: pdfEditTool};
+const TOOLS = {viewer: viewerTool, pdfcover: pdfCoverTool, jsontool: jsonTool, strconv: strTool, mdedit: mdTool, imgstyle: imgStyleTool, research: researchTool, ppt: pptTool, summary: summaryTool, formula: formulaTool, mask: maskTool, scan: scanTool, sign: signTool, data: dataTool, chart: chartTool, audio: audioTool, zip: zipTool, color: colorTool, exif: exifTool, calc: calcTool, upscale: upscaleTool, bg: bgTool, erase: eraseTool, form: formTool, diff: diffTool, qr: qrTool, rename: renameTool, video: videoTool, convert: convertTool, meeting: meetingTool, writing: writingTool, ocr: ocrTool, capture: captureTool, image: imageTool, pdf: pdfTool, count: countTool, pdfedit: pdfEditTool};
 
 if (["tools", "history", "project", "todo"].includes(location.hash.slice(1))) S.view = location.hash.slice(1);
 if (/^#(plan|pricing|요금제)$/.test(decodeURIComponent(location.hash))) S.view = "plan";   // 공유용 주소: 사이트주소/#pricing
@@ -10293,6 +10477,23 @@ function deskMark(v) {
     if (S.view !== "home") go("home");
     const a = $("#askFileIn"); if (a) put(a);
   });
+
+  /* 앱: 다른 앱에서 '공유 → 툴박스'로 보낸 파일 → 홈의 '파일에 맞는 도구 고르기'로 (도구 화면이면 그 도구에 바로) */
+  if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins && window.Capacitor.Plugins.TbAI) {
+    const P = window.Capacitor.Plugins.TbAI;
+    const take = async () => {
+      let r; try { r = await P.takeShared(); } catch (e) { try { toast(String(e && e.message || e).replace(/^share failed: /, "")); } catch (x) {} return; }
+      const list = (r && r.files) || []; if (!list.length) return;
+      const files = list.map(f => { const b = atob(f.data), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new File([u], f.name || "파일", {type: f.mime || ""}); });
+      const dt = new DataTransfer(); files.forEach(f => dt.items.add(f));
+      const put = inp => { inp.files = dt.files; inp.dispatchEvent(new Event("change", {bubbles: true})); };
+      if (S.view === "tool") { const inp = document.querySelector("#view .drop input[type=file]") || document.querySelector("#view input[type=file]"); if (inp) return put(inp); }
+      if (S.view !== "home") go("home");
+      setTimeout(() => { const a = $("#askFileIn"); if (a) put(a); }, 50);
+    };
+    setTimeout(take, 400);
+    try { P.addListener("shared", take); } catch (e) {}
+  }
 
   addEventListener("keydown", e => {
     const typing = e.target.closest && e.target.closest("input,textarea,select,[contenteditable='true']");
