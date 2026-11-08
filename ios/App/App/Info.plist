@@ -76,5 +76,16 @@
 	<string>만든 이미지를 사진 앱에 저장할 때 써요.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>편집할 사진을 고를 때 써요. 사진은 이 기기 안에서만 처리돼요.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>kr.toolboxapp.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kr.toolboxapp.app</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

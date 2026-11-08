@@ -16,13 +16,48 @@ public class TbAIPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "load", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "run", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "info", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "save", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "save", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openUrl", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "takeUrl", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "takeShared", returnType: CAPPluginReturnPromise)
     ]
 
     private var env: ORTEnv?
     private var sessions: [String: ORTSession] = [:]
     private var accels: [String: String] = [:]
     private let queue = DispatchQueue(label: "kr.toolboxapp.tbai", qos: .userInitiated)
+
+    // MARK: - 앱 링크(kr.toolboxapp.app://login#…) — 브라우저에서 로그인하고 돌아올 때
+
+    private var pendingUrl: String?
+
+    public override func load() {
+        NotificationCenter.default.addObserver(self, selector: #selector(onOpenURL(_:)), name: .capacitorOpenURL, object: nil)
+    }
+
+    @objc private func onOpenURL(_ n: Notification) {
+        guard let o = n.object as? [String: Any], let url = o["url"] as? URL, url.scheme == "kr.toolboxapp.app" else { return }
+        pendingUrl = url.absoluteString
+        notifyListeners("url", data: ["url": url.absoluteString], retainUntilConsumed: true)
+    }
+
+    @objc func takeUrl(_ call: CAPPluginCall) {
+        let u = pendingUrl; pendingUrl = nil
+        call.resolve(u != nil ? ["url": u!] : [:])
+    }
+
+    /// 기본 브라우저(사파리)로 열기 — 구글 로그인은 앱 안 화면에서 막혀서 브라우저에서 해요
+    @objc func openUrl(_ call: CAPPluginCall) {
+        guard let s = call.getString("url"), let url = URL(string: s), url.scheme == "https" || url.scheme == "http" else { call.reject("bad url"); return }
+        DispatchQueue.main.async {
+            UIApplication.shared.open(url, options: [:]) { ok in ok ? call.resolve() : call.reject("open failed") }
+        }
+    }
+
+    /// 아이폰 '공유로 열기'는 아직 없어요 (Share Extension 이 필요) — 빈 목록
+    @objc func takeShared(_ call: CAPPluginCall) {
+        call.resolve(["files": [Any]()])
+    }
 
     // MARK: - JS에서 부르는 함수
 

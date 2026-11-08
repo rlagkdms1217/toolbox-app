@@ -23,6 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- 브라우저에서 로그인한 뒤 앱으로 돌아오기 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="kr.toolboxapp.app" android:host="login" />
+            </intent-filter>
+
             <!-- 갤러리·카톡·파일 앱에서 '공유 → 툴박스' -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

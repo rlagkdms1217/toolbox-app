@@ -1822,6 +1822,12 @@ function tbShowGate(msg) {
   if (!TB_LOGIN_REQ()) { const x = $("#gX"); if (x) x.onclick = shut; g.onclick = e => { if (e.target === g) shut(); }; const k = e => { if (e.key === "Escape" && $("#tbGate") === g && !TB_LOGIN_REQ()) { shut(); removeEventListener("keydown", k); } }; addEventListener("keydown", k); }
   const ab = $("#aBtn"); if (ab) ab.onclick = tbAppleLogin;
   const kb = $("#kBtn"); if (kb) kb.onclick = tbKakaoLogin;
+  if (TB_APP) {   // 앱 안 화면에서는 구글이 로그인을 막아서, 기본 브라우저에서 로그인하고 앱으로 돌아와요
+    const box = $("#gBtn");
+    if (box) { box.innerHTML = `<button type="button" class="btn pri block" id="gApp">${ic("link", 16)}브라우저에서 구글로 로그인</button><p class="sub" style="font-size:12.5px;margin:6px 0 0">브라우저가 열리면 로그인하고 '앱으로 돌아가기'를 눌러 주세요.</p>`;
+      $("#gApp").onclick = () => tbAppLoginStart().catch(e => err(e.message || String(e))); }
+    tbTrack("gate", "login-app"); return;
+  }
   loadGIS().then(() => {
     google.accounts.id.initialize({client_id: TB_GCID, callback: r => tbOnCred(r && r.credential), ux_mode: "popup", auto_select: false, itp_support: true});
     const box = $("#gBtn"); if (!box) return; box.innerHTML = "";
@@ -1841,7 +1847,45 @@ async function tbOnCred(credential, prov, name, extra) {
   if (!r.ok || !j.token) { err((j.error && j.error.message) || "로그인하지 못했어요."); return; }
   await tbLoginOk(j, prov);
 }
+/* ---- 앱 ↔ 브라우저 로그인 넘겨주기 ----
+   앱: 브라우저로 사이트/?applogin=<무작위 값> 를 열어요 → 사이트에서 로그인 → 'kr.toolboxapp.app://login#st=…&tok=…&u=…' 로 앱에 돌려줘요.
+   무작위 값(st)이 앱이 보낸 것과 같을 때만 받아들여요. */
+const TB_APP_SCHEME = "kr.toolboxapp.app://login";
+async function tbAppLoginStart() {
+  const P = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TbAI;
+  const site = String((window.TB_CONFIG && window.TB_CONFIG.site) || "").replace(/\/+$/, "");
+  if (!P || !site) throw new Error("앱 로그인을 준비하지 못했어요.");
+  const st = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
+  lsSet("tb_app_st", st);
+  await P.openUrl({url: site + "/?applogin=" + st});
+}
+function tbAppLoginBack(url) {           // 앱: 브라우저에서 돌아온 링크 처리
+  try {
+    const h = new URLSearchParams(String(url).split("#")[1] || ""), st = h.get("st"), tok = h.get("tok");
+    const want = lsGet("tb_app_st", "");
+    if (!st || !tok || !want || st !== want) { toast("로그인 정보를 확인하지 못했어요. 다시 로그인해 주세요."); return; }
+    lsSet("tb_app_st", "");
+    let user = {}; try { user = JSON.parse(decodeURIComponent(escape(atob((h.get("u") || "").replace(/-/g, "+").replace(/_/g, "/"))))); } catch (e) {}
+    tbLoginOk({token: tok, user}, "google");
+  } catch (e) { toast("로그인하지 못했어요."); }
+}
+function tbAppLoginHandoff(j) {          // 사이트(브라우저): 로그인이 끝나면 앱으로 돌려보내는 화면
+  const st = (() => { try { return sessionStorage.getItem("tb_applogin") || ""; } catch (e) { return ""; } })();
+  if (!st || !j || !j.token) return false;
+  try { sessionStorage.removeItem("tb_applogin"); } catch (e) {}
+  const u = j.user || {}, ub = btoa(unescape(encodeURIComponent(JSON.stringify({email: u.email || "", name: u.name || "", picture: u.picture || ""})))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const link = TB_APP_SCHEME + "#" + new URLSearchParams({st, tok: j.token, u: ub}).toString();
+  let g = $("#tbGate"); if (!g) { g = document.createElement("div"); g.id = "tbGate"; document.body.appendChild(g); }
+  document.body.classList.add("gated"); g.classList.add("modal"); g.onclick = null;
+  g.innerHTML = `<div class="gate-in" role="dialog" aria-modal="true" aria-label="앱으로 돌아가기"><div class="gate-logo"><span class="logo">${TB_MARK}</span><b>툴박스</b></div>
+    <h1 class="h1" style="font-size:22px">로그인했어요</h1><p class="gate-sub">${esc(u.name || u.email || "")}${u.name || u.email ? "님, " : ""}아래 버튼을 눌러 툴박스 앱으로 돌아가세요. 앱에서 로그인을 누르지 않았다면 '웹에서 계속 쓰기'를 누르세요.</p>
+    <a class="btn pri block" id="toApp" href="${esc(link)}">앱으로 돌아가기</a>
+    <button type="button" class="btn ghost block" id="stayWeb" style="margin-top:8px">웹에서 계속 쓰기</button></div>`;
+  $("#stayWeb").onclick = () => { g.remove(); document.body.classList.remove("gated"); };
+  return true;   // 자동으로 넘기지 않고 직접 눌러야 앱으로 가요 (다른 사이트가 몰래 로그인 정보를 넘기게 만들 수 없도록)
+}
 async function tbLoginOk(j, prov) {
+  if (!TB_APP && tbAppLoginHandoff(j)) { lsSet("tb_sess", j.token); lsSet("tb_user", j.user || {}); lsSet("tb_owner", j.user && j.user.email || ""); tbLoginDone(true); return; }
   const prev = lsGet("tb_owner", ""), email = j.user && j.user.email || "";
   if (prev && prev !== email) await tbClearLocal();                  // 다른 계정이 쓰던 기기면, 그 사람 기록은 이 기기에서 지워요
   lsSet("tb_sess", j.token); lsSet("tb_user", j.user || {}); lsSet("tb_owner", email);
@@ -2233,6 +2277,17 @@ async function boot() {
     S.history = lsGet("tb_history", []); S.histReady = true; loadMeta(); loadMeetings();
     refreshLists(); if (S.view === "tool" || S.view === "home") render();
     if (TB_LOGIN && TB_KAKAO && /[?&](code|error)=/.test(location.search)) tbKakaoReturn().catch(() => {});
+    if (TB_LOGIN && !TB_APP && /[?&]applogin=/.test(location.search)) {   // 앱이 '브라우저에서 로그인'으로 연 경우
+      const q = new URLSearchParams(location.search), st = (q.get("applogin") || "").replace(/[^0-9a-f]/g, "").slice(0, 64);
+      q.delete("applogin"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
+      if (st) { try { sessionStorage.setItem("tb_applogin", st); } catch (e) {}
+        if (tbTok()) setTimeout(() => tbAppLoginHandoff({token: tbTok(), user: tbUser()}), 200); else setTimeout(() => tbShowGate(), 200); }
+    }
+    if (TB_APP && window.Capacitor.Plugins && window.Capacitor.Plugins.TbAI) {   // 앱: 브라우저 로그인에서 돌아온 링크
+      const P = window.Capacitor.Plugins.TbAI;
+      try { P.addListener("url", d => d && d.url && tbAppLoginBack(d.url)); } catch (e) {}
+      P.takeUrl && P.takeUrl().then(r => { if (r && r.url) tbAppLoginBack(r.url); }).catch(() => {});
+    }
     if (TB_LOGIN) { if (tbTok()) tbMe(true).then(me => { if (me) tbSyncNow(); }); else if (TB_LOGIN_REQ()) tbShowGate(); else tbMe(true); }   // 필수 모드면 로그인 화면, 선택 모드면 그냥 써요
     if (TB_API) setTimeout(() => { if (!$("#tbGate")) tbJobRestore().catch(() => {}); }, 600);
     return;

@@ -73,10 +73,14 @@ public class TbAIPlugin extends Plugin {
     // ---- 다른 앱(갤러리·카톡·파일)에서 '공유 → 툴박스'로 보낸 파일 ----
     private Intent pendingShare;
 
+    // ---- 앱 링크(kr.toolboxapp.app://login#…) — 브라우저에서 로그인하고 돌아올 때 ----
+    private String pendingUrl;
+
     @Override
     public void load() {
         Intent i = getActivity() != null ? getActivity().getIntent() : null;
         if (isShare(i)) pendingShare = i;
+        if (isAppLink(i)) pendingUrl = i.getDataString();
     }
 
     @Override
@@ -85,6 +89,39 @@ public class TbAIPlugin extends Plugin {
         if (isShare(intent)) {
             pendingShare = intent;
             notifyListeners("shared", new JSObject(), true);
+        }
+        if (isAppLink(intent)) {
+            JSObject d = new JSObject();
+            d.put("url", intent.getDataString());
+            notifyListeners("url", d, true);
+        }
+    }
+
+    private static boolean isAppLink(Intent i) {
+        return i != null && Intent.ACTION_VIEW.equals(i.getAction()) && i.getDataString() != null && i.getDataString().startsWith("kr.toolboxapp.app:");
+    }
+
+    /** 앱이 꺼져 있다가 링크로 열렸을 때 그 링크 (한 번 꺼내면 비워요) */
+    @PluginMethod
+    public void takeUrl(PluginCall call) {
+        JSObject r = new JSObject();
+        if (pendingUrl != null) r.put("url", pendingUrl);
+        pendingUrl = null;
+        call.resolve(r);
+    }
+
+    /** 기본 브라우저로 열기 (구글 로그인은 앱 안 화면에서 막혀서 브라우저에서 해요) */
+    @PluginMethod
+    public void openUrl(PluginCall call) {
+        String url = call.getString("url");
+        if (url == null || !(url.startsWith("https://") || url.startsWith("http://"))) { call.reject("bad url"); return; }
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(i);
+            call.resolve();
+        } catch (Throwable e) {
+            call.reject("open failed: " + e.getMessage());
         }
     }
 
