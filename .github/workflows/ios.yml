@@ -1,0 +1,41 @@
+name: 아이폰 빌드 확인
+
+# 맥 클라우드는 무료 사용량이 적어서(비공개 저장소 월 약 200분) 버튼으로만 돌려요.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Xcode 버전
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)" || true
+          xcodebuild -version
+
+      - name: 패키지 설치
+        run: npm ci
+
+      - name: AI 엔진(ONNX Runtime 1.30) 파일 확인값 채우기
+        run: |
+          curl -sSL --retry 3 -o "$RUNNER_TEMP/ort.zip" https://download.onnxruntime.ai/pod-archive-onnxruntime-c-1.30.0.zip
+          SUM=$(swift package compute-checksum "$RUNNER_TEMP/ort.zip")
+          echo "checksum $SUM"
+          sed -i '' "s/ORT_CHECKSUM/$SUM/" plugins/tb-ai/Package.swift
+
+      - name: 웹 화면을 앱에 넣기
+        run: npx cap sync ios
+
+      - name: 시뮬레이터용으로 빌드 (서명 없이 — 코드가 맞는지 확인)
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build | tail -80

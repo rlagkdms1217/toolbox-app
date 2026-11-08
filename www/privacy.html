@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>개인정보처리방침 · 툴박스</title><style>
+:root{--bg:#F7F7F8;--fg:#18181B;--muted:#62626B;--line:#E4E4E7;--card:#FFFFFF;--note:#FEF3C7;--note-fg:#78350F}
+@media (prefers-color-scheme: dark){:root{--bg:#111113;--fg:#EDEDEF;--muted:#A1A1AA;--line:#2A2A2F;--card:#18181B;--note:#3A2E0E;--note-fg:#FCD34D}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.75 -apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;word-break:keep-all}
+main{max-width:780px;margin:0 auto;padding:32px 16px 64px}
+a{color:inherit}h1{font-size:24px;margin:8px 0 4px}h2{font-size:16.5px;margin:34px 0 8px}h3{font-size:15px;margin:18px 0 6px}
+.sub{color:var(--muted);font-size:13.5px}.back{font-size:13.5px;color:var(--muted);text-decoration:none}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--card);margin:6px 0}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}th{font-weight:600;white-space:nowrap}
+ul,ol{padding-left:20px}li{margin:4px 0}
+.note{background:var(--note);color:var(--note-fg);border-radius:10px;padding:12px 14px;font-size:14px;margin:10px 0}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:14px}.toc ol{margin:4px 0;columns:2;column-gap:28px}@media(max-width:560px){.toc ol{columns:1}}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}.sum div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px}.sum b{display:block;font-size:14px;margin-bottom:2px}
+</style></head>
+<body><main><a class="back" href="./">← 툴박스로 돌아가기</a>
+<h1>개인정보처리방침</h1>
+<p class="sub">시행일: 2026년 11월 8일 (2026년 11월 1일 방침에 회의 녹음 항목을 더함) · 서비스: 툴박스 (개인 운영)</p>
+<p>툴박스(이하 "서비스")는 「개인정보 보호법」 등 관련 법령을 지키며, 서비스에 꼭 필요한 최소한의 정보만 처리합니다. 이 방침은 서비스가 어떤 정보를 왜 처리하고, 어디로 보내며, 얼마나 보관하고, 이용자가 어떻게 권리를 행사할 수 있는지 설명합니다.</p>
+
+<div class="sum">
+ <div><b>파일은 대부분 내 기기에서</b>변환·PDF·이미지 편집 도구는 파일을 서버로 보내지 않아요.</div>
+ <div><b>AI 도구는 외부 AI로 전달</b>AI 도구에 넣은 글·파일은 결과를 만들려고 Google·Groq<span class="qw" hidden>·Alibaba Cloud</span><span class="or" hidden>(OpenRouter 경유)</span>로 보내요. 툴박스 서버는 입력을 저장하지 않고, 결과만 이어 받기용으로 1시간 보관해요.</div>
+ <div><b>로그인은 선택</b>로그인하면 이메일·이름과 작업 기록을 계정에 저장해 기기 사이에 이어 줘요.</div>
+ <div><b>광고·판매 없음</b>개인정보를 팔거나 광고에 쓰지 않아요.</div>
+ <div><b>회의 녹음은 알리고 하세요</b>녹음 원본은 내 기기에만 남고, 지우면 받아쓰기·회의록도 같이 지워져요. <a href="#p2a">자세히</a></div>
+</div>
+
+<nav class="toc" aria-label="목차"><b>목차</b><ol>
+<li><a href="#p1">처리하는 개인정보와 목적</a></li><li><a href="#p2">파일과 입력 내용의 처리 방식</a></li><li><a href="#p2a">회의 녹음 — 다른 사람의 목소리</a></li><li><a href="#p3">보유 기간과 파기</a></li><li><a href="#p4">처리 위탁과 국외 이전</a></li><li><a href="#p5">제3자 제공</a></li><li><a href="#p6">자동 수집 장치(쿠키·브라우저 저장소)</a></li><li><a href="#p7">이용자의 권리와 행사 방법</a></li><li><a href="#p8">아동의 개인정보</a></li><li><a href="#p9">안전성 확보 조치</a></li><li><a href="#p10">개인정보 보호책임자·문의</a></li><li><a href="#p11">권익 침해 구제</a></li><li><a href="#p12">방침 변경</a></li>
+</ol></nav>
+
+<h2 id="p1">1. 처리하는 개인정보와 목적</h2>
+<p>서비스는 아래 정보를 처리합니다. 처리 근거는 이용자와의 서비스 이용 계약 이행(「개인정보 보호법」 제15조 제1항 제4호)이며, 통계·남용 방지는 서비스 운영자의 정당한 이익(같은 항 제6호) 범위에서 이용자 식별이 어려운 형태로만 처리합니다. 서비스는 주민등록번호 등 고유식별정보, 민감정보, 전화번호·주소를 수집하지 않습니다.</p>
+<div class="tw"><table>
+<tr><th>구분</th><th>항목</th><th>목적</th></tr>
+<tr><td>구글 로그인 시 (선택)</td><td>구글 계정 이메일 주소, 이름, 프로필 사진 주소, 구글 계정 고유 번호 (구글이 알려 주는 값. 비밀번호는 받지 않음)</td><td>회원 식별, 로그인 유지, 포인트·요금제 관리, 기기 사이 기록 동기화</td></tr>
+<tr class="kk" hidden><td>카카오 로그인 시 (선택)</td><td>카카오 회원번호, 닉네임, 프로필 사진 주소, 카카오계정 이메일(동의한 경우에만) (카카오가 알려 주는 값. 비밀번호는 받지 않음)</td><td>회원 식별, 로그인 유지, 포인트·요금제 관리, 기기 사이 기록 동기화</td></tr>
+<tr class="ap" hidden><td>애플 로그인 시 (선택)</td><td>애플 계정 이메일 주소(또는 애플이 만들어 주는 대리 이메일), 이름(처음 로그인할 때만), 애플 계정 고유 번호 (애플이 알려 주는 값. 비밀번호는 받지 않음)</td><td>회원 식별, 로그인 유지, 포인트·요금제 관리, 기기 사이 기록 동기화</td></tr>
+<tr><td>가입할 때 (필수)</td><td>만 18세 이상이라는 확인과 확인한 시각 (생년월일은 받지 않음)</td><td>이용 연령(만 18세 이상) 확인</td></tr>
+<tr><td>로그인 후 동기화 (선택, 설정에서 끌 수 있음)</td><td>작업 기록(작업 제목과 AI가 만든 결과), 회의록 정리 결과, AI 채팅 대화(주고받은 글, 참조한 자료의 제목과 일부 내용), 프로젝트, 할 일</td><td>폰·PC 등 여러 기기에서 같은 기록 보기</td></tr>
+<tr><td>로그인 유지</td><td>로그인 토큰(무작위 값을 일방향 암호화한 값), 접속한 브라우저 종류</td><td>로그인 상태 유지, 다른 기기 접속 관리</td></tr>
+<tr><td>서비스 이용 시 자동 생성</td><td>무작위로 만든 기기 번호(이름·연락처와 연결되지 않음), 접속 IP를 일방향 암호화한 값(원래 IP는 저장하지 않음), 사용한 도구 이름, 성공·실패 여부와 실패 종류(예: "빈 파일", 파일 확장자. 파일 이름과 내용은 기록하지 않음), 걸린 시간, 사용 날짜, 사용한 포인트, 들어온 경로(링크의 ref 값), 오류 내용과 브라우저 종류</td><td>무료 사용량 계산, 사용량 한도 우회·남용 방지, 오류 수정, 서비스 개선을 위한 통계</td></tr>
+<tr><td>AI 작업 이어 받기</td><td>AI가 만든 답(결과 글)과 요청을 구분하는 지문(요청 내용을 일방향 암호화한 값)</td><td>새로고침·창 닫기·연결 끊김이 있어도 하던 AI 작업의 결과를 다시 받을 수 있게 하기, 같은 작업에 포인트가 두 번 빠지지 않게 하기</td></tr>
+<tr><td>이용자가 직접 보낼 때</td><td>의견 보내기·설문에 적은 내용</td><td>문의 응대, 서비스 개선, 요금 결정 참고</td></tr>
+<tr><td>유료 이용 시 (정식 출시 후)</td><td>결제 여부, 요금제, 이용 기간, 이용권 코드</td><td>유료 서비스 제공, 해지·환불 처리. 카드 번호 등 결제 정보는 결제 대행사가 직접 처리하며 서비스는 받지 않습니다.</td></tr>
+</table></div>
+<p class="sub">의견 보내기에는 다른 사람의 개인정보나 회사 기밀을 적지 말아 주세요.</p>
+
+<h2 id="p2">2. 파일과 입력 내용의 처리 방식</h2>
+<ul>
+<li><b>기기에서 처리하는 도구</b>(화면에 "기기에서 처리"·"기기 AI"로 표시된 도구 — PDF 편집·합치기·나누기, 파일 변환, 누끼 따기, 화질 개선, 사람·물체 지우기 등): 파일이 이용자의 기기(브라우저) 밖으로 나가지 않습니다. 서비스 서버로도 보내지 않습니다. 기기 AI 도구는 처음 한 번 AI 모델 파일을 내려받을 뿐, 이용자의 사진은 올리지 않습니다.</li>
+<li><b>AI 도구</b>(화면에 "AI"로 표시된 도구 — 회의록, 글쓰기, 리서치, 문서 요약·질문, 글자 추출, 영상 요약, AI 채팅 등): 결과를 만들기 위해 이용자가 입력한 글과 파일(녹음, 이미지, 문서, 영상 링크·자막)을 <a href="#p4">4번</a>의 AI 서비스로 보냅니다. 서비스 서버는 입력한 글과 파일을 <b>전달만 하고 저장하지 않습니다.</b> 원본 녹음·파일은 이용자 기기에만 남습니다. 다만 새로고침하거나 연결이 끊겨도 결과를 이어 받을 수 있도록, AI가 만든 <b>답(결과 글)만 약 1시간 동안 임시 보관</b>한 뒤 자동으로 지웁니다. 이 답은 요청한 본인(같은 기기 또는 계정)만 받을 수 있습니다.</li>
+<li><b>로그인하지 않으면</b> 작업 기록·회의록·채팅은 이용자 기기(브라우저)에만 저장됩니다. 브라우저 데이터를 지우면 함께 지워집니다.</li>
+<li><b>로그인하면</b> 위 기록 중 글로 된 결과와 제목이 계정에 저장됩니다(계정당 최대 50MB). 로그인할 때 그 기기에 있던 기록도 함께 계정에 올라갑니다. 설정에서 <b>"이 기기에만 저장"</b>을 켜면 더는 서버에 올리지 않고, 이미 올라간 기록도 서버에서 바로 지웁니다.</li>
+</ul>
+<div class="note" id="aiNote"><b>AI 도구를 쓸 때 주의해 주세요.</b> <span id="aiFree">현재 베타 기간에는 일부 AI 처리에 Google의 무료 이용 등급을 쓰고 있어요. 이 경우 Google은 입력한 내용과 결과를 자사 서비스 개선에 이용할 수 있고, Google 계정·키 정보와 분리된 상태로 Google 검토자가 볼 수 있어요. 회사 기밀, 주민등록번호·계좌번호·건강 정보 같은 민감한 개인정보는 AI 도구에 넣지 마세요.</span><span id="aiPaid" hidden>AI 처리에는 Google의 유료 이용 등급을 써요. 이 경우 Google은 입력한 내용을 제품 개선(학습)에 쓰지 않고, 남용 방지와 법적 요구를 위해 제한된 기간만 기록해요. 그래도 주민등록번호·계좌번호 같은 민감한 개인정보는 넣지 않는 것을 권해요.</span> 회의를 녹음할 때는 참석자에게 미리 알리고 동의를 받아 주세요. 녹음 파일의 저장·삭제는 <a href="#p2a">2-1번</a>에 있습니다.</div>
+
+<h2 id="p2a">2-1. 회의 녹음 — 다른 사람의 목소리가 담긴 파일</h2>
+<p>회의록 도구로 녹음하거나 올리는 파일에는 이용자 본인뿐 아니라 <b>다른 참석자의 목소리와 발언</b>이 담깁니다. 목소리와 발언 내용은 그 사람의 개인정보이므로, 서비스는 아래와 같이 다룹니다.</p>
+<h3>녹음하기 전에 (이용자가 지켜야 할 것)</h3>
+<ul>
+<li>녹음을 시작하기 전에 참석자에게 <b>녹음한다는 사실과 AI로 받아쓰기·요약한다는 것</b>을 알리고 동의를 받아 주세요. 회의록 도구의 녹음 화면에도 이 안내가 표시됩니다.</li>
+<li>본인이 참여하지 않는 다른 사람들 사이의 대화를 몰래 녹음하는 것은 「통신비밀보호법」으로 금지되어 있습니다. 이런 파일은 올리지 마세요.</li>
+<li>회사 회의를 녹음할 때는 회사의 보안·녹음 규정을 먼저 확인해 주세요. 녹음 파일과 회의록에 담긴 참석자 정보의 관리 책임은 녹음한 이용자에게 있으며, 서비스는 그 처리를 돕는 도구입니다.</li>
+</ul>
+<h3>녹음 파일은 어디에 있나요</h3>
+<ul>
+<li><b>녹음 원본(소리 파일)은 이용자 기기(브라우저 저장소)에만</b> 저장됩니다. 서비스 서버에는 저장하지 않으며, 로그인해 동기화를 켜도 녹음 원본은 서버에 올라가지 않습니다. 계정에 올라가는 것은 글로 된 받아쓰기와 회의록뿐입니다.</li>
+<li>받아쓰기를 할 때 녹음 파일은 Groq(미국)로, <b>"화자 구분"을 누를 때만</b> Google(미국)로 전송됩니다. 서비스 서버는 파일을 전달만 하고 보관하지 않습니다. 각 회사의 보관 기간은 <a href="#p4">4번</a>에 있습니다.</li>
+<li>녹음 중 브라우저가 닫혀도 이어서 할 수 있도록, 녹음 중인 소리는 기기 안에 임시로 저장됩니다. 받아쓰기가 끝나거나 "버리기"를 누르면 임시 저장분은 지워집니다.</li>
+</ul>
+<h3>얼마나 보관되고, 어떻게 지우나요</h3>
+<ul>
+<li>녹음 원본은 <b>이용자가 지울 때까지</b> 기기에 남습니다. 브라우저의 사이트 데이터를 지우면 함께 지워집니다.</li>
+<li><b>회의록 하나 지우기</b>: 회의록 화면 → 더보기(⋯) → 삭제. 녹음 원본과 받아쓰기·회의록이 함께 지워지고, 로그인 상태라면 계정에 동기화된 글도 같이 지워집니다.</li>
+<li><b>전부 지우기</b>: 회의록 설정 → 전체 삭제. 이 기기의 녹음 원본과 회의록이 모두 지워집니다. 계정에 동기화된 회의록은 기록 화면에서 지우거나, 설정 → "이 기기에만 저장"을 켜거나, 계정을 삭제하면 서버에서 지워집니다.</li>
+<li>참석자가 삭제를 요청하면 녹음한 이용자가 위 방법으로 지워 주세요. 녹음된 분이 서비스에 직접 요청하는 경우, 서비스는 녹음 원본을 갖고 있지 않으므로 계정에 동기화된 해당 회의록 글을 확인해 지우고, 필요하면 녹음한 이용자에게 삭제를 안내합니다. 연락처는 <a href="#p10">10번</a>에 있습니다.</li>
+</ul>
+
+<h2 id="p3">3. 보유 기간과 파기</h2>
+<div class="tw"><table>
+<tr><th>정보</th><th>보유 기간</th></tr>
+<tr><td>계정 정보(이메일·이름·프로필 사진 주소), 포인트·요금제 기록</td><td>회원 탈퇴(계정 삭제) 시까지</td></tr>
+<tr><td>동기화한 기록 (회의록·받아쓰기 글 포함)</td><td>이용자가 지우거나, "이 기기에만 저장"을 켜거나, 탈퇴할 때까지</td></tr>
+<tr><td>회의 녹음 원본(소리 파일)</td><td>서비스 서버에 보관하지 않음. 이용자 기기에만 있으며 이용자가 지울 때까지 (<a href="#p2a">2-1번</a>)</td></tr>
+<tr><td>로그인 토큰</td><td>최대 90일 또는 로그아웃 시까지</td></tr>
+<tr><td>AI 작업 이어 받기용 답(결과 글)</td><td>약 1시간 (늦어도 하루 안에 자동 삭제)</td></tr>
+<tr><td>기기 번호, 암호화한 IP, 사용·실패 기록, 오류, 의견·설문</td><td>수집일로부터 1년</td></tr>
+<tr><td>유료 결제 기록 (정식 출시 후)</td><td>「전자상거래 등에서의 소비자보호에 관한 법률」에 따라 계약·결제 기록 5년, 소비자 불만·분쟁 처리 기록 3년</td></tr>
+</table></div>
+<p><b>파기 방법</b>: 보유 기간이 끝나거나 처리 목적을 이루면 지체 없이 파기합니다. 전자 정보는 복구할 수 없도록 데이터베이스에서 삭제하며, 1년이 지난 사용 기록은 서버가 정기적으로 자동 삭제합니다. 탈퇴하면 계정 정보와 동기화한 기록을 즉시 삭제합니다. 다만 같은 계정으로 다시 가입해 베타 체험을 반복해서 받는 것을 막기 위해, 베타 체험을 이미 썼다는 표시(내부 계정 번호와 사용 시각)만 남깁니다. 법령에 따라 보관해야 하는 정보는 다른 정보와 분리해 해당 기간만 보관한 뒤 파기합니다.</p>
+
+<h2 id="p4">4. 처리 위탁과 국외 이전</h2>
+<p>서비스는 이용자가 요청한 기능(AI 결과 생성, 로그인, 서버 운영)을 제공하기 위해 아래 회사에 개인정보 처리를 맡기며, 이 회사들의 서버는 해외에 있습니다. 이는 이용자와의 계약 이행을 위해 필요한 처리 위탁·보관으로서, 아래 사항을 이 방침에 공개하는 방식으로 진행합니다(「개인정보 보호법」 제28조의8 제1항 제3호).</p>
+<div class="tw"><table>
+<tr><th>받는 자 (국가)</th><th>이전 항목</th><th>시기·방법</th><th>이용 목적</th><th>받는 자의 보유 기간</th></tr>
+<tr><td>Google LLC (미국)<br><span class="sub"><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a></span></td><td>AI 도구에 입력한 글·파일·녹음(화자 구분), 웹 검색이 필요한 리서치 요청 / 구글 로그인 요청</td><td>AI 도구를 실행할 때 / 로그인할 때, 암호화된 네트워크(HTTPS)로 전송</td><td>요약·작성·글자 추출·화자 구분 등 결과 생성 / 본인 확인</td><td><span id="gRet">무료 등급: Google 약관에 따라 서비스 개선에 이용될 수 있음 / 유료 등급: 남용 방지를 위한 제한된 기간</span></td></tr>
+<tr class="or" hidden><td>OpenRouter, Inc. (미국)<br><span class="sub"><a href="https://openrouter.ai/privacy" target="_blank" rel="noopener">openrouter.ai/privacy</a></span></td><td>아래 Alibaba Cloud로 보내는 글과 그 결과</td><td>해당 AI 도구를 쓸 때, HTTPS로 전송</td><td>AI 업체 연결(중개)</td><td>입력·결과 내용은 저장하지 않음. 요청 시간·사용량(토큰 수) 같은 기록만 보관</td></tr>
+<tr class="qw" hidden><td>Alibaba Cloud International (싱가포르<span class="or" hidden>·미국</span> 리전)<br><span class="sub"><a href="https://www.alibabacloud.com/help/en/model-studio/data-retention-policy" target="_blank" rel="noopener">alibabacloud.com · Model Studio 데이터 보관 정책</a></span></td><td>사진·음성·파일·웹 검색이 없는 AI 도구에 입력한 글과 그 결과 (글쓰기·요약·번역·채팅 등)</td><td>해당 AI 도구를 쓸 때, HTTPS로 전송</td><td>AI 결과 생성 (비용을 줄이려고 글만 있는 요청을 처리. 실패하면 Google이 대신 처리)</td><td>최대 30일 보관 후 삭제, AI 학습에 쓰지 않음 (안전 필터에 걸린 내용은 남용 확인을 위해 더 오래 보관할 수 있음)</td></tr>
+<tr class="kk" hidden><td>(주)카카오 (대한민국)<br><span class="sub"><a href="https://www.kakao.com/policy/privacy" target="_blank" rel="noopener">kakao.com/policy/privacy</a></span></td><td>카카오 로그인 요청</td><td>카카오로 로그인할 때, HTTPS로 전송</td><td>로그인 처리(본인 확인)</td><td>카카오의 개인정보처리방침에 따름</td></tr>
+<tr class="ap" hidden><td>Apple Inc. (미국)<br><span class="sub"><a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">apple.com/legal/privacy</a></span></td><td>애플 로그인 요청</td><td>애플로 로그인할 때, HTTPS로 전송</td><td>로그인 처리(본인 확인)</td><td>애플의 개인정보처리방침에 따름</td></tr>
+<tr><td>Groq, Inc. (미국)<br><span class="sub"><a href="https://groq.com/privacy-policy" target="_blank" rel="noopener">groq.com/privacy-policy</a></span></td><td>회의 녹음 파일(음성)</td><td>회의록 받아쓰기를 할 때, HTTPS로 전송</td><td>음성을 글로 받아쓰기</td><td>기본적으로 저장하지 않음 (장애·남용 확인을 위해 최대 30일 기록할 수 있음)</td></tr>
+<tr><td>Tavily (미국)<br><span class="sub"><a href="https://tavily.com/privacy" target="_blank" rel="noopener">tavily.com/privacy</a></span></td><td>리서치에 입력한 검색어·웹페이지 주소</td><td>리서치를 할 때, HTTPS로 전송</td><td>웹 검색·웹페이지 내용 가져오기</td><td>Tavily 정책에 따름</td></tr>
+<tr><td>Cloudflare, Inc. (미국 등 전 세계 데이터센터)<br><span class="sub"><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">cloudflare.com/privacypolicy</a></span></td><td>1번의 서버 저장 정보(계정 정보·동기화한 기록·사용 기록 등), AI 요청의 전달, 접속 정보</td><td>서비스 이용 중 상시, HTTPS로 전송</td><td>웹사이트·서버·데이터베이스 운영</td><td>이 방침 3번의 보유 기간과 같음</td></tr>
+</table></div>
+<p><b>거부 방법과 효과</b>: 국외 이전을 원하지 않으면 로그인하지 않고 "기기에서 처리" 도구만 이용하면 됩니다. 이 경우 AI 도구와 기기 사이 동기화는 이용할 수 없습니다. 사이트 접속 자체에 필요한 Cloudflare 처리는 거부할 수 없습니다. 회사 리서치에서 공시를 찾을 때는 금융감독원 전자공시(DART, 대한민국)에 회사 이름만 조회하며 개인정보는 보내지 않습니다.</p>
+
+<h2 id="p5">5. 제3자 제공</h2>
+<p>서비스는 이용자의 개인정보를 제3자에게 제공하거나 판매하지 않으며, 광고에 이용하지 않습니다. 다만 법령에 따라 수사기관 등이 적법한 절차로 요구하는 경우에는 예외로 합니다.</p>
+
+<h2 id="p6">6. 자동 수집 장치(쿠키·브라우저 저장소)</h2>
+<ul>
+<li>서비스는 광고·추적용 쿠키를 쓰지 않습니다.</li>
+<li>기기 번호, 로그인 토큰, 작업 기록, 화면 설정 등은 이용자 브라우저의 저장소(로컬 스토리지·IndexedDB)에 저장됩니다. 서비스가 동작하는 데 필요하며, 브라우저 설정에서 사이트 데이터를 지우면 삭제됩니다(이 경우 로그인하지 않은 기록은 사라집니다).</li>
+<li>구글 로그인 버튼을 쓰면 Google이 로그인 처리를 위해 자체 쿠키를 사용할 수 있으며, 이는 Google 정책을 따릅니다.</li>
+<li>서비스는 이용자의 관심사를 추정해 맞춤 광고를 하는 행태정보를 수집하지 않습니다.</li>
+</ul>
+
+<h2 id="p7">7. 이용자의 권리와 행사 방법</h2>
+<p>이용자는 언제든 자신의 개인정보 열람·정정·삭제·처리정지와 동의 철회를 요구할 수 있습니다.</p>
+<ul>
+<li><b>기록 삭제</b>: 기록 화면에서 지우면 동기화된 서버 기록도 함께 지워집니다.</li>
+<li><b>동기화 끄기</b>: 설정 → "이 기기에만 저장"을 켜면 서버에 있던 기록이 바로 지워집니다.</li>
+<li><b>회원 탈퇴</b>: 설정 → "계정 삭제"를 누르면 계정 정보, 동기화한 기록, 포인트 사용 기록, 이용권이 바로 지워집니다.</li>
+<li><b>로그인하지 않은 기록</b>: 이용자 기기에만 있으므로 브라우저에서 직접 지울 수 있습니다. 서버에 남은 사용 기록(기기 번호 기준)의 삭제를 원하면 설정 화면 아래의 기기 번호를 적어 연락해 주세요.</li>
+<li>그 밖의 요구는 <a href="#p10">10번</a>의 연락처로 보내 주세요. 본인 확인 후 10일 이내에 처리하고 결과를 알려 드립니다. 대리인을 통해서도 요구할 수 있습니다.</li>
+</ul>
+
+<h2 id="p8">8. 아동의 개인정보</h2>
+<p>서비스는 만 18세 이상을 대상으로 하며(외부 AI 서비스의 이용 조건), 만 14세 미만 아동의 개인정보를 알면서 수집하지 않습니다. 만 14세 미만 아동의 정보가 처리된 사실을 알게 되면 즉시 삭제합니다.</p>
+
+<h2 id="p9">9. 안전성 확보 조치</h2>
+<ul>
+<li>모든 통신은 암호화(HTTPS)하며, 서버에 저장하는 정보는 최소한으로 줄입니다. IP와 로그인 토큰은 일방향 암호화한 값만 저장합니다.</li>
+<li>각 이용자의 기록은 본인 계정으로 로그인했을 때만 읽을 수 있습니다.</li>
+<li>관리자 화면은 운영자로 등록된 구글 계정으로 로그인해야만 열리며, 운영과 문의 응대에 필요한 계정 정보(이메일·이름)와 이용 통계만 보입니다. 이용자의 작업 기록·채팅 내용은 관리자 화면에 표시하지 않습니다.</li>
+<li>AI 서비스 이용 키는 서버에만 보관하고 이용자 기기로 보내지 않습니다.</li>
+<li>보유 기간이 지난 정보는 자동으로 삭제합니다.</li>
+</ul>
+
+<h2 id="p10">10. 개인정보 보호책임자 · 문의</h2>
+<p>서비스는 개인정보 처리에 관한 업무를 총괄하고 이용자의 문의·불만·피해 구제를 처리하기 위해 아래와 같이 담당을 두고 있습니다.</p>
+<div class="tw"><table>
+<tr><th>담당</th><td>툴박스 개인정보 보호 담당 (서비스 운영자)</td></tr>
+<tr><th>연락처</th><td><span class="contact">앱 안의 계정 메뉴 → "도움 받기 · 의견 보내기"</span></td></tr>
+</table></div>
+
+<h2 id="p11">11. 권익 침해 구제</h2>
+<p>개인정보 침해에 대한 신고·상담이 필요하면 아래 기관에 문의할 수 있습니다.</p>
+<ul>
+<li>개인정보침해신고센터: privacy.kisa.or.kr / 국번 없이 118</li>
+<li>개인정보분쟁조정위원회: kopico.go.kr / 1833-6972</li>
+<li>대검찰청: spo.go.kr / 국번 없이 1301</li>
+<li>경찰청: ecrm.police.go.kr / 국번 없이 182</li>
+</ul>
+
+<h2 id="p12">12. 방침 변경</h2>
+<p>이 방침의 내용이 바뀌면 시행 7일 전부터 서비스 화면에 알립니다. 이용자 권리에 중요한 변경(수집 항목 추가, 국외 이전 대상 추가 등)은 30일 전부터 알립니다.</p>
+<p class="sub">공고일: 2026년 11월 7일 · 시행일: 2026년 11월 8일 (처음 시행 2026년 11월 1일)</p>
+</main>
+<script src="config.js"></script>
+<script>
+(function(){
+  var c = window.TB_CONFIG || {};
+  if (c.contact) document.querySelectorAll(".contact").forEach(function(e){ e.innerHTML = ""; var a = document.createElement("a"); a.href = "mailto:" + c.contact; a.textContent = c.contact; e.appendChild(a); e.appendChild(document.createTextNode(" (앱 안의 \"도움 받기 · 의견 보내기\"로도 받아요)")); });
+  var show = function(cls){ document.querySelectorAll("." + cls).forEach(function(e){ e.hidden = false; }); };
+  if (c.aiQwen) show("qw");
+  if (c.appleClientId) show("ap");
+  if (c.kakaoClientId) show("kk");   // 애플 로그인을 켜면 자동으로 표시
+  if (c.api) { try { fetch(c.api.replace(/\/$/, "") + "/health").then(function(r){ return r.json(); }).then(function(j){ var a = (j && j.ai) || []; if (a.indexOf("alibaba") >= 0) show("qw"); if (a.indexOf("openrouter") >= 0) show("or"); }).catch(function(){}); } catch (e) {} }   // 서버에 Qwen이 켜져 있으면 자동으로 표시
+  if (c.aiPaid) { document.getElementById("aiFree").hidden = true; document.getElementById("aiPaid").hidden = false; document.getElementById("gRet").textContent = "제품 개선(학습)에 쓰지 않음. 남용 방지·법적 요구를 위해 제한된 기간만 기록"; }
+})();
+</script>
+</body></html>

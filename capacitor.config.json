@@ -1,0 +1,8 @@
+{
+  "appId": "kr.toolboxapp.app",
+  "appName": "툴박스",
+  "webDir": "www",
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never", "scheme": "Toolbox" },
+  "server": { "androidScheme": "https", "iosScheme": "toolbox" }
+}

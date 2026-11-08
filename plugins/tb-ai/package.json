@@ -1,0 +1,11 @@
+{
+  "name": "tb-ai",
+  "version": "0.1.0",
+  "description": "툴박스 기기 AI 엔진 (ONNX Runtime 1.30: iOS CoreML / Android 멀티코어)",
+  "license": "MIT",
+  "files": ["android/src/main/", "android/build.gradle", "ios/", "Package.swift"],
+  "capacitor": {
+    "ios": { "src": "ios" },
+    "android": { "src": "android" }
+  }
+}

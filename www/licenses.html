@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>오픈소스 라이선스 · 툴박스</title><meta name="robots" content="noindex"><style>
+:root{--bg:#F7F7F8;--fg:#18181B;--muted:#62626B;--line:#E4E4E7;--card:#FFFFFF;--code:#F1F1F3}
+@media (prefers-color-scheme: dark){:root{--bg:#111113;--fg:#EDEDEF;--muted:#A1A1AA;--line:#2A2A2F;--card:#18181B;--code:#1E1E22}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.75 -apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;word-break:keep-all}
+main{max-width:880px;margin:0 auto;padding:32px 16px 64px}
+a{color:inherit}h1{font-size:24px;margin:8px 0 4px}h2{font-size:16.5px;margin:34px 0 8px}h3{font-size:15px;margin:22px 0 6px}
+.sub{color:var(--muted);font-size:13px}.back{font-size:13.5px;color:var(--muted);text-decoration:none}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--card);margin:6px 0}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;word-break:break-word}th{font-weight:600;white-space:nowrap}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:420px;overflow:auto}
+@media (max-width:600px){.tw table,.tw tbody,.tw tr,.tw td{display:block;width:100%}.tw tr:first-child{display:none}.tw table{background:none;border:0}.tw tr{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}.tw td{border:0;padding:2px 0}.tw td[data-l]::before{content:attr(data-l);display:inline-block;min-width:64px;color:var(--muted);font-size:12.5px}.tw td.nm{font-size:15px;margin-bottom:2px}}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;margin:8px 0}summary{cursor:pointer;font-weight:600}
+</style></head>
+<body><main><a class="back" href="./">← 툴박스로 돌아가기</a>
+<h1>오픈소스 라이선스</h1>
+<p class="sub">툴박스는 아래 오픈소스 소프트웨어, AI 모델, 글꼴을 써서 만들었어요. 만든 분들께 감사드립니다. 각 항목은 해당 라이선스를 따릅니다.</p>
+
+<h2>소프트웨어</h2>
+<div class="tw"><table><tr><th>이름</th><th>쓰는 곳</th><th>라이선스</th><th>저작권 · 원본</th></tr>
+<tr><td class="nm"><b>PDF.js</b></td><td data-l="쓰는 곳">PDF 보기·쪽 그림</td><td data-l="라이선스"><a href="#apache">Apache-2.0</a></td><td data-l="저작권">Copyright Mozilla Foundation<br><a href="https://github.com/mozilla/pdf.js" target="_blank" rel="noopener">github.com/mozilla/pdf.js</a></td></tr>
+<tr><td class="nm"><b>pdf-lib</b></td><td data-l="쓰는 곳">PDF 합치기·나누기·편집 저장</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2019 Andrew Dillon<br><a href="https://github.com/Hopding/pdf-lib" target="_blank" rel="noopener">github.com/Hopding/pdf-lib</a></td></tr>
+<tr><td class="nm"><b>PDFium</b></td><td data-l="쓰는 곳">PDF 내용 고치기</td><td data-l="라이선스"><a href="#bsd3">BSD-3-Clause</a></td><td data-l="저작권">Copyright 2014 PDFium Authors<br><a href="https://pdfium.googlesource.com/pdfium/" target="_blank" rel="noopener">pdfium.googlesource.com/pdfium/</a><br><span class="sub">전문: <a href="lib/LICENSE-pdfium.txt">lib/LICENSE-pdfium.txt</a></span></td></tr>
+<tr><td class="nm"><b>@embedpdf/pdfium</b></td><td data-l="쓰는 곳">PDFium 웹 빌드</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2024 CloudPDF, Ji Chang<br><a href="https://github.com/embedpdf/embed-pdf-viewer" target="_blank" rel="noopener">github.com/embedpdf/embed-pdf-viewer</a></td></tr>
+<tr><td class="nm"><b>harfbuzzjs (HarfBuzz)</b></td><td data-l="쓰는 곳">PDF 내용 고치기 글꼴 줄이기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2019-2026 The harfbuzzjs project authors<br><a href="https://github.com/harfbuzz/harfbuzzjs" target="_blank" rel="noopener">github.com/harfbuzz/harfbuzzjs</a><br><span class="sub">전문: <a href="lib/LICENSE-harfbuzz.txt">lib/LICENSE-harfbuzz.txt</a></span></td></tr>
+<tr><td class="nm"><b>qpdf</b></td><td data-l="쓰는 곳">PDF 암호 걸기·풀기</td><td data-l="라이선스"><a href="#apache">Apache-2.0</a></td><td data-l="저작권">Copyright Jay Berkenbilt and contributors<br><a href="https://github.com/qpdf/qpdf" target="_blank" rel="noopener">github.com/qpdf/qpdf</a><br><span class="sub">웹 빌드 qpdf-wasm (ISC)</span></td></tr>
+<tr><td class="nm"><b>rhwp</b></td><td data-l="쓰는 곳">한글(HWP) 파일 읽기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2025-2026 Edward Kim<br><a href="https://github.com/edwardkim/rhwp" target="_blank" rel="noopener">github.com/edwardkim/rhwp</a><br><span class="sub">전문: <a href="lib/LICENSE-rhwp.txt">lib/LICENSE-rhwp.txt</a></span></td></tr>
+<tr><td class="nm"><b>fontkit</b></td><td data-l="쓰는 곳">글꼴 읽기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Devon Govett<br><a href="https://github.com/foliojs/fontkit" target="_blank" rel="noopener">github.com/foliojs/fontkit</a></td></tr>
+<tr><td class="nm"><b>SheetJS Community Edition</b></td><td data-l="쓰는 곳">엑셀 읽기·쓰기</td><td data-l="라이선스"><a href="#apache">Apache-2.0</a></td><td data-l="저작권">Copyright (C) SheetJS LLC<br><a href="https://git.sheetjs.com/sheetjs/sheetjs" target="_blank" rel="noopener">git.sheetjs.com/sheetjs/sheetjs</a></td></tr>
+<tr><td class="nm"><b>mammoth.js</b></td><td data-l="쓰는 곳">워드(.docx) 글 꺼내기</td><td data-l="라이선스"><a href="#bsd2">BSD-2-Clause</a></td><td data-l="저작권">Copyright (c) Michael Williamson<br><a href="https://github.com/mwilliamson/mammoth.js" target="_blank" rel="noopener">github.com/mwilliamson/mammoth.js</a></td></tr>
+<tr><td class="nm"><b>docx-preview</b></td><td data-l="쓰는 곳">워드 미리보기</td><td data-l="라이선스"><a href="#apache">Apache-2.0</a></td><td data-l="저작권">Copyright Volodymyr Baydalka<br><a href="https://github.com/VolodymyrBaydalka/docxjs" target="_blank" rel="noopener">github.com/VolodymyrBaydalka/docxjs</a></td></tr>
+<tr><td class="nm"><b>PptxGenJS</b></td><td data-l="쓰는 곳">PPT 만들기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Brent Ely<br><a href="https://github.com/gitbrent/PptxGenJS" target="_blank" rel="noopener">github.com/gitbrent/PptxGenJS</a></td></tr>
+<tr><td class="nm"><b>JSZip</b></td><td data-l="쓰는 곳">압축 파일 만들기·풀기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Stuart Knightley, David Duponchel, Franz Buchinger, António Afonso<br><a href="https://github.com/Stuk/jszip" target="_blank" rel="noopener">github.com/Stuk/jszip</a><br><span class="sub">MIT와 GPLv3 중 MIT를 선택해 사용</span></td></tr>
+<tr><td class="nm"><b>pako</b></td><td data-l="쓰는 곳">압축 (JSZip 안에 포함)</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (C) Vitaly Puzrin, Andrei Tuputcyn<br><a href="https://github.com/nodeca/pako" target="_blank" rel="noopener">github.com/nodeca/pako</a></td></tr>
+<tr><td class="nm"><b>marked</b></td><td data-l="쓰는 곳">마크다운 보여주기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2011-2023, Christopher Jeffrey<br><a href="https://github.com/markedjs/marked" target="_blank" rel="noopener">github.com/markedjs/marked</a></td></tr>
+<tr><td class="nm"><b>Turndown</b></td><td data-l="쓰는 곳">웹 글을 마크다운으로</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Dom Christie<br><a href="https://github.com/mixmark-io/turndown" target="_blank" rel="noopener">github.com/mixmark-io/turndown</a></td></tr>
+<tr><td class="nm"><b>js-yaml</b></td><td data-l="쓰는 곳">설정 파일 읽기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (C) Vitaly Puzrin and Alex Kocharin<br><a href="https://github.com/nodeca/js-yaml" target="_blank" rel="noopener">github.com/nodeca/js-yaml</a></td></tr>
+<tr><td class="nm"><b>Chart.js</b></td><td data-l="쓰는 곳">차트</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Chart.js Contributors<br><a href="https://github.com/chartjs/Chart.js" target="_blank" rel="noopener">github.com/chartjs/Chart.js</a></td></tr>
+<tr><td class="nm"><b>html2canvas</b></td><td data-l="쓰는 곳">화면 그림으로 저장</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2022 Niklas von Hertzen<br><a href="https://github.com/niklasvh/html2canvas" target="_blank" rel="noopener">github.com/niklasvh/html2canvas</a></td></tr>
+<tr><td class="nm"><b>QR Code Generator</b></td><td data-l="쓰는 곳">QR 코드 만들기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2009 Kazuhiko Arase<br><a href="https://github.com/kazuhikoarase/qrcode-generator" target="_blank" rel="noopener">github.com/kazuhikoarase/qrcode-generator</a><br><span class="sub">“QR Code”는 (주)덴소웨이브의 등록상표입니다.</span></td></tr>
+<tr><td class="nm"><b>gifenc</b></td><td data-l="쓰는 곳">GIF 만들기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Matt DesLauriers<br><a href="https://github.com/mattdesl/gifenc" target="_blank" rel="noopener">github.com/mattdesl/gifenc</a></td></tr>
+<tr><td class="nm"><b>UTIF.js</b></td><td data-l="쓰는 곳">TIFF 이미지 읽기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Photopea<br><a href="https://github.com/photopea/UTIF.js" target="_blank" rel="noopener">github.com/photopea/UTIF.js</a></td></tr>
+<tr><td class="nm"><b>heic2any</b></td><td data-l="쓰는 곳">아이폰 사진(HEIC) 바꾸기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Alex Corvi<br><a href="https://github.com/alexcorvi/heic2any" target="_blank" rel="noopener">github.com/alexcorvi/heic2any</a><br><span class="sub">안에 libheif·libde265 포함 → 아래 LGPL 안내</span></td></tr>
+<tr><td class="nm"><b>libheif</b></td><td data-l="쓰는 곳">HEIC 읽기 (heic2any 안에 포함)</td><td data-l="라이선스"><a href="#lgpl">LGPL-3.0</a></td><td data-l="저작권">Copyright (c) struktur AG<br><a href="https://github.com/strukturag/libheif" target="_blank" rel="noopener">github.com/strukturag/libheif</a><br><span class="sub">아래 LGPL 안내</span></td></tr>
+<tr><td class="nm"><b>libde265</b></td><td data-l="쓰는 곳">HEVC 영상 풀기 (heic2any 안에 포함)</td><td data-l="라이선스"><a href="#lgpl">LGPL-3.0</a></td><td data-l="저작권">Copyright (c) struktur AG, Dirk Farin<br><a href="https://github.com/strukturag/libde265" target="_blank" rel="noopener">github.com/strukturag/libde265</a><br><span class="sub">아래 LGPL 안내</span></td></tr>
+<tr><td class="nm"><b>lamejs</b></td><td data-l="쓰는 곳">MP3 만들기</td><td data-l="라이선스"><a href="#lgpl">LGPL-3.0</a></td><td data-l="저작권">Copyright (c) Alexander Kolchin (LAME 프로젝트 기반)<br><a href="https://github.com/zhuker/lamejs" target="_blank" rel="noopener">github.com/zhuker/lamejs</a><br><span class="sub">아래 LGPL 안내</span></td></tr>
+<tr><td class="nm"><b>Mediabunny</b></td><td data-l="쓰는 곳">영상·소리 변환</td><td data-l="라이선스"><a href="#mpl">MPL-2.0</a></td><td data-l="저작권">Copyright (c) Vanilagy and contributors<br><a href="https://github.com/Vanilagy/mediabunny" target="_blank" rel="noopener">github.com/Vanilagy/mediabunny</a><br><span class="sub">고치지 않고 그대로 사용 · 소스는 원본 주소에서 받을 수 있어요</span></td></tr>
+<tr><td class="nm"><b>@mediabunny/aac-encoder</b></td><td data-l="쓰는 곳">AAC 소리 만들기</td><td data-l="라이선스"><a href="#mpl">MPL-2.0</a></td><td data-l="저작권">Copyright (c) 2026-present, Vanilagy and contributors<br><a href="https://github.com/Vanilagy/mediabunny" target="_blank" rel="noopener">github.com/Vanilagy/mediabunny</a><br><span class="sub">전문: <a href="lib/mediabunny-aac-encoder.LICENSE.txt">lib/mediabunny-aac-encoder.LICENSE.txt</a> · FFmpeg의 AAC 인코더(LGPL-2.1 이상)를 바탕으로 만들어졌어요 → 아래 LGPL 안내</span></td></tr>
+<tr><td class="nm"><b>ONNX Runtime Web</b></td><td data-l="쓰는 곳">기기 AI(누끼·지우기·화질 개선) 실행 · 1.17, 1.30</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) Microsoft Corporation<br><a href="https://github.com/microsoft/onnxruntime" target="_blank" rel="noopener">github.com/microsoft/onnxruntime</a></td></tr>
+</table></div>
+
+<h2>기기 AI 모델</h2>
+<p class="sub">아래 모델은 이용자의 기기(브라우저)에서 실행돼요. 파일이 서버로 가지 않아요.</p>
+<div class="tw"><table><tr><th>이름</th><th>쓰는 곳</th><th>라이선스</th><th>저작권 · 원본</th></tr>
+<tr><td class="nm"><b>U²-Netp</b></td><td data-l="쓰는 곳">누끼 따기 (빠른 모델)</td><td data-l="라이선스"><a href="#apache">Apache-2.0</a></td><td data-l="저작권">Copyright (c) Xuebin Qin<br><a href="https://github.com/xuebinqin/U-2-Net" target="_blank" rel="noopener">github.com/xuebinqin/U-2-Net</a><br><span class="sub">rembg 배포본(https://github.com/danielgatis/rembg, MIT)</span></td></tr>
+<tr><td class="nm"><b>BiRefNet (lite, Swin-T)</b></td><td data-l="쓰는 곳">누끼 따기 (PC 그래픽카드 최고화질 모델)</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2024 ZhengPeng<br><a href="https://github.com/ZhengPeng7/BiRefNet" target="_blank" rel="noopener">github.com/ZhengPeng7/BiRefNet</a><br><span class="sub">백본 Swin Transformer — Copyright (c) Microsoft Corporation, MIT. 툴박스가 웹용으로 변환·8비트 압축</span></td></tr>
+<tr><td class="nm"><b>IS-Net (general use)</b></td><td data-l="쓰는 곳">누끼 따기 (정밀 모델)</td><td data-l="라이선스"><a href="#apache">Apache-2.0</a></td><td data-l="저작권">Copyright (c) Xuebin Qin<br><a href="https://github.com/xuebinqin/DIS" target="_blank" rel="noopener">github.com/xuebinqin/DIS</a><br><span class="sub">rembg 배포본 isnet-general-use</span></td></tr>
+<tr><td class="nm"><b>MI-GAN</b></td><td data-l="쓰는 곳">사람·물체 지우기</td><td data-l="라이선스"><a href="#mit">MIT</a></td><td data-l="저작권">Copyright (c) 2023 Picsart AI Research (PAIR)<br><a href="https://github.com/Picsart-AI-Research/MI-GAN" target="_blank" rel="noopener">github.com/Picsart-AI-Research/MI-GAN</a><br><span class="sub">웹용으로 변환해 사용</span></td></tr>
+<tr><td class="nm"><b>Real-ESRGAN (realesr-general-x4v3 · RealESRGAN_x4plus)</b></td><td data-l="쓰는 곳">화질 개선 (빠르게 · 고화질)</td><td data-l="라이선스"><a href="#bsd3">BSD-3-Clause</a></td><td data-l="저작권">Copyright (c) 2021, Xintao Wang<br><a href="https://github.com/xinntao/Real-ESRGAN" target="_blank" rel="noopener">github.com/xinntao/Real-ESRGAN</a><br><span class="sub">웹용으로 변환해 사용</span></td></tr>
+</table></div>
+
+<h2>글꼴</h2>
+<div class="tw"><table><tr><th>이름</th><th>쓰는 곳</th><th>라이선스</th><th>저작권 · 원본</th></tr>
+<tr><td class="nm"><b>Pretendard</b></td><td data-l="쓰는 곳">화면 글꼴</td><td data-l="라이선스"><a href="#ofl">OFL-1.1</a></td><td data-l="저작권">Copyright (c) 2021, Kil Hyung-jin<br><a href="https://github.com/orioncactus/pretendard" target="_blank" rel="noopener">github.com/orioncactus/pretendard</a></td></tr>
+<tr><td class="nm"><b>굴림·돋움 (Gulim and Dotum)</b></td><td data-l="쓰는 곳">문서·PDF 글꼴</td><td data-l="라이선스"><a href="#ofl">OFL-1.1</a></td><td data-l="저작권">Copyright 2024 The Gulim and Dotum Project Authors<br><a href="https://github.com/googlefonts/gulim" target="_blank" rel="noopener">github.com/googlefonts/gulim</a><br><span class="sub">전문: <a href="fonts/hanyang/OFL-gulim.txt">fonts/hanyang/OFL-gulim.txt</a></span></td></tr>
+<tr><td class="nm"><b>바탕·궁서 (Batang and Gungsuh)</b></td><td data-l="쓰는 곳">문서·PDF 글꼴</td><td data-l="라이선스"><a href="#ofl">OFL-1.1</a></td><td data-l="저작권">Copyright 2024 The Batang and Gungsuh Project Authors<br><a href="https://github.com/googlefonts/batang" target="_blank" rel="noopener">github.com/googlefonts/batang</a><br><span class="sub">전문: <a href="fonts/hanyang/OFL-batang.txt">fonts/hanyang/OFL-batang.txt</a></span></td></tr>
+<tr><td class="nm"><b>IBM Plex Mono</b></td><td data-l="쓰는 곳">회의록 화면 숫자 글꼴 (Google Fonts에서 불러옴)</td><td data-l="라이선스"><a href="#ofl">OFL-1.1</a></td><td data-l="저작권">Copyright © 2017 IBM Corp.<br><a href="https://github.com/IBM/plex" target="_blank" rel="noopener">github.com/IBM/plex</a></td></tr>
+</table></div>
+
+<h2 id="lgpl">LGPL 구성 요소 안내</h2>
+<p>lamejs, libheif, libde265, 그리고 @mediabunny/aac-encoder 안의 FFmpeg AAC 인코더는 GNU LGPL을 따릅니다 (lamejs·libheif·libde265는 3.0, FFmpeg는 2.1 이상).</p>
+<ul>
+<li>이 구성 요소들은 툴박스 코드와 섞지 않고 <b>따로 떨어진 파일</b>로 들어 있어요: <code>lib/lame.min.js</code>, <code>lib/heic2any.min.js</code>, <code>lib/mediabunny-aac-encoder.js</code>.</li>
+<li>툴박스는 이 파일들을 <b>고치지 않고</b> 원본 그대로 씁니다. 원본 소스 코드는 위 표의 원본 주소에서 받을 수 있어요.</li>
+<li>이용자는 이 파일들을 같은 기능의 다른 버전으로 바꿔 써도 됩니다. 툴박스는 그런 수정을 막지 않으며, 역설계(리버스 엔지니어링)도 금지하지 않습니다.</li>
+<li>라이선스 전문: <a href="https://www.gnu.org/licenses/lgpl-3.0.html" target="_blank" rel="noopener">GNU LGPL 3.0</a> · <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU GPL 3.0</a> · <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html" target="_blank" rel="noopener">GNU LGPL 2.1</a></li>
+</ul>
+
+<h2 id="mpl">MPL 2.0 구성 요소 안내</h2>
+<p>Mediabunny와 @mediabunny/aac-encoder는 Mozilla Public License 2.0을 따릅니다. 툴박스는 이 파일들을 고치지 않고 그대로 쓰며, 소스 코드는 <a href="https://github.com/Vanilagy/mediabunny" target="_blank" rel="noopener">github.com/Vanilagy/mediabunny</a>에서 받을 수 있어요. 전문: <a href="lib/mediabunny-aac-encoder.LICENSE.txt">lib/mediabunny-aac-encoder.LICENSE.txt</a> · <a href="https://www.mozilla.org/MPL/2.0/" target="_blank" rel="noopener">mozilla.org/MPL/2.0</a></p>
+
+<h2>라이선스 전문</h2>
+<details id="mit"><summary>MIT License</summary><p class="sub">적용되는 저작권 표시:</p><pre>Copyright (c) 2019 Andrew Dillon
+Copyright (c) 2024 CloudPDF, Ji Chang
+Copyright (c) 2019-2026 The harfbuzzjs project authors
+Copyright (c) 2025-2026 Edward Kim
+Copyright (c) Devon Govett
+Copyright (c) Brent Ely
+Copyright (c) Stuart Knightley, David Duponchel, Franz Buchinger, António Afonso
+Copyright (C) Vitaly Puzrin, Andrei Tuputcyn
+Copyright (c) 2011-2023, Christopher Jeffrey
+Copyright (c) Dom Christie
+Copyright (C) Vitaly Puzrin and Alex Kocharin
+Copyright (c) Chart.js Contributors
+Copyright (c) 2022 Niklas von Hertzen
+Copyright (c) 2009 Kazuhiko Arase
+Copyright (c) Matt DesLauriers
+Copyright (c) Photopea
+Copyright (c) Alex Corvi
+Copyright (c) Microsoft Corporation
+Copyright (c) 2023 Picsart AI Research (PAIR)</pre><pre>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</pre></details>
+<details id="bsd2"><summary>BSD 2-Clause License</summary><pre>Copyright (c) Michael Williamson
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</pre></details>
+<details id="bsd3"><summary>BSD 3-Clause License</summary><pre>Copyright 2014 PDFium Authors
+Copyright (c) 2021, Xintao Wang
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</pre></details>
+<details id="apache"><summary>Apache License 2.0</summary><p class="sub">적용되는 저작권 표시:</p><pre>Copyright Mozilla Foundation
+Copyright Jay Berkenbilt and contributors
+Copyright (C) SheetJS LLC
+Copyright Volodymyr Baydalka
+Copyright (c) Xuebin Qin
+Copyright (c) Xuebin Qin</pre><pre>Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      &quot;License&quot; shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      &quot;Licensor&quot; shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      &quot;Legal Entity&quot; shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      &quot;control&quot; means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      &quot;You&quot; (or &quot;Your&quot;) shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      &quot;Source&quot; form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      &quot;Object&quot; form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      &quot;Work&quot; shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      &quot;Derivative Works&quot; shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      &quot;Contribution&quot; shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, &quot;submitted&quot;
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as &quot;Not a Contribution.&quot;
+
+      &quot;Contributor&quot; shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a &quot;NOTICE&quot; text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an &quot;AS IS&quot; BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+</pre></details>
+<details id="ofl"><summary>SIL Open Font License 1.1</summary><pre>Copyright (c) 2021, Kil Hyung-jin
+Copyright 2024 The Gulim and Dotum Project Authors
+Copyright 2024 The Batang and Gungsuh Project Authors
+Copyright © 2017 IBM Corp.</pre><p>전문: <a href="fonts/hanyang/OFL-gulim.txt">fonts/hanyang/OFL-gulim.txt</a> · <a href="https://openfontlicense.org/open-font-license-official-text/" target="_blank" rel="noopener">openfontlicense.org</a></p></details>
+<p class="sub" style="margin-top:28px">빠진 항목이나 잘못된 표시를 발견하면 툴박스의 ‘도움 받기 · 의견 보내기’로 알려 주세요.</p>
+</main></body></html>

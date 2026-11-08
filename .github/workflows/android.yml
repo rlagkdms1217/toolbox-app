@@ -1,0 +1,93 @@
+name: 안드로이드 시험판 만들기
+
+# main 에 올라오면 자동으로, 또는 Actions 탭에서 "Run workflow" 버튼으로
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 패키지 설치
+        run: npm ci
+
+      - name: 웹 화면을 앱에 넣기
+        run: npx cap sync android
+
+      - name: 시험판 APK 만들기
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: 이름 붙이기
+        run: |
+          V=$(grep versionName android/app/build.gradle | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          mkdir -p out && cp android/app/build/outputs/apk/debug/app-debug.apk "out/toolbox-${V}-${GITHUB_RUN_NUMBER}.apk"
+
+      - name: APK 올리기 (Actions 실행 화면 맨 아래 Artifacts 에서 받기)
+        uses: actions/upload-artifact@v4
+        with:
+          name: toolbox-android-apk
+          path: out/*.apk
+          retention-days: 30
+
+  # 클라우드 안드로이드 에뮬레이터에서 AI 엔진 자동 시험 (모델 풀기 + 실제 실행)
+  engine-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npx cap sync android
+      - name: 에뮬레이터 가속(KVM) 켜기
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: AI 엔진 시험
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          ram-size: 6144M
+          disk-size: 8G
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            chmod +x android/gradlew
+            cd android && ./gradlew connectedDebugAndroidTest --no-daemon --stacktrace || (adb logcat -d -s TbAI TbAITest AndroidRuntime TestRunner | tail -200; exit 1)
+            adb logcat -d -s TbAITest | tail -50
+      - name: 시험 결과 올리기
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-test-report
+          path: android/app/build/reports/androidTests/
+          retention-days: 14

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://muddy-pond-0d55.khe121795.workers.dev/sitemap.xml

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">툴박스</string>
+    <string name="title_activity_main">툴박스</string>
+    <string name="package_name">kr.toolboxapp.app</string>
+    <string name="custom_url_scheme">kr.toolboxapp.app</string>
+</resources>

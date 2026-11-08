@@ -1,0 +1,1 @@
+qpdf (https://github.com/qpdf/qpdf) — Apache License 2.0. WASM build: @neslinesli93/qpdf-wasm (ISC).

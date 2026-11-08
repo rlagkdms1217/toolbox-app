@@ -1,0 +1,19 @@
+{
+  "name": "toolbox-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "툴박스 앱 (Capacitor) — 웹 화면 + 기기 AI 엔진",
+  "scripts": {
+    "sync-web": "node scripts/sync-web.mjs",
+    "cap:sync": "npm run sync-web && npx cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3",
+    "tb-ai": "file:plugins/tb-ai"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}
