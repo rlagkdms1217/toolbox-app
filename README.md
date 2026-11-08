@@ -26,12 +26,18 @@
 - Actions → "아이폰 빌드 확인" → **Run workflow** (맥 클라우드 무료 사용량이 적어서 버튼으로만)
 - 실제 아이폰에 설치·TestFlight 는 **애플 개발자 등록(연 $99)** 후, 인증서를 GitHub Secrets 에 넣으면 이어서 설정해요.
 
+## 로그인
+앱 안 화면에서는 구글이 로그인을 막아서, **기본 브라우저에서 로그인 → '앱으로 돌아가기'** 로 넘겨받아요.
+(앱이 보낸 무작위 값이 맞을 때만 받아들이고, 사이트는 자동으로 넘기지 않고 사용자가 눌러야 넘겨요.)
+
 ## 알려진 할 일
-- [ ] 구글 로그인: 앱 안 웹 화면에서는 구글이 막아요 → 앱용 로그인(네이티브)으로 바꾸기 (Google Cloud 에 안드로이드·iOS 클라이언트 ID 필요)
-- [ ] Worker `ALLOWED_ORIGINS` 를 쓸 때는 앱 주소 `https://localhost`, `toolbox://localhost` 도 넣기
+- [ ] 앱 링크를 검증된 https 링크(안드로이드 App Links / 아이폰 Universal Links)로 바꾸기 — 지금은 `kr.toolboxapp.app://login`
+- [ ] **애플 심사: 구글 로그인이 있으면 'Apple로 로그인'도 있어야 해요** (애플 개발자 등록 후 appleClientId 설정)
+- [ ] Worker `ALLOWED_ORIGINS` 를 쓸 때 값: `https://muddy-pond-0d55.khe121795.workers.dev,https://localhost,toolbox://localhost`
 - [ ] 아이폰 '공유로 열기'(Share Extension)
 - [ ] 스토어용 서명(안드로이드 업로드 키, 애플 인증서) — 키는 GitHub Secrets 에만
 - [ ] 앱 ID `kr.toolboxapp.app` — 스토어에 처음 올리기 전까지만 바꿀 수 있어요
+- [ ] 폰에서 새 누끼 모델 속도 확인 → 느리면 fp16 변환(CoreML/NNAPI)
 
 ## 개발자용
 ```bash
