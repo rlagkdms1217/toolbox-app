@@ -1824,7 +1824,7 @@ function tbShowGate(msg) {
   const kb = $("#kBtn"); if (kb) kb.onclick = tbKakaoLogin;
   if (TB_APP) {   // 앱 안 화면에서는 구글이 로그인을 막아서, 기본 브라우저에서 로그인하고 앱으로 돌아와요
     const box = $("#gBtn");
-    if (box) { box.innerHTML = `<button type="button" class="btn pri block" id="gApp">${ic("link", 16)}브라우저에서 구글로 로그인</button><p class="sub" style="font-size:12.5px;margin:6px 0 0">브라우저가 열리면 로그인하고 '앱으로 돌아가기'를 눌러 주세요.</p>`;
+    if (box) { box.style.display = "block"; box.style.width = "100%"; box.innerHTML = `<button type="button" class="btn pri block" id="gApp">${ic("link", 16)}브라우저에서 구글로 로그인</button><p class="sub" style="font-size:12.5px;margin:6px 0 0">브라우저가 열리면 로그인하고 '앱으로 돌아가기'를 눌러 주세요.</p>`;
       $("#gApp").onclick = () => tbAppLoginStart().catch(e => err(e.message || String(e))); }
     tbTrack("gate", "login-app"); return;
   }
