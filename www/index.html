@@ -1874,7 +1874,9 @@ function tbAppLoginHandoff(j) {          // 사이트(브라우저): 로그인�
   if (!st || !j || !j.token) return false;
   try { sessionStorage.removeItem("tb_applogin"); } catch (e) {}
   const u = j.user || {}, ub = btoa(unescape(encodeURIComponent(JSON.stringify({email: u.email || "", name: u.name || "", picture: u.picture || ""})))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  const link = TB_APP_SCHEME + "#" + new URLSearchParams({st, tok: j.token, u: ub}).toString();
+  const q = new URLSearchParams({st, tok: j.token, u: ub}).toString();
+  const site = String((window.TB_CONFIG && window.TB_CONFIG.site) || location.origin).replace(/\/+$/, "");
+  const link = (/Android/i.test(navigator.userAgent) ? site + "/applogin#" : TB_APP_SCHEME + "#") + q;   // 안드로이드: 검증된 https 링크(앱이 없으면 사이트의 /applogin 안내 페이지), 아이폰: 앱 주소
   let g = $("#tbGate"); if (!g) { g = document.createElement("div"); g.id = "tbGate"; document.body.appendChild(g); }
   document.body.classList.add("gated"); g.classList.add("modal"); g.onclick = null;
   g.innerHTML = `<div class="gate-in" role="dialog" aria-modal="true" aria-label="앱으로 돌아가기"><div class="gate-logo"><span class="logo">${TB_MARK}</span><b>툴박스</b></div>
@@ -6193,20 +6195,32 @@ async function nativeSession(k, m) {
     }
   };
 }
+/* PC 전용 큰 파일(새 누끼 모델, 새 AI 엔진)은 사이트에 없으면 공개 CDN(jsDelivr ← GitHub toolbox-app 저장소)에서 받아요.
+   → 웹 업로드 zip이 100MB 아래로 유지돼요. 앱 안에는 파일이 들어 있어서 CDN을 안 써요. */
+const TB_CDN = "https://cdn.jsdelivr.net/gh/rlagkdms1217/toolbox-app@main/www/";
+async function tbFetchBig(path) {
+  let r = await fetch(path).catch(() => null);
+  if (r && r.ok) return r;
+  r = await fetch(TB_CDN + path).catch(() => null);
+  if (r && r.ok) return r;
+  throw new Error("AI 모델 파일을 받지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
+}
 /* 새 AI 엔진(ONNX Runtime 1.30): 큰 모델(BiRefNet)에 필요한 연산이 들어 있어요. 그래픽카드 전용이라 PC에서만, 필요할 때만 불러요 */
 let ort130P = null;
 function loadOrt130() {
   if (!ort130P) ort130P = (async () => {
     const base = new URL("lib/ort130/", location.href).href;
-    const [mod, ...parts] = await Promise.all([import(base + "ort.webgpu.bundle.min.mjs"), ...[0, 1].map(i => fetch(base + "ort-asyncify.wasm.part" + i).then(r => { if (!r.ok) throw new Error("wasm"); return r.arrayBuffer(); }))]);
+    const probe = await fetch(base + "ort.webgpu.bundle.min.mjs", {method: "HEAD"}).catch(() => null);
+    const B = probe && probe.ok ? base : TB_CDN + "lib/ort130/";                       // 사이트에 없으면 CDN
+    const [mod, ...parts] = await Promise.all([import(B + "ort.webgpu.bundle.min.mjs"), ...[0, 1].map(i => fetch(B + "ort-asyncify.wasm.part" + i).then(r => { if (!r.ok) throw new Error("wasm"); return r.arrayBuffer(); }))]);
     const n = parts.reduce((t, b) => t + b.byteLength, 0), bin = new Uint8Array(n); let o = 0; for (const b of parts) { bin.set(new Uint8Array(b), o); o += b.byteLength; }
-    const O = mod.default || mod; O.env.wasm.wasmPaths = base; O.env.wasm.numThreads = 1; O.env.wasm.proxy = false; O.env.wasm.wasmBinary = bin.buffer;
+    const O = mod.default || mod; O.env.wasm.wasmPaths = B; O.env.wasm.numThreads = 1; O.env.wasm.proxy = false; O.env.wasm.wasmBinary = bin.buffer;
     return O;
   })().catch(e => { ort130P = null; throw new Error("AI 엔진을 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); });
   return ort130P;
 }
 const MODELS = {bg: {files: ["models/u2netp.wasm"], mb: 4.6}, bgHQ: {files: ["models/isnet-g.wasm", "models/isnet-1.wasm", "models/isnet-2.wasm", "models/isnet-3.wasm", "models/isnet-4.wasm", "models/isnet-5.wasm", "models/isnet-6.wasm", "models/isnet-7.wasm", "models/isnet-8.wasm", "models/isnet-9.wasm"], mb: 44.6, q8: true}, erase: {files: ["models/migan-g.wasm", "models/migan-1.wasm", "models/migan-2.wasm"], mb: 6.9, q8: true}, upscale: {files: ["models/upscale-g.wasm", "models/upscale-1.wasm"], mb: 1.3, q8: true}, upscaleHQ: {files: ["models/esr-g.wasm", "models/esr-1.wasm", "models/esr-2.wasm", "models/esr-3.wasm", "models/esr-4.wasm"], mb: 16.3, q8: true, gpu: true},
-  bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, ort: 130}};   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
+  bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, ort: 130, cdn: true}};   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
 /* 그래픽카드(WebGPU)로 돌릴 수 있는 브라우저인지 — 큰 모델(고화질 화질 개선)은 이게 있어야 쓸 만한 속도가 나와요 */
 let HAS_GPU = false;
 const GPU_P = (async () => { if (TB_NATIVE) return HAS_GPU = true;   /* 앱은 폰 AI 엔진이 있어서 큰 모델도 돼요 */ try { HAS_GPU = !!(navigator.gpu && window.isSecureContext && await navigator.gpu.requestAdapter()); } catch (e) { HAS_GPU = false; } return HAS_GPU; })();
@@ -6227,7 +6241,7 @@ function loadModel(k, say) {
     for (const f of m.files) {
       cut.push(bufs.length);
       if (IS_FILE) throw new Error("PC에서 파일을 바로 열면 브라우저가 AI 모델을 막아요. 웹에 올린 주소에서 열어 주세요.");
-      const r = await fetch(f).catch(() => null); if (!r || !r.ok) throw new Error("AI 모델 파일을 받지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
+      const r = m.cdn ? await tbFetchBig(f) : await fetch(f).catch(() => null); if (!r || !r.ok) throw new Error("AI 모델 파일을 받지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
       if (r.body && r.body.getReader) {
         const rd = r.body.getReader();
         for (;;) { const {done, value} = await rd.read(); if (done) break; bufs.push(value); got += value.length; if (say) say(`AI 모델 받는 중 ${Math.min(99, Math.round(got / (m.mb * 1048576) * 100))}% (처음 한 번만)`); }

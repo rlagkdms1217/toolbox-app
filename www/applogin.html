@@ -1,0 +1,6 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>툴박스 앱으로 돌아가기</title>
+<style>body{margin:0;background:#F7F7F8;color:#18181B;font:16px/1.7 -apple-system,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+.c{max-width:420px;text-align:center}.btn{display:block;background:#18181B;color:#fff;border-radius:12px;padding:14px;text-decoration:none;font-weight:700;margin:16px 0 8px}.sub{color:#62626B;font-size:14px}</style></head>
+<body><div class="c"><h1 style="font-size:22px">툴박스 앱으로 돌아가기</h1><p class="sub">앱이 자동으로 열리지 않으면 아래 버튼을 눌러 주세요. 이 페이지는 로그인 정보를 저장하지 않아요.</p>
+<a class="btn" id="go" href="#">앱 열기</a><a class="sub" href="./">웹에서 계속 쓰기</a></div>
+<script>(function(){var h=location.hash||"";var u="kr.toolboxapp.app://login"+h;document.getElementById("go").href=u;if(h&&/st=/.test(h)){setTimeout(function(){location.href=u;},200);}})();</script></body></html>

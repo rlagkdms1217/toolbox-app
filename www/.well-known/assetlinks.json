@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "kr.toolboxapp.app",
+    "sha256_cert_fingerprints": [
+      "B5:74:D3:67:76:33:37:B9:5C:A2:48:19:AF:82:19:18:AB:90:74:F8:10:44:EC:96:DA:3D:1F:7D:6A:46:EA:28"
+    ]
+  }
+}]

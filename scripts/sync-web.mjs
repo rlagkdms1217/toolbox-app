@@ -14,4 +14,7 @@ let n = 0, bytes = 0;
     fs.mkdirSync(path.join(DST, rel), {recursive: true}); fs.copyFileSync(path.join(SRC, r), path.join(DST, r)); n++; bytes += fs.statSync(path.join(DST, r)).size;
   }
 })('');
+// 웹 배포본에는 없는(CDN으로 받는) 새 누끼 모델은 앱에는 직접 넣어요
+const EXTRA = path.resolve(here, '../../app/web/models');
+if (fs.existsSync(EXTRA)) for (const f of fs.readdirSync(EXTRA)) if (/^bir-.*\.wasm$/.test(f)) { fs.copyFileSync(path.join(EXTRA, f), path.join(DST, 'models', f)); n++; }
 console.log(`www: ${n} files, ${(bytes / 1e6).toFixed(1)} MB`);
