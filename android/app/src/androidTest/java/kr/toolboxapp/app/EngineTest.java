@@ -106,6 +106,26 @@ public class EngineTest {
         for (int i = 0; i < o.data.length; i += 4096) assertTrue(o.data[i] > -0.5f && o.data[i] < 1.5f);
     }
 
+    /** 얼굴 찾기(RetinaFace) + 얼굴 복원(GFPGAN) */
+    @Test
+    public void x_faceModels() throws Exception {
+        TbEngine e = engine();
+        TbEngine.Loaded d = e.load("face", Arrays.asList("models/retina.wasm"), false, false);
+        Map<String, TbEngine.Tensor> dout = e.run("face", one(d.inputs.get(0), new long[]{1, 3, 512, 512}, 128f));
+        assertEquals(3, dout.size());
+        e.unloadAll();
+        List<String> files = new ArrayList<>();
+        files.add("models/gfp-g.wasm");
+        for (int i = 1; i <= 18; i++) files.add("models/gfp-" + i + ".wasm");
+        TbEngine.Loaded l = e.load("facePro", files, true, true);
+        long t = System.currentTimeMillis();
+        Map<String, TbEngine.Tensor> out = e.run("facePro", one(l.inputs.get(0), new long[]{1, 3, 512, 512}, 0.5f));
+        Log.i(TAG, "gfpgan " + l.accel + " " + (System.currentTimeMillis() - t) + "ms");
+        TbEngine.Tensor o = out.get(l.outputs.get(0));
+        assertEquals(3 * 512 * 512, o.data.length);
+        for (int i = 0; i < o.data.length; i += 4096) assertTrue(o.data[i] >= 0f && o.data[i] <= 1f);
+    }
+
     /** 새 누끼 모델(BiRefNet) — DeformConv 연산이 이 엔진에서 되는지가 핵심 */
     @Test
     public void z_proBackgroundModel() throws Exception {

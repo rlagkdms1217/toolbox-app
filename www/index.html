@@ -6221,6 +6221,8 @@ function loadOrt130() {
 }
 const MODELS = {bg: {files: ["models/u2netp.wasm"], mb: 4.6}, bgHQ: {files: ["models/isnet-g.wasm", "models/isnet-1.wasm", "models/isnet-2.wasm", "models/isnet-3.wasm", "models/isnet-4.wasm", "models/isnet-5.wasm", "models/isnet-6.wasm", "models/isnet-7.wasm", "models/isnet-8.wasm", "models/isnet-9.wasm"], mb: 44.6, q8: true}, erase: {files: ["models/migan-g.wasm", "models/migan-1.wasm", "models/migan-2.wasm"], mb: 6.9, q8: true}, upscale: {files: ["models/upscale-g.wasm", "models/upscale-1.wasm"], mb: 1.3, q8: true}, upscaleHQ: {files: ["models/esr-g.wasm", "models/esr-1.wasm", "models/esr-2.wasm", "models/esr-3.wasm", "models/esr-4.wasm"], mb: 16.3, q8: true, gpu: true},
   bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, ort: 130, cdn: true},   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
+  face: {files: ["models/retina.wasm"], mb: 1.9},   // RetinaFace mobile0.25(MIT) — 얼굴 위치·눈코입 5점 찾기
+  facePro: {files: ["models/gfp-g.wasm"].concat(Array.from({length: 18}, (_, i) => `models/gfp-${i + 1}.wasm`)), mb: 87.1, q8: true, gpu: true, cdn: true},   // GFPGAN v1.4(Apache-2.0) — 얼굴 복원, PC 그래픽카드·앱 전용
   erasePro: {files: ["models/lama-g.wasm"].concat(Array.from({length: 11}, (_, i) => `models/lama-${i + 1}.wasm`)), mb: 58.8, q8: true, gpu: true, cdn: true}};   // LaMa(Apache-2.0) — 큰 물체도 주변 무늬를 이어서 자연스럽게, PC 그래픽카드·앱 전용   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
 /* 그래픽카드(WebGPU)로 돌릴 수 있는 브라우저인지 — 큰 모델(고화질 화질 개선)은 이게 있어야 쓸 만한 속도가 나와요 */
 let HAS_GPU = false;
@@ -6228,6 +6230,7 @@ const GPU_P = (async () => { if (TB_NATIVE) return HAS_GPU = true;   /* 앱은 �
 window.__tbModels = MODELS;   // 자동 점검용
 const sessP = {};
 window.__tbLoadModel = (k, say) => loadModel(k, say);   // 자동 점검용
+window.__tbSetGpu = v => { HAS_GPU = !!v; }; window.__tbGpu = () => HAS_GPU;   // 자동 점검용(그래픽카드 있는 PC처럼 흉내)
 function loadModel(k, say) {
   if (!sessP[k]) sessP[k] = (async () => {
     const m = MODELS[k], bufs = [], cut = []; let got = 0;
@@ -9997,13 +10000,14 @@ function upscaleTool(v, o) {
     <p class="sub" id="upModeHint" style="font-size:13px"></p>
     <div class="seg" role="group" aria-label="정밀도" id="upQ"><button data-q="fast" aria-pressed="true">빠르게</button><button data-q="hq" aria-pressed="false">고화질</button></div>
     <p class="sub" id="upQHint" style="font-size:13px"></p>
+    <label class="chk hidden" id="upFaceL" style="font-size:13.5px;display:flex;gap:8px;align-items:center"><input type="checkbox" id="upFace" checked> 얼굴 또렷하게 (AI 얼굴 복원) <span class="sub" style="font-size:12px">— 흐릿한 얼굴의 눈·코·입을 되살려요. 처음 한 번 약 87MB</span></label>
     <p class="sub" id="upPlan" style="font-size:12.5px"></p><button class="btn pri block" id="upGo" disabled>선명하게 키우기</button><div id="upMsg"></div>`)}
   ${step(3, "결과", "왼쪽 원본, 오른쪽 결과", `<div id="upOut">${ph("결과를 원본과 나란히 보여줘요")}</div>`)}
   </div>`;
   let mode = "photo", q = (() => { try { return localStorage.getItem("tb_up_q") === "hq" && HAS_GPU ? "hq" : "fast"; } catch (e) { return "fast"; } })();
   const setMode = m => { mode = m; document.querySelectorAll("#upMode button").forEach(x => x.setAttribute("aria-pressed", x.dataset.m === m));
     $("#upModeHint").textContent = m === "text" ? "화면 캡처·문서·도표처럼 글자가 있는 그림은 AI 대신 글자가 뭉개지지 않는 방식으로 또렷하게 키워요." : "사진 속 디테일을 AI가 채워 넣어요. 글자가 많은 캡처는 '캡처·글자'가 더 깨끗해요.";
-    $("#upQ").classList.toggle("hidden", m !== "photo"); $("#upQHint").classList.toggle("hidden", m !== "photo"); const mix = $("#upMix"); if (mix) mix.closest("label").classList.toggle("hidden", m !== "photo"); upPlan(); };
+    $("#upQ").classList.toggle("hidden", m !== "photo"); $("#upQHint").classList.toggle("hidden", m !== "photo"); const fl = $("#upFaceL"); if (fl) fl.classList.toggle("hidden", !!(m !== "photo" || !(HAS_GPU || TB_NATIVE) || window.__tbNoFace)); const mix = $("#upMix"); if (mix) mix.closest("label").classList.toggle("hidden", m !== "photo"); upPlan(); };
   const setQ = v => { q = v; document.querySelectorAll("#upQ button").forEach(x => x.setAttribute("aria-pressed", x.dataset.q === v));
     $("#upQHint").textContent = v === "hq" ? (TB_NATIVE ? "큰 AI 모델로 더 정교하게 채워요. 폰의 AI 엔진으로 처리해요." : HAS_GPU ? "큰 AI 모델로 더 정교하게 채워요. 처음 한 번 약 16MB를 받고, 그래픽카드로 처리해요." : "고화질은 그래픽카드(WebGPU)가 되는 PC 크롬·엣지에서 쓸 수 있어요. 이 기기에선 빠른 모드로 키워요.") : "작은 AI 모델로 빠르게 키워요. 폰에서도 돼요."; upPlan(); };
   document.querySelectorAll("#upMode button").forEach(b => b.onclick = () => setMode(b.dataset.m));
@@ -10046,7 +10050,7 @@ function upscaleTool(v, o) {
       if (!sess) sess = await loadModel("upscale", msg);
       const inp = document.createElement("canvas"); inp.width = z.w; inp.height = z.h; const ix = inp.getContext("2d"); ix.imageSmoothingQuality = "high"; ix.drawImage(src, 0, 0, z.w, z.h);
       const W = z.w, H = z.h, d = ix.getImageData(0, 0, W, H).data;
-      const T = 128, PAD = 16, out = document.createElement("canvas"); out.width = W * K; out.height = H * K; const ox = out.getContext("2d");
+      const T = (q === "hq" && HAS_GPU && !TB_NATIVE) ? 256 : 128, PAD = 16, out = document.createElement("canvas");   // 그래픽카드면 한 번에 큰 조각(호출 횟수↓ → 2~3배 빠름) out.width = W * K; out.height = H * K; const ox = out.getContext("2d");
       const tiles = []; for (let y = 0; y < H; y += T) for (let x = 0; x < W; x += T) tiles.push([x, y]);
       const t0 = Date.now();
       for (const [n, [tx, ty]] of tiles.entries()) {
@@ -10063,14 +10067,55 @@ function upscaleTool(v, o) {
         const cx = (tx - x0) * 4, cy = (ty - y0) * 4, cw = Math.min(T, W - tx) * 4, ch = Math.min(T, H - ty) * 4;
         ox.imageSmoothingQuality = "high"; ox.drawImage(sm, cx, cy, cw, ch, tx * K, ty * K, cw * K / 4, ch * K / 4);
       }
-      outCv = out; msg(""); showOut(z, out, K);
+      let faces = 0;
+      if ($("#upFace") && $("#upFace").checked && !$("#upFaceL").classList.contains("hidden")) { try { faces = await restoreFaces(out, MIX >= 1 ? 1 : .8, msg); } catch (e) { console.warn("얼굴 복원 실패", e); if (/TB_NOGPU/.test(String(e && e.message))) { window.__tbNoFace = true; $("#upFaceL").classList.add("hidden"); } } }
+      outCv = out; msg(""); showOut(z, out, K, faces);
     } catch (e) { const m = $("#upMsg"); if (m) m.innerHTML = `<p class="note">${esc(aiErr(e, "키우지 못했어요. 더 작은 크기로 해 주세요."))}</p>`; }
     finally { b.disabled = false; }
   };
-  function showOut(z, out, K) {
+  /* 얼굴 복원: 얼굴 찾기(RetinaFace) → 눈·코·입 5점으로 512 정면 틀에 맞춰 자르기 → GFPGAN → 가장자리를 부드럽게 섞어 되붙이기 */
+  async function restoreFaces(out, strength, say) {
+    const W = out.width, H = out.height, S = 512, k = S / Math.max(W, H);
+    const det = await loadModel("face", say);
+    const dc = document.createElement("canvas"); dc.width = dc.height = S; const dx = dc.getContext("2d"); dx.imageSmoothingQuality = "high"; dx.drawImage(out, 0, 0, Math.round(W * k), Math.round(H * k));
+    const dd = dx.getImageData(0, 0, S, S).data, P = S * S, din = new Float32Array(3 * P);
+    for (let p = 0; p < P; p++) for (let c = 0; c < 3; c++) din[c * P + p] = dd[p * 4 + c];
+    const T = (det.RT || ort).Tensor, r = await det.run({[det.inputNames[0]]: new T("float32", din, [1, 3, S, S])});
+    const bx = r[det.outputNames[0]].data, sc = r[det.outputNames[1]].data, lm = r[det.outputNames[2]].data, N = sc.length, cand = [];
+    for (let i = 0; i < N; i++) if (sc[i] > .7) cand.push(i);
+    cand.sort((a, b) => sc[b] - sc[a]);
+    const box = i => [bx[i * 4] * S / k, bx[i * 4 + 1] * S / k, bx[i * 4 + 2] * S / k, bx[i * 4 + 3] * S / k], keep = [];
+    for (const i of cand) { const a = box(i); if (Math.min(a[2] - a[0], a[3] - a[1]) < 40) continue;
+      let dup = false; for (const j of keep) { const b = box(j), ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1])), inter = ix * iy, ar = q => (q[2] - q[0]) * (q[3] - q[1]); if (inter / (ar(a) + ar(b) - inter) > .4) { dup = true; break; } }
+      if (!dup) keep.push(i); if (keep.length >= 8) break; }
+    if (!keep.length) return 0;
+    const gfp = await loadModel("facePro", say);
+    const TPL = [[192.98138, 239.94708], [318.90277, 240.1936], [256.63416, 314.01935], [201.26117, 371.41043], [313.08905, 371.15118]];
+    /* 닮음 변환(회전·크기·이동) 최소제곱: x' = a x - b y + tx, y' = b x + a y + ty */
+    function simil(src, dst) { let sx = 0, sy = 0, dxs = 0, dys = 0; const n = src.length; for (let i = 0; i < n; i++) { sx += src[i][0]; sy += src[i][1]; dxs += dst[i][0]; dys += dst[i][1]; } sx /= n; sy /= n; dxs /= n; dys /= n;
+      let a = 0, b = 0, d = 0; for (let i = 0; i < n; i++) { const x = src[i][0] - sx, y = src[i][1] - sy, u = dst[i][0] - dxs, v = dst[i][1] - dys; a += x * u + y * v; b += x * v - y * u; d += x * x + y * y; } a /= d; b /= d;
+      return [a, b, -b, a, dxs - (a * sx - b * sy), dys - (b * sx + a * sy)]; }   // canvas setTransform(a,b,c,d,e,f) 순서
+    const inv = m => { const [a, b, c, d, e, f] = m, det = a * d - b * c; return [d / det, -b / det, -c / det, a / det, (c * f - d * e) / det, (b * e - a * f) / det]; };
+    const mask = document.createElement("canvas"); mask.width = mask.height = S; { const mx = mask.getContext("2d"); mx.filter = "blur(18px)"; mx.fillStyle = "#fff"; mx.fillRect(34, 34, S - 68, S - 68); }
+    let done = 0;
+    for (const i of keep) {
+      if (say) say(`얼굴 되살리는 중 ${done + 1}/${keep.length}…`); await nextFrame();
+      const pts = []; for (let j = 0; j < 5; j++) pts.push([lm[i * 10 + j * 2] * S / k, lm[i * 10 + j * 2 + 1] * S / k]);
+      const M = simil(pts, TPL), Mi = inv(M);
+      const fc = document.createElement("canvas"); fc.width = fc.height = S; const fx = fc.getContext("2d"); fx.imageSmoothingQuality = "high"; fx.setTransform(...M); fx.drawImage(out, 0, 0); fx.setTransform(1, 0, 0, 1, 0, 0);
+      const fd = fx.getImageData(0, 0, S, S).data, fin = new Float32Array(3 * P);
+      for (let p = 0; p < P; p++) for (let c = 0; c < 3; c++) fin[c * P + p] = fd[p * 4 + c] / 255;
+      const g = await gfp.run({[gfp.inputNames[0]]: new (gfp.RT || ort).Tensor("float32", fin, [1, 3, S, S])}), od = g[gfp.outputNames[0]].data, oi = fx.createImageData(S, S);
+      for (let p = 0; p < P; p++) { for (let c = 0; c < 3; c++) { const v = Math.max(0, Math.min(1, od[c * P + p])) * 255; oi.data[p * 4 + c] = v * strength + fd[p * 4 + c] * (1 - strength); } oi.data[p * 4 + 3] = 255; }
+      fx.putImageData(oi, 0, 0); fx.globalCompositeOperation = "destination-in"; fx.drawImage(mask, 0, 0); fx.globalCompositeOperation = "source-over";
+      const ox = out.getContext("2d"); ox.save(); ox.imageSmoothingQuality = "high"; ox.setTransform(...Mi); ox.drawImage(fc, 0, 0); ox.restore(); done++;
+    }
+    return done;
+  }
+  function showOut(z, out, K, faces) {
       if (!$("#upOut")) return;
       const before = document.createElement("canvas"); before.width = out.width; before.height = out.height; const bx = before.getContext("2d"); bx.imageSmoothingQuality = "high"; bx.drawImage(src, 0, 0, before.width, before.height);
-      $("#upOut").innerHTML = `<div class="cmp"><img src="${before.toDataURL("image/jpeg", .85)}" alt="원본 확대"><img src="${out.toDataURL("image/jpeg", .85)}" alt="선명하게 키운 결과"></div><p class="sub" style="font-size:13px">${z.W0}×${z.H0} → ${out.width}×${out.height} · 왼쪽은 원본을 같은 크기로 늘린 것</p><div class="row"><button class="btn pri" id="upPng">${ic("save", 16)}PNG 저장</button><button class="btn" id="upJpg">JPG 저장 (용량 작게)</button></div>`;
+      $("#upOut").innerHTML = `<div class="cmp"><img src="${before.toDataURL("image/jpeg", .85)}" alt="원본 확대"><img src="${out.toDataURL("image/jpeg", .85)}" alt="선명하게 키운 결과"></div><p class="sub" style="font-size:13px">${z.W0}×${z.H0} → ${out.width}×${out.height} · 왼쪽은 원본을 같은 크기로 늘린 것${faces ? ` · 얼굴 ${faces}개 복원(GFPGAN)` : ""}${q === "hq" && mode === "photo" ? " · 고화질 모델" : ""}</p><div class="row"><button class="btn pri" id="upPng">${ic("save", 16)}PNG 저장</button><button class="btn" id="upJpg">JPG 저장 (용량 작게)</button></div>`;
       $("#upPng").onclick = async () => { await saveFile(name + "_" + K + "x.png", await toBlob(outCv, "image/png")); saveItem({type: "upscale", title: "화질 개선 · " + name.slice(0, 28), data: {note: `${z.W0}×${z.H0} → ${out.width}×${out.height}`}}); };
       $("#upJpg").onclick = async () => saveFile(name + "_" + K + "x.jpg", await toBlob(outCv, "image/jpeg", .92));
   }
