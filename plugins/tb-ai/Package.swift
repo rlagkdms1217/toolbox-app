@@ -2,7 +2,7 @@
 import PackageDescription
 
 // 툴박스 기기 AI 엔진. ONNX Runtime 1.30 (DeformConv 등 새 누끼 모델에 필요한 연산 포함)
-// ORT_CHECKSUM 은 빌드(GitHub Actions)에서 실제 파일을 받아 계산해 채워요.
+// checksum 은 `swift package compute-checksum` 으로 계산한 값 (1.30.0)
 let package = Package(
     name: "TbAi",
     platforms: [.iOS(.v15)],
@@ -15,7 +15,7 @@ let package = Package(
     targets: [
         .binaryTarget(name: "onnxruntime",
                       url: "https://download.onnxruntime.ai/pod-archive-onnxruntime-c-1.30.0.zip",
-                      checksum: "ORT_CHECKSUM"),
+                      checksum: "e6f1670c14406fd9f082bb400ab197a9b0a9646058ca6366e440642e2b54a2ea"),
         .target(name: "OnnxRuntimeBindings",
                 dependencies: ["onnxruntime"],
                 path: "ios/objectivec",

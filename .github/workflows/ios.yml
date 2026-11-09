@@ -23,13 +23,6 @@ jobs:
       - name: 패키지 설치
         run: npm ci
 
-      - name: AI 엔진(ONNX Runtime 1.30) 파일 확인값 채우기
-        run: |
-          curl -sSL --retry 3 -o "$RUNNER_TEMP/ort.zip" https://download.onnxruntime.ai/pod-archive-onnxruntime-c-1.30.0.zip
-          SUM=$(swift package compute-checksum "$RUNNER_TEMP/ort.zip")
-          echo "checksum $SUM"
-          sed -i '' "s/ORT_CHECKSUM/$SUM/" plugins/tb-ai/Package.swift
-
       - name: 웹 화면을 앱에 넣기
         run: npx cap sync ios
 
