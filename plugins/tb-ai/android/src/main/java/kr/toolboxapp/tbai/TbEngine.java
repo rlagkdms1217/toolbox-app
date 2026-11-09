@@ -94,6 +94,17 @@ public class TbEngine {
         return new Loaded(new ArrayList<>(s.getInputNames()), new ArrayList<>(s.getOutputNames()), accels.get(name));
     }
 
+    /** 모델 내리기 (메모리 비우기). 큰 모델을 쓴 뒤 다른 큰 모델을 올릴 때 */
+    public synchronized void unload(String name) {
+        OrtSession s = sessions.remove(name);
+        accels.remove(name);
+        if (s != null) try { s.close(); } catch (Throwable ignore) { }
+    }
+
+    public synchronized void unloadAll() {
+        for (String k : new ArrayList<>(sessions.keySet())) unload(k);
+    }
+
     private OrtSession.SessionOptions options(boolean xnnpack) throws Exception {
         OrtSession.SessionOptions o = new OrtSession.SessionOptions();
         o.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
