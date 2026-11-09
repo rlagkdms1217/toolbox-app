@@ -82,7 +82,7 @@ jobs:
           disable-animations: true
           script: |
             chmod +x android/gradlew
-            cd android && ./gradlew connectedDebugAndroidTest --no-daemon --stacktrace || (adb logcat -d -s TbAI TbAITest AndroidRuntime TestRunner | tail -200; exit 1)
+            cd android && ./gradlew connectedDebugAndroidTest --no-daemon --stacktrace || (adb logcat -d -s TbAI TbAITest AndroidRuntime TestRunner DEBUG libc onnxruntime | tail -300; exit 1)
             adb logcat -d -s TbAITest | tail -50
       - name: 시험 결과 올리기
         if: always()

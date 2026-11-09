@@ -93,7 +93,7 @@ public class EngineTest {
         List<String> files = new ArrayList<>();
         files.add("models/bir-g.wasm");
         for (int i = 1; i <= 10; i++) files.add("models/bir-" + i + ".wasm");
-        TbEngine.Loaded l = e.load("bgPro", files, true, false);
+        TbEngine.Loaded l = e.load("bgPro", files, true, true);
         long t = System.currentTimeMillis();
         Map<String, TbEngine.Tensor> out = e.run("bgPro", one(l.inputs.get(0), new long[]{1, 3, 1024, 1024}, 0f));
         Log.i(TAG, "birefnet " + l.accel + " " + (System.currentTimeMillis() - t) + "ms");

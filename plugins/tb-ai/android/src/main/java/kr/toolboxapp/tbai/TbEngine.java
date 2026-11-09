@@ -80,11 +80,12 @@ public class TbEngine {
         if (s == null) {
             if (env == null) env = OrtEnvironment.getEnvironment();
             File f = modelFile(name, files, q8);
-            String accel = "xnnpack";
+            // XNNPACK(ARM 최적화)은 큰 모델(BiRefNet)에서 확인됨. 작은 모델(u2netp 등)은 Resize 연산에서 에뮬레이터가 죽는 일이 있어 CPU 멀티코어로.
+            String accel = heavy ? "xnnpack" : "cpu";
             try {
-                s = env.createSession(f.getAbsolutePath(), options(true));
+                s = env.createSession(f.getAbsolutePath(), options(heavy));
             } catch (Throwable e) {
-                Log.w(TAG, "XNNPACK 실패, CPU로: " + e.getMessage());
+                Log.w(TAG, "세션 생성 실패, CPU로: " + e.getMessage());
                 accel = "cpu";
                 s = env.createSession(f.getAbsolutePath(), options(false));
             }
