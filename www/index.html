@@ -6184,7 +6184,7 @@ window.__tbNative = TB_NATIVE;   // 자동 점검용
 class NativeTensor { constructor(type, data, dims) { this.type = type; this.data = data; this.dims = dims; } }
 async function nativeSession(k, m) {
   const P = window.Capacitor.Plugins.TbAI;
-  const info = await P.load({name: k, files: m.files, q8: !!m.q8, heavy: m.mb > 40 && m.ort === 130});   // 메모리가 적은 폰이면 큰 모델은 엔진이 거절 → 기존 모델로
+  const info = await P.load({name: k, files: m.files, q8: !!m.q8, heavy: m.mb > 40});   // 메모리가 적은 폰이면 큰 모델은 엔진이 거절 → 기존 모델로
   return {
     native: true, RT: {Tensor: NativeTensor}, inputNames: info.inputs, outputNames: info.outputs, accel: info.accel,
     async run(feeds) {
@@ -6220,7 +6220,8 @@ function loadOrt130() {
   return ort130P;
 }
 const MODELS = {bg: {files: ["models/u2netp.wasm"], mb: 4.6}, bgHQ: {files: ["models/isnet-g.wasm", "models/isnet-1.wasm", "models/isnet-2.wasm", "models/isnet-3.wasm", "models/isnet-4.wasm", "models/isnet-5.wasm", "models/isnet-6.wasm", "models/isnet-7.wasm", "models/isnet-8.wasm", "models/isnet-9.wasm"], mb: 44.6, q8: true}, erase: {files: ["models/migan-g.wasm", "models/migan-1.wasm", "models/migan-2.wasm"], mb: 6.9, q8: true}, upscale: {files: ["models/upscale-g.wasm", "models/upscale-1.wasm"], mb: 1.3, q8: true}, upscaleHQ: {files: ["models/esr-g.wasm", "models/esr-1.wasm", "models/esr-2.wasm", "models/esr-3.wasm", "models/esr-4.wasm"], mb: 16.3, q8: true, gpu: true},
-  bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, ort: 130, cdn: true}};   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
+  bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, ort: 130, cdn: true},   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
+  erasePro: {files: ["models/lama-g.wasm"].concat(Array.from({length: 11}, (_, i) => `models/lama-${i + 1}.wasm`)), mb: 58.8, q8: true, gpu: true, cdn: true}};   // LaMa(Apache-2.0) — 큰 물체도 주변 무늬를 이어서 자연스럽게, PC 그래픽카드·앱 전용   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
 /* 그래픽카드(WebGPU)로 돌릴 수 있는 브라우저인지 — 큰 모델(고화질 화질 개선)은 이게 있어야 쓸 만한 속도가 나와요 */
 let HAS_GPU = false;
 const GPU_P = (async () => { if (TB_NATIVE) return HAS_GPU = true;   /* 앱은 폰 AI 엔진이 있어서 큰 모델도 돼요 */ try { HAS_GPU = !!(navigator.gpu && window.isSecureContext && await navigator.gpu.requestAdapter()); } catch (e) { HAS_GPU = false; } return HAS_GPU; })();
@@ -6560,8 +6561,10 @@ function eraseTool(v, o) {
     cv.width = img.width; cv.height = img.height; draw();
     $("#eDrop").classList.add("hidden"); $("#eLoaded").classList.remove("hidden"); $("#eName").textContent = `${f.name} · ${W0}×${H0}`;
     $("#eWait").classList.add("hidden"); $("#eEd").classList.remove("hidden"); $("#eSave").disabled = false; $("#eGo").disabled = true; $("#eInfo").textContent = "";
-    loadModel("erase").catch(() => {});
+    pickErase().then(k => loadModel(k)).catch(() => {});
   }
+  /* PC 그래픽카드·앱이면 새 모델(LaMa), 아니면 기존 모델(MI-GAN) */
+  async function pickErase() { if (window.__tbNoEPro) return "erase"; await GPU_P; return (HAS_GPU || window.__TB_FORCE_CPU) && !window.__tbNoEPro ? "erasePro" : "erase"; }
   const pt = e => { const r = cv.getBoundingClientRect(); return {x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height, k: cv.width / r.width}; };
   function paint(p) {
     const x = mk.getContext("2d"); x.strokeStyle = x.fillStyle = markCol(); x.lineCap = x.lineJoin = "round"; x.lineWidth = +$("#eSize").value * p.k;
@@ -6579,7 +6582,10 @@ function eraseTool(v, o) {
   $("#eGo").onclick = async () => {
     const btn = $("#eGo"); btn.disabled = true;
     try {
-      const sess = await loadModel("erase", msg); msg("지우는 중…"); await nextFrame();
+      let kind = await pickErase(), sess;
+      try { sess = await loadModel(kind, msg); }
+      catch (e) { if (kind === "erase") throw e; if (!/TB_NOGPU/.test(String(e && e.message))) console.warn("erasePro 실패", e); window.__tbNoEPro = true; kind = "erase"; sess = await loadModel(kind, msg); }
+      const pro = kind === "erasePro"; msg("지우는 중…"); await nextFrame();
       const W = img.width, H = img.height, md = mk.getContext("2d").getImageData(0, 0, W, H).data;
       let x0 = W, y0 = H, x1 = -1, y1 = -1;
       for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (md[(y * W + x) * 4 + 3] > 10) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
@@ -6589,11 +6595,24 @@ function eraseTool(v, o) {
       const cx = Math.max(0, Math.min(W - cw, Math.round((x0 + x1) / 2 - cw / 2))), cy = Math.max(0, Math.min(H - chh, Math.round((y0 + y1) / 2 - chh / 2)));
       const N = 512, ic2 = document.createElement("canvas"); ic2.width = ic2.height = N; const ix = ic2.getContext("2d"); ix.imageSmoothingQuality = "high"; ix.drawImage(img, cx, cy, cw, chh, 0, 0, N, N);
       const mc = document.createElement("canvas"); mc.width = mc.height = N; const mx = mc.getContext("2d"); mx.filter = "blur(3px)"; mx.drawImage(mk, cx, cy, cw, chh, 0, 0, N, N);   // 칠한 곳보다 조금 넓게(테두리·그림자 자국까지)
-      const id = ix.getImageData(0, 0, N, N).data, mm = mx.getImageData(0, 0, N, N).data, P = N * N, inp = new Float32Array(4 * P);
-      for (let p = 0; p < P; p++) { const m = mm[p * 4 + 3] > 8 ? 1 : 0; inp[p] = .5 - m; for (let k = 0; k < 3; k++) inp[(k + 1) * P + p] = (id[p * 4 + k] / 127.5 - 1) * (1 - m); }
-      const res = await sess.run({[sess.inputNames[0]]: new (sess.RT || ort).Tensor("float32", inp, [1, 4, N, N])});
-      const o = res[sess.outputNames[0]].data, od = ix.createImageData(N, N);
-      for (let p = 0; p < P; p++) { for (let k = 0; k < 3; k++) od.data[p * 4 + k] = Math.max(0, Math.min(255, Math.round(o[k * P + p] * 127.5 + 127.5))); od.data[p * 4 + 3] = 255; }
+      const id = ix.getImageData(0, 0, N, N).data, mm = mx.getImageData(0, 0, N, N).data, P = N * N, od = ix.createImageData(N, N);
+      let o;
+      try {
+        if (pro) {   // LaMa: 사진 0~1(구멍은 0) + 구멍 1, 결과 0~1
+          const im3 = new Float32Array(3 * P), m1 = new Float32Array(P);
+          for (let p = 0; p < P; p++) { const m = mm[p * 4 + 3] > 8 ? 1 : 0; m1[p] = m; for (let k = 0; k < 3; k++) im3[k * P + p] = id[p * 4 + k] / 255 * (1 - m); }
+          const T = (sess.RT || ort).Tensor, nI = sess.inputNames.find(n => /image|img/i.test(n)) || sess.inputNames[0], nM = sess.inputNames.find(n => /mask/i.test(n)) || sess.inputNames[1];
+          const res = await sess.run({[nI]: new T("float32", im3, [1, 3, N, N]), [nM]: new T("float32", m1, [1, 1, N, N])});
+          o = res[sess.outputNames[0]].data;
+          for (let p = 0; p < P; p++) { for (let k = 0; k < 3; k++) od.data[p * 4 + k] = Math.max(0, Math.min(255, Math.round(o[k * P + p] * 255))); od.data[p * 4 + 3] = 255; }
+        } else {     // MI-GAN: [마스크(.5-m), 사진 -1~1]
+          const inp = new Float32Array(4 * P);
+          for (let p = 0; p < P; p++) { const m = mm[p * 4 + 3] > 8 ? 1 : 0; inp[p] = .5 - m; for (let k = 0; k < 3; k++) inp[(k + 1) * P + p] = (id[p * 4 + k] / 127.5 - 1) * (1 - m); }
+          const res = await sess.run({[sess.inputNames[0]]: new (sess.RT || ort).Tensor("float32", inp, [1, 4, N, N])});
+          o = res[sess.outputNames[0]].data;
+          for (let p = 0; p < P; p++) { for (let k = 0; k < 3; k++) od.data[p * 4 + k] = Math.max(0, Math.min(255, Math.round(o[k * P + p] * 127.5 + 127.5))); od.data[p * 4 + 3] = 255; }
+        }
+      } catch (e) { if (!pro) throw e; console.warn("erasePro 실행 실패 → 기존 모델로", e); delete sessP.erasePro; window.__tbNoEPro = true; btn.disabled = false; return btn.onclick(); }
       { /* 메운 곳이 뭉개 보이지 않게: 주변 사진의 결(잔 노이즈) 세기를 재서 메운 곳에 비슷하게 입혀요 */
         let sum = 0, cnt = 0; for (let y = 1; y < N - 1; y += 2) for (let x = 1; x < N - 1; x += 2) { const p = y * N + x; if (mm[p * 4 + 3] > 8) continue; const l = (q => id[q * 4] * .3 + id[q * 4 + 1] * .59 + id[q * 4 + 2] * .11), c0 = l(p), lap = 4 * c0 - l(p - 1) - l(p + 1) - l(p - N) - l(p + N); sum += lap * lap; cnt++; }
         const sig = Math.min(3.5, Math.sqrt(sum / Math.max(1, cnt)) / 7 * Math.max(1, cw / N) ** .5);   // 결은 아주 약하게만(세면 점이 자글자글해 보여요)
@@ -6609,7 +6628,7 @@ function eraseTool(v, o) {
       g.drawImage(patch, cx, cy);
       if (full) { const sf = full.width / W, fg = full.getContext("2d"), rx = Math.max(0, Math.floor(cx * sf)), ry = Math.max(0, Math.floor(cy * sf)), rw = Math.min(full.width - rx, Math.ceil(cw * sf) + 1), rh = Math.min(full.height - ry, Math.ceil(chh * sf) + 1);
         fhist.push([rx, ry, fg.getImageData(rx, ry, rw, rh)]); if (fhist.length > 8) fhist.shift(); fg.imageSmoothingQuality = "high"; fg.drawImage(patch, cx * sf, cy * sf, cw * sf, chh * sf); }
-      mk.getContext("2d").clearRect(0, 0, W, H); edits++; draw(); msg(big > Math.max(W, H) * .45 ? `<p class="note">큰 부분을 한 번에 지우면 티가 날 수 있어요. 결과가 어색하면 실행 취소 뒤, 조금씩 나눠 지워 보세요.</p>` : ""); $("#eInfo").textContent = `${edits}번 지웠어요. 덜 지워졌으면 다시 칠해서 지워요`;
+      mk.getContext("2d").clearRect(0, 0, W, H); edits++; draw(); msg(big > Math.max(W, H) * .45 ? `<p class="note">큰 부분을 한 번에 지우면 티가 날 수 있어요. 결과가 어색하면 실행 취소 뒤, 조금씩 나눠 지워 보세요.</p>` : ""); $("#eInfo").textContent = `${edits}번 지웠어요. 덜 지워졌으면 다시 칠해서 지워요` + (pro ? " · 고급 모델(LaMa)" : "");
     } catch (e) { $("#eMsg").innerHTML = `<p class="note">${esc(aiErr(e, "지우지 못했어요. 다시 눌러 주세요."))}</p>`; btn.disabled = false; return; }
     btn.disabled = true;
   };

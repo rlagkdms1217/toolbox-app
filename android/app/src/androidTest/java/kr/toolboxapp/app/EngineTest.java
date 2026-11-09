@@ -86,6 +86,26 @@ public class EngineTest {
         assertEquals(3 * 512 * 512, out.get(l.outputs.get(0)).data.length);
     }
 
+    /** 새 지우기 모델(LaMa) — 입력 2개(image, mask), 푸리에 변환을 MatMul로 바꾼 그래프 */
+    @Test
+    public void y_proEraseModel() throws Exception {
+        TbEngine e = engine();
+        List<String> files = new ArrayList<>();
+        files.add("models/lama-g.wasm");
+        for (int i = 1; i <= 11; i++) files.add("models/lama-" + i + ".wasm");
+        TbEngine.Loaded l = e.load("erasePro", files, true, true);
+        assertEquals(2, l.inputs.size());
+        Map<String, TbEngine.Tensor> in = new HashMap<>();
+        in.put(l.inputs.get(0), new TbEngine.Tensor(new long[]{1, 3, 512, 512}, fill(3 * 512 * 512, 0.5f)));
+        in.put(l.inputs.get(1), new TbEngine.Tensor(new long[]{1, 1, 512, 512}, fill(512 * 512, 0f)));
+        long t = System.currentTimeMillis();
+        Map<String, TbEngine.Tensor> out = e.run("erasePro", in);
+        Log.i(TAG, "lama " + l.accel + " " + (System.currentTimeMillis() - t) + "ms");
+        TbEngine.Tensor o = out.get(l.outputs.get(0));
+        assertEquals(3 * 512 * 512, o.data.length);
+        for (int i = 0; i < o.data.length; i += 4096) assertTrue(o.data[i] > -0.5f && o.data[i] < 1.5f);
+    }
+
     /** 새 누끼 모델(BiRefNet) — DeformConv 연산이 이 엔진에서 되는지가 핵심 */
     @Test
     public void z_proBackgroundModel() throws Exception {
