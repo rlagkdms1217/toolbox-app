@@ -6263,6 +6263,24 @@ function loadModel(k, say) {
   })().catch(e => { delete sessP[k]; throw e; });
   return sessP[k];
 }
+/* 얼굴 찾기(RetinaFace, 기기 안) — 캔버스/이미지에서 얼굴 상자(픽셀)와 눈·코·입 5점을 돌려줘요. 작은 얼굴(minSide px 미만)은 빼요 */
+async function tbDetectFaces(src, say, minSide = 40, maxN = 20) {
+  const W = src.width || src.naturalWidth, H = src.height || src.naturalHeight, S = 512, k = S / Math.max(W, H);
+  const det = await loadModel("face", say);
+  const dc = document.createElement("canvas"); dc.width = dc.height = S; const dx = dc.getContext("2d"); dx.imageSmoothingQuality = "high"; dx.drawImage(src, 0, 0, Math.round(W * k), Math.round(H * k));
+  const dd = dx.getImageData(0, 0, S, S).data, P = S * S, din = new Float32Array(3 * P);
+  for (let p = 0; p < P; p++) for (let c = 0; c < 3; c++) din[c * P + p] = dd[p * 4 + c];
+  const T = (det.RT || ort).Tensor, r = await det.run({[det.inputNames[0]]: new T("float32", din, [1, 3, S, S])});
+  const bx = r[det.outputNames[0]].data, sc = r[det.outputNames[1]].data, lm = r[det.outputNames[2]].data, cand = [];
+  for (let i = 0; i < sc.length; i++) if (sc[i] > .7) cand.push(i);
+  cand.sort((a, b) => sc[b] - sc[a]);
+  const box = i => [bx[i * 4] * S / k, bx[i * 4 + 1] * S / k, bx[i * 4 + 2] * S / k, bx[i * 4 + 3] * S / k], ar = q => (q[2] - q[0]) * (q[3] - q[1]), out = [];
+  for (const i of cand) { const a = box(i); if (Math.min(a[2] - a[0], a[3] - a[1]) < minSide) continue;
+    let dup = false; for (const o of out) { const b = o.box, ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1])), inter = ix * iy; if (inter / (ar(a) + ar(b) - inter) > .4) { dup = true; break; } }
+    if (dup) continue; const pts = []; for (let j = 0; j < 5; j++) pts.push([lm[i * 10 + j * 2] * S / k, lm[i * 10 + j * 2 + 1] * S / k]);
+    out.push({box: a, pts, score: sc[i]}); if (out.length >= maxN) break; }
+  return out;
+}
 /* 8비트로 줄여 둔 가중치를 원래(32비트)로 풀어 모델 파일 뒤에 붙여요 — 다운로드 1/4, 결과는 원본과 같아요 */
 function q8Model(g, blob) {
   const ml = new DataView(blob.buffer, blob.byteOffset).getUint32(0, true), man = JSON.parse(new TextDecoder().decode(blob.subarray(4, 4 + ml)));
@@ -9197,7 +9215,7 @@ function maskTool(v, o) {
   </div>
   <div id="mkImg" class="steps hidden">
   ${step(2, "이미지 넣기", "AI가 개인정보를 찾아 표시하면, 끌어서 더 가리거나 표시를 눌러 뺄 수 있어요", `<div class="drop" id="miDrop">${ic("mask", 26, 1.5)}<p>캡처·사진을 고르세요</p><span class="btn file">이미지 고르기<input type="file" id="miIn" accept="image/*" aria-label="이미지 고르기"></span></div>
-    <div id="miEd" class="sect hidden"><div class="row"><button class="btn pri sm" id="miAi">AI로 찾기</button><div class="seg" role="group" aria-label="가리는 모양" id="miSt"><button data-s="mosaic" aria-pressed="true">모자이크</button><button data-s="black" aria-pressed="false">검은 박스</button></div><span class="sp"></span><button class="btn sm" id="miUndo">실행 취소</button></div>
+    <div id="miEd" class="sect hidden"><div class="row"><button class="btn pri sm" id="miAi">AI로 찾기</button><button class="btn sm" id="miFace" title="사진을 서버로 보내지 않고 이 기기에서 얼굴만 찾아요">얼굴만 찾기 (기기에서)</button><div class="seg" role="group" aria-label="가리는 모양" id="miSt"><button data-s="mosaic" aria-pressed="true">모자이크</button><button data-s="black" aria-pressed="false">검은 박스</button></div><span class="sp"></span><button class="btn sm" id="miUndo">실행 취소</button></div>
     <div id="miMsg"></div><canvas class="ed" id="miCv" aria-label="이미지. 끌어서 가릴 영역 추가"></canvas><button class="btn pri block" id="miSave">${ic("save", 16)}저장</button></div>`)}
   </div></div>`;
   document.querySelectorAll("#mkKind button").forEach(b => b.onclick = () => { document.querySelectorAll("#mkKind button").forEach(x => x.setAttribute("aria-pressed", x === b)); $("#mkText").classList.toggle("hidden", b.dataset.k !== "text"); $("#mkImg").classList.toggle("hidden", b.dataset.k !== "img"); });
@@ -9254,6 +9272,17 @@ JSON 하나로만 답하세요: {"items":[{"label":"전화번호","box_2d":[ymin
       draw(); msg.innerHTML = `<p class="sub" style="font-size:13px">${items.map(i => i.label).filter((x, k, a) => a.indexOf(x) === k).join(", ")} 등 ${items.length}곳을 가렸어요. 위치가 어긋나면 눌러서 빼고 끌어서 다시 가려요.</p>`;
     } catch (e) { msg.innerHTML = `<p class="note">${esc(errMsg(e))} 끌어서 직접 가릴 수 있어요.</p>`; }
     finally { $("#miAi").disabled = false; }
+  };
+  $("#miFace").onclick = async () => {   // 기기 안에서 얼굴만 찾아 가려요(서버로 안 보냄)
+    const msg = $("#miMsg"); if (!img) return; $("#miFace").disabled = true; msg.innerHTML = thinking("얼굴 찾는 중…");
+    try {
+      const fs = await tbDetectFaces(img, t => msg.innerHTML = thinking(t), 16, 40);
+      if (!fs.length) { msg.innerHTML = `<p class="note">얼굴을 찾지 못했어요. 끌어서 직접 가려 주세요.</p>`; return; }
+      hist.push(boxes.slice());
+      fs.forEach(f => { const [x0, y0, x1, y1] = f.box, w = x1 - x0, h = y1 - y0; boxes.push({x1: Math.max(0, x0 - w * .12), y1: Math.max(0, y0 - h * .18), x2: Math.min(cv.width, x1 + w * .12), y2: Math.min(cv.height, y1 + h * .1)}); });
+      draw(); msg.innerHTML = `<p class="sub" style="font-size:13px">얼굴 ${fs.length}개를 가렸어요 (이 기기에서 처리). 위치가 어긋나면 눌러서 빼고 끌어서 다시 가려요.</p>`;
+    } catch (e) { msg.innerHTML = `<p class="note">${esc(aiErr(e, "얼굴을 찾지 못했어요."))} 끌어서 직접 가릴 수 있어요.</p>`; }
+    finally { $("#miFace").disabled = false; }
   };
   $("#miSave").onclick = async () => { await saveFile(name + "_가림.png", await toBlob(cv, "image/png")); saveItem({type: "mask", title: "개인정보 가리기 · " + name.slice(0, 26), data: {note: `${boxes.length}곳 가림`}}); };
 }
@@ -10050,7 +10079,7 @@ function upscaleTool(v, o) {
       if (!sess) sess = await loadModel("upscale", msg);
       const inp = document.createElement("canvas"); inp.width = z.w; inp.height = z.h; const ix = inp.getContext("2d"); ix.imageSmoothingQuality = "high"; ix.drawImage(src, 0, 0, z.w, z.h);
       const W = z.w, H = z.h, d = ix.getImageData(0, 0, W, H).data;
-      const T = (q === "hq" && HAS_GPU && !TB_NATIVE) ? 256 : 128, PAD = 16, out = document.createElement("canvas");   // 그래픽카드면 한 번에 큰 조각(호출 횟수↓ → 2~3배 빠름) out.width = W * K; out.height = H * K; const ox = out.getContext("2d");
+      const T = (q === "hq" && HAS_GPU && !TB_NATIVE) ? 256 : 128, PAD = 16, out = document.createElement("canvas"); out.width = W * K; out.height = H * K; const ox = out.getContext("2d");   // 그래픽카드면 한 번에 큰 조각(호출 횟수↓ → 2~3배 빠름)
       const tiles = []; for (let y = 0; y < H; y += T) for (let x = 0; x < W; x += T) tiles.push([x, y]);
       const t0 = Date.now();
       for (const [n, [tx, ty]] of tiles.entries()) {
@@ -10070,24 +10099,12 @@ function upscaleTool(v, o) {
       let faces = 0;
       if ($("#upFace") && $("#upFace").checked && !$("#upFaceL").classList.contains("hidden")) { try { faces = await restoreFaces(out, MIX >= 1 ? 1 : .8, msg); } catch (e) { console.warn("얼굴 복원 실패", e); if (/TB_NOGPU/.test(String(e && e.message))) { window.__tbNoFace = true; $("#upFaceL").classList.add("hidden"); } } }
       outCv = out; msg(""); showOut(z, out, K, faces);
-    } catch (e) { const m = $("#upMsg"); if (m) m.innerHTML = `<p class="note">${esc(aiErr(e, "키우지 못했어요. 더 작은 크기로 해 주세요."))}</p>`; }
+    } catch (e) { console.warn("화질 개선 실패", e); const m = $("#upMsg"); if (m) m.innerHTML = `<p class="note">${esc(aiErr(e, "키우지 못했어요. 더 작은 크기로 해 주세요."))}</p>`; }
     finally { b.disabled = false; }
   };
   /* 얼굴 복원: 얼굴 찾기(RetinaFace) → 눈·코·입 5점으로 512 정면 틀에 맞춰 자르기 → GFPGAN → 가장자리를 부드럽게 섞어 되붙이기 */
   async function restoreFaces(out, strength, say) {
-    const W = out.width, H = out.height, S = 512, k = S / Math.max(W, H);
-    const det = await loadModel("face", say);
-    const dc = document.createElement("canvas"); dc.width = dc.height = S; const dx = dc.getContext("2d"); dx.imageSmoothingQuality = "high"; dx.drawImage(out, 0, 0, Math.round(W * k), Math.round(H * k));
-    const dd = dx.getImageData(0, 0, S, S).data, P = S * S, din = new Float32Array(3 * P);
-    for (let p = 0; p < P; p++) for (let c = 0; c < 3; c++) din[c * P + p] = dd[p * 4 + c];
-    const T = (det.RT || ort).Tensor, r = await det.run({[det.inputNames[0]]: new T("float32", din, [1, 3, S, S])});
-    const bx = r[det.outputNames[0]].data, sc = r[det.outputNames[1]].data, lm = r[det.outputNames[2]].data, N = sc.length, cand = [];
-    for (let i = 0; i < N; i++) if (sc[i] > .7) cand.push(i);
-    cand.sort((a, b) => sc[b] - sc[a]);
-    const box = i => [bx[i * 4] * S / k, bx[i * 4 + 1] * S / k, bx[i * 4 + 2] * S / k, bx[i * 4 + 3] * S / k], keep = [];
-    for (const i of cand) { const a = box(i); if (Math.min(a[2] - a[0], a[3] - a[1]) < 40) continue;
-      let dup = false; for (const j of keep) { const b = box(j), ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1])), inter = ix * iy, ar = q => (q[2] - q[0]) * (q[3] - q[1]); if (inter / (ar(a) + ar(b) - inter) > .4) { dup = true; break; } }
-      if (!dup) keep.push(i); if (keep.length >= 8) break; }
+    const S = 512, P = S * S, keep = await tbDetectFaces(out, say, 40, 8);
     if (!keep.length) return 0;
     const gfp = await loadModel("facePro", say);
     const TPL = [[192.98138, 239.94708], [318.90277, 240.1936], [256.63416, 314.01935], [201.26117, 371.41043], [313.08905, 371.15118]];
@@ -10098,10 +10115,9 @@ function upscaleTool(v, o) {
     const inv = m => { const [a, b, c, d, e, f] = m, det = a * d - b * c; return [d / det, -b / det, -c / det, a / det, (c * f - d * e) / det, (b * e - a * f) / det]; };
     const mask = document.createElement("canvas"); mask.width = mask.height = S; { const mx = mask.getContext("2d"); mx.filter = "blur(18px)"; mx.fillStyle = "#fff"; mx.fillRect(34, 34, S - 68, S - 68); }
     let done = 0;
-    for (const i of keep) {
+    for (const f of keep) {
       if (say) say(`얼굴 되살리는 중 ${done + 1}/${keep.length}…`); await nextFrame();
-      const pts = []; for (let j = 0; j < 5; j++) pts.push([lm[i * 10 + j * 2] * S / k, lm[i * 10 + j * 2 + 1] * S / k]);
-      const M = simil(pts, TPL), Mi = inv(M);
+      const M = simil(f.pts, TPL), Mi = inv(M);
       const fc = document.createElement("canvas"); fc.width = fc.height = S; const fx = fc.getContext("2d"); fx.imageSmoothingQuality = "high"; fx.setTransform(...M); fx.drawImage(out, 0, 0); fx.setTransform(1, 0, 0, 1, 0, 0);
       const fd = fx.getImageData(0, 0, S, S).data, fin = new Float32Array(3 * P);
       for (let p = 0; p < P; p++) for (let c = 0; c < 3; c++) fin[c * P + p] = fd[p * 4 + c] / 255;
