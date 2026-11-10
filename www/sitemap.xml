@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://muddy-pond-0d55.khe121795.workers.dev/</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/bg.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/erase.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/upscale.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/pdf.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/pdfedit.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/sign.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/convert.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/image.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/exif.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/mask.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/scan.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/meeting.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/form.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/tools/viewer.html</loc></url>
+<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/security.html</loc></url>
 <url><loc>https://muddy-pond-0d55.khe121795.workers.dev/privacy.html</loc></url>
 <url><loc>https://muddy-pond-0d55.khe121795.workers.dev/terms.html</loc></url>
-<url><loc>https://muddy-pond-0d55.khe121795.workers.dev/security.html</loc></url>
 </urlset>
