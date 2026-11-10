@@ -1968,7 +1968,7 @@ function acctInfo() {
 }
 function acctBtnHTML(id) {
   const a = acctInfo();
-  return `<button type="button" class="acct-btn" id="${id}" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"><span class="acct-av${a.logged ? "" : " off"}">${a.logged ? esc(a.initial) : ic("gear", 16, 1.8)}</span><span class="acct-t"><b>${esc(a.logged ? a.name : TB_LOGIN ? "로그인 · 회원가입" : "설정")}</b><small>${a.left ? `<span>${esc(a.plan)}</span><span>${esc(a.left)}</span>` : esc(a.plan)}</small></span>${ic("down", 16, 1.8)}</button>`;
+  return `<button type="button" class="acct-btn" id="${id}" aria-haspopup="menu" aria-expanded="false" title="계정 메뉴"><span class="acct-av${a.logged ? "" : " off"}">${a.logged ? esc(a.initial) : ic("gear", 16, 1.8)}</span><span class="acct-t"><b>${esc(a.logged ? a.name : TB_LOGIN ? "로그인 · 회원가입" : "설정")}</b><small>${a.left ? `<span>${esc(a.plan)}</span><span>${esc(a.left)}</span>` : esc(a.plan)}</small></span>${ic("down", 16, 1.8)}</button>`;
 }
 let ACCT_L = null;   // 열린 메뉴의 바깥 클릭·Esc 감지기 (닫을 때 꼭 떼야 다음 메뉴를 잘못 닫지 않아요)
 function closeAcct() { const p = $("#acctPop"); if (p) p.remove(); if (ACCT_L) { document.removeEventListener("pointerdown", ACCT_L.off, true); removeEventListener("keydown", ACCT_L.key); ACCT_L = null; } document.querySelectorAll(".acct-btn[aria-expanded=true]").forEach(b => b.setAttribute("aria-expanded", "false")); }
@@ -6184,46 +6184,80 @@ window.__tbNative = TB_NATIVE;   // 자동 점검용
 class NativeTensor { constructor(type, data, dims) { this.type = type; this.data = data; this.dims = dims; } }
 async function nativeSession(k, m) {
   const P = window.Capacitor.Plugins.TbAI;
-  const info = await P.load({name: k, files: m.files, q8: !!m.q8, heavy: m.mb > 40});   // 메모리가 적은 폰이면 큰 모델은 엔진이 거절 → 기존 모델로
+  const info = await P.load({name: k, files: m.files, q8: !!m.q8, heavy: !!m.big});   // big(풀면 200MB가 넘는 모델): 메모리가 적은 폰이면 엔진이 거절 → 기존 모델로. 엔진은 큰 모델을 한 번에 하나만 올려 둬요
   return {
     native: true, RT: {Tensor: NativeTensor}, inputNames: info.inputs, outputNames: info.outputs, accel: info.accel,
     async run(feeds) {
       const inputs = {}; for (const [n, t] of Object.entries(feeds)) inputs[n] = {dims: t.dims, data: nb64.enc(t.data)};
-      const r = await P.run({name: k, inputs}), out = {};
+      const out = {}; let r;
+      try { r = await P.run({name: k, inputs}); }
+      catch (e) { if (!/not loaded/i.test(String(e && (e.message || e)))) throw e; await P.load({name: k, files: m.files, q8: !!m.q8, heavy: !!m.big}); r = await P.run({name: k, inputs}); }   // 메모리를 비우느라 엔진이 내려 둔 모델이면 다시 올려요
       for (const [n, t] of Object.entries(r.outputs)) out[n] = new NativeTensor("float32", nb64.dec(t.data), t.dims);
       return out;
     }
   };
 }
-/* PC 전용 큰 파일(새 누끼 모델, 새 AI 엔진)은 사이트에 없으면 공개 CDN(jsDelivr ← GitHub toolbox-app 저장소)에서 받아요.
-   → 웹 업로드 zip이 100MB 아래로 유지돼요. 앱 안에는 파일이 들어 있어서 CDN을 안 써요. */
-const TB_CDN = "https://cdn.jsdelivr.net/gh/rlagkdms1217/toolbox-app@main/www/";
-async function tbFetchBig(path) {
-  let r = await fetch(path).catch(() => null);
-  if (r && r.ok) return r;
-  r = await fetch(TB_CDN + path).catch(() => null);
-  if (r && r.ok) return r;
+/* PC 전용 큰 파일(고급 누끼·지우기·얼굴 복원 모델, 새 AI 엔진)은 사이트에 없으면 밖에서 받아요.
+   · 받는 곳: ① jsDelivr(공개 CDN) → ② GitHub 원본 주소. 둘 다 GitHub toolbox-app 저장소의 '모델 전용 묶음'(cdn-bir·cdn-lama·cdn-gfp)을 가리켜요.
+     (모델 전용 묶음을 따로 둔 이유: jsDelivr는 묶음이 150MB를 넘으면 파일을 안 내줘요.)
+   · 묶음마다 커밋 번호를 고정해서 파일이 몰래 바뀔 수 없고, 받은 뒤 SHA-256 지문까지 확인해요.
+   · 한 번 받은 파일은 브라우저 저장소(tb-lib-1)에 넣어 두고 다음부터는 거기서 꺼내요. 앱에는 파일이 들어 있어서 밖에서 안 받아요. */
+const TB_CDN_REPO = "rlagkdms1217/toolbox-app";
+const TB_CDN_REF = {bir: "7ba6f8c810707da27339ace7f622b8cc9d1a5669", lama: "17629a389ea98dc0ed97354f8380c0915fdf3a2a", gfp: "1069783a835fb724c8ad193724e5eb38bbd38bfc"};
+const tbCdnBases = ref => [`https://cdn.jsdelivr.net/gh/${TB_CDN_REPO}@${ref}/`, `https://raw.githubusercontent.com/${TB_CDN_REPO}/${ref}/`];
+const tbCdnBad = new Set(), tbLocalMiss = new Set();   // 이번 접속에서 안 되는 곳은 건너뛰어요
+window.__tbCdnLog = [];                                 // 자동 점검용: 어디서 받았는지
+const tbIsFile = r => !!(r && r.ok && !/text\/html/i.test(r.headers.get("content-type") || ""));
+const tbBigKey = (set, path) => new Request(new URL("__big/" + TB_CDN_REF[set].slice(0, 12) + "/" + path, location.href).href);
+async function tbSha256(u8) { const d = await crypto.subtle.digest("SHA-256", u8); return Array.from(new Uint8Array(d), b => b.toString(16).padStart(2, "0")).join(""); }
+async function tbReadAll(r, onChunk) {
+  if (!(r.body && r.body.getReader)) { const b = new Uint8Array(await r.arrayBuffer()); if (onChunk) onChunk(b.length); return b; }
+  const rd = r.body.getReader(), list = []; let n = 0;
+  for (;;) { const {done, value} = await rd.read(); if (done) break; list.push(value); n += value.length; if (onChunk) onChunk(value.length); }
+  const a = new Uint8Array(n); let o = 0; for (const b of list) { a.set(b, o); o += b.length; } return a;
+}
+/* 큰 파일 하나 받기 → {u8, from: "cache" | "site" | 받은 곳 주소} */
+async function tbGetBig(path, set, onChunk) {
+  try { if (window.caches) { const hit = await (await caches.open("tb-lib-1")).match(tbBigKey(set, path)); if (hit) { window.__tbCdnLog.push("cache " + path); return {u8: new Uint8Array(await hit.arrayBuffer()), from: "cache"}; } } } catch (e) {}
+  if (!tbLocalMiss.has(set) && !window.__TB_NO_LOCAL_BIG) { const r = await fetch(path).catch(() => null); if (tbIsFile(r)) { window.__tbCdnLog.push("site " + path); return {u8: await tbReadAll(r, onChunk), from: "site"}; } tbLocalMiss.add(set); }
+  for (const base of tbCdnBases(TB_CDN_REF[set])) {
+    const host = base.split("/")[2]; if (tbCdnBad.has(host)) continue;
+    try { const r = await fetch(base + path); if (tbIsFile(r)) { const u8 = await tbReadAll(r, onChunk); window.__tbCdnLog.push(host + " " + path); return {u8, from: host}; } } catch (e) {}
+    tbCdnBad.add(host);
+  }
+  tbCdnBad.clear();   // 다음에 다시 누르면 처음부터 다시 시도해요
   throw new Error("AI 모델 파일을 받지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
+}
+async function tbBigKeep(set, path, u8) { try { if (window.caches) await (await caches.open("tb-lib-1")).put(tbBigKey(set, path), new Response(u8, {headers: {"Content-Type": "application/octet-stream"}})); } catch (e) {} }
+async function tbBigForget(set, paths) { try { if (window.caches) { const c = await caches.open("tb-lib-1"); for (const p of paths) await c.delete(tbBigKey(set, p)); } } catch (e) {} }
+const tbJoin = list => { const n = list.reduce((t, b) => t + b.length, 0), a = new Uint8Array(n); let o = 0; for (const b of list) { a.set(b, o); o += b.length; } return a; };
+/* 여러 조각으로 된 큰 파일 묶음을 받아 지문을 확인하고, 밖에서 받은 조각은 저장해 둬요 */
+async function tbGetBigSet(set, paths, shas, onChunk) {
+  const got = []; for (const p of paths) got.push(await tbGetBig(p, set, onChunk));
+  if (shas && window.crypto && crypto.subtle) {
+    for (const [idx, want] of shas) { const u8 = idx.length === 1 ? got[idx[0]].u8 : tbJoin(idx.map(i => got[i].u8)); if (await tbSha256(u8) !== want) { await tbBigForget(set, paths); throw new Error("받은 AI 파일이 올바르지 않아요. 다시 눌러 주세요."); } }
+  }
+  for (let i = 0; i < paths.length; i++) if (got[i].from !== "cache" && got[i].from !== "site") await tbBigKeep(set, paths[i], got[i].u8);
+  return got.map(g => g.u8);
 }
 /* 새 AI 엔진(ONNX Runtime 1.30): 큰 모델(BiRefNet)에 필요한 연산이 들어 있어요. 그래픽카드 전용이라 PC에서만, 필요할 때만 불러요 */
 let ort130P = null;
 function loadOrt130() {
   if (!ort130P) ort130P = (async () => {
-    const base = new URL("lib/ort130/", location.href).href;
-    const probe = await fetch(base + "ort.webgpu.bundle.min.mjs", {method: "HEAD"}).catch(() => null);
-    const B = probe && probe.ok ? base : TB_CDN + "lib/ort130/";                       // 사이트에 없으면 CDN
-    const [mod, ...parts] = await Promise.all([import(B + "ort.webgpu.bundle.min.mjs"), ...[0, 1].map(i => fetch(B + "ort-asyncify.wasm.part" + i).then(r => { if (!r.ok) throw new Error("wasm"); return r.arrayBuffer(); }))]);
-    const n = parts.reduce((t, b) => t + b.byteLength, 0), bin = new Uint8Array(n); let o = 0; for (const b of parts) { bin.set(new Uint8Array(b), o); o += b.byteLength; }
-    const O = mod.default || mod; O.env.wasm.wasmPaths = B; O.env.wasm.numThreads = 1; O.env.wasm.proxy = false; O.env.wasm.wasmBinary = bin.buffer;
+    const F = ["lib/ort130/ort.webgpu.bundle.min.mjs", "lib/ort130/ort-wasm-simd-threaded.asyncify.mjs", "lib/ort130/ort-asyncify.wasm.part0", "lib/ort130/ort-asyncify.wasm.part1"];
+    const [bundle, glue, w0, w1] = await tbGetBigSet("bir", F, [[[0], "0730816731ce2cdfb06f273da065d4a1c7091eb9d1756a83b2916c8a89d015e2"], [[1], "3d1c85995364bb643302fc6fd877a0c3ba5ae72401815e0f24828a53d9191e28"], [[2, 3], "39f9f0894d478800487ed9f7dbe92618498db320cf55c8e3d89adff8dce658da"]]);
+    const js = b => URL.createObjectURL(new Blob([b], {type: "text/javascript"}));   // 어디서 받았든 같은 방식으로 불러요(지문을 확인한 그 내용 그대로)
+    const mod = await import(js(bundle)), O = mod.default || mod;
+    O.env.wasm.wasmPaths = {mjs: js(glue)}; O.env.wasm.numThreads = 1; O.env.wasm.proxy = false; O.env.wasm.wasmBinary = tbJoin([w0, w1]).buffer;
     return O;
-  })().catch(e => { ort130P = null; throw new Error("AI 엔진을 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); });
+  })().catch(e => { ort130P = null; console.warn("새 AI 엔진 실패", e); throw new Error("AI 엔진을 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); });
   return ort130P;
 }
 const MODELS = {bg: {files: ["models/u2netp.wasm"], mb: 4.6}, bgHQ: {files: ["models/isnet-g.wasm", "models/isnet-1.wasm", "models/isnet-2.wasm", "models/isnet-3.wasm", "models/isnet-4.wasm", "models/isnet-5.wasm", "models/isnet-6.wasm", "models/isnet-7.wasm", "models/isnet-8.wasm", "models/isnet-9.wasm"], mb: 44.6, q8: true}, erase: {files: ["models/migan-g.wasm", "models/migan-1.wasm", "models/migan-2.wasm"], mb: 6.9, q8: true}, upscale: {files: ["models/upscale-g.wasm", "models/upscale-1.wasm"], mb: 1.3, q8: true}, upscaleHQ: {files: ["models/esr-g.wasm", "models/esr-1.wasm", "models/esr-2.wasm", "models/esr-3.wasm", "models/esr-4.wasm"], mb: 16.3, q8: true, gpu: true},
-  bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, ort: 130, cdn: true},   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
+  bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, big: true, ort: 130, cdn: "bir", sha: "a659e770ce314b96c2bc6a11d9c4eb8dcae4c6e117b17560005f0dbe47d0dc6a"},   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
   face: {files: ["models/retina.wasm"], mb: 1.9},   // RetinaFace mobile0.25(MIT) — 얼굴 위치·눈코입 5점 찾기
-  facePro: {files: ["models/gfp-g.wasm"].concat(Array.from({length: 18}, (_, i) => `models/gfp-${i + 1}.wasm`)), mb: 87.1, q8: true, gpu: true, cdn: true},   // GFPGAN v1.4(Apache-2.0) — 얼굴 복원, PC 그래픽카드·앱 전용
-  erasePro: {files: ["models/lama-g.wasm"].concat(Array.from({length: 11}, (_, i) => `models/lama-${i + 1}.wasm`)), mb: 58.8, q8: true, gpu: true, cdn: true}};   // LaMa(Apache-2.0) — 큰 물체도 주변 무늬를 이어서 자연스럽게, PC 그래픽카드·앱 전용   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
+  facePro: {files: ["models/gfp-g.wasm"].concat(Array.from({length: 18}, (_, i) => `models/gfp-${i + 1}.wasm`)), mb: 87.1, q8: true, gpu: true, big: true, cdn: "gfp", sha: "de8414930ce9989a10de81669efe200078d0f3ea5e6a1e5af6da8997a35ea400"},   // GFPGAN v1.4(Apache-2.0) — 얼굴 복원, PC 그래픽카드·앱 전용
+  erasePro: {files: ["models/lama-g.wasm"].concat(Array.from({length: 11}, (_, i) => `models/lama-${i + 1}.wasm`)), mb: 58.8, q8: true, gpu: true, big: true, cdn: "lama", sha: "aa766dc912f9f8a748ea0727f50cc956d2296bd522a01d60c23d95ca8e976eb9"}};   // LaMa(Apache-2.0) — 큰 물체도 주변 무늬를 이어서 자연스럽게, PC 그래픽카드·앱 전용
 /* 그래픽카드(WebGPU)로 돌릴 수 있는 브라우저인지 — 큰 모델(고화질 화질 개선)은 이게 있어야 쓸 만한 속도가 나와요 */
 let HAS_GPU = false;
 const GPU_P = (async () => { if (TB_NATIVE) return HAS_GPU = true;   /* 앱은 폰 AI 엔진이 있어서 큰 모델도 돼요 */ try { HAS_GPU = !!(navigator.gpu && window.isSecureContext && await navigator.gpu.requestAdapter()); } catch (e) { HAS_GPU = false; } return HAS_GPU; })();
@@ -6231,54 +6265,86 @@ window.__tbModels = MODELS;   // 자동 점검용
 const sessP = {};
 window.__tbLoadModel = (k, say) => loadModel(k, say);   // 자동 점검용
 window.__tbSetGpu = v => { HAS_GPU = !!v; }; window.__tbGpu = () => HAS_GPU;   // 자동 점검용(그래픽카드 있는 PC처럼 흉내)
-function loadModel(k, say) {
-  if (!sessP[k]) sessP[k] = (async () => {
+/* 폰·저사양 기기의 '웹'에서는 큰 모델(수십~수백 MB)을 쓰지 않아요 — 폰 크롬도 그래픽카드(WebGPU)가 켜져 있지만 메모리가 모자라 탭이 죽어요. 앱은 전용 엔진이라 써요. */
+const TB_WEAK = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || !!(navigator.deviceMemory && navigator.deviceMemory < 4);
+const tbBigOK = () => TB_NATIVE || !!window.__TB_FORCE_CPU || (HAS_GPU && !(TB_WEAK && !window.__TB_NOT_WEAK));
+const sessSay = {}, sessUse = {};
+function loadModel(k, say0) {
+  sessUse[k] = Date.now();
+  if (sessP[k]) { if (say0 && sessSay[k]) sessSay[k].add(say0); return sessP[k]; }   // 받는 중이면 진행 상황을 이 화면에도 알려요
+  sessSay[k] = new Set(say0 ? [say0] : []);
+  const say = t => { for (const f of sessSay[k] || []) { try { f(t); } catch (e) {} } };
+  sessP[k] = (async () => {
     const m = MODELS[k], bufs = [], cut = []; let got = 0;
     if (TB_NATIVE) {
-      if (say) say("AI 준비하는 중…");
+      say("AI 준비하는 중…");
       try { return await nativeSession(k, m); }
       catch (e) { const t = String(e && (e.message || e)); if (/TB_NOGPU|TB_LOWMEM/.test(t)) throw new Error("TB_NOGPU"); console.warn("앱 AI 엔진 실패 → 웹 방식으로", e); if (m.gpu) throw new Error("TB_NOGPU"); }
     }
     if (m.gpu) await GPU_P;
     if (m.gpu && !HAS_GPU && !window.__TB_FORCE_CPU) throw new Error("TB_NOGPU");   // 그래픽카드가 없으면 큰 모델은 받지도 않아요
-    const RT = m.ort === 130 ? await loadOrt130() : (await loadOrt(), ort);
-    for (const f of m.files) {
-      cut.push(bufs.length);
-      if (IS_FILE) throw new Error("PC에서 파일을 바로 열면 브라우저가 AI 모델을 막아요. 웹에 올린 주소에서 열어 주세요.");
-      const r = m.cdn ? await tbFetchBig(f) : await fetch(f).catch(() => null); if (!r || !r.ok) throw new Error("AI 모델 파일을 받지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
-      if (r.body && r.body.getReader) {
-        const rd = r.body.getReader();
-        for (;;) { const {done, value} = await rd.read(); if (done) break; bufs.push(value); got += value.length; if (say) say(`AI 모델 받는 중 ${Math.min(99, Math.round(got / (m.mb * 1048576) * 100))}% (처음 한 번만)`); }
-      } else { const b = new Uint8Array(await r.arrayBuffer()); bufs.push(b); got += b.length; }
+    if (IS_FILE) throw new Error("PC에서 파일을 바로 열면 브라우저가 AI 모델을 막아요. 웹에 올린 주소에서 열어 주세요.");
+    if (m.gpu) {   // 그래픽카드 메모리를 아끼려고, 큰 모델을 합쳐 160MB(압축 기준) 넘게는 올려 두지 않아요 — 오래 안 쓴 것부터 내려요
+      const live = Object.keys(sessP).filter(x => x !== k && MODELS[x] && MODELS[x].gpu).sort((a, b) => (sessUse[a] || 0) - (sessUse[b] || 0));
+      let sum = m.mb + live.reduce((t, x) => t + MODELS[x].mb, 0);
+      for (const x of live) { if (sum <= 160) break; const p = sessP[x]; delete sessP[x]; sum -= MODELS[x].mb; p.then(ss => ss && ss.release && ss.release()).catch(() => {}); }
     }
-    if (say) say("AI 준비하는 중…");
-    const join = list => { const n = list.reduce((s, b) => s + b.length, 0), a = new Uint8Array(n); let o = 0; list.forEach(b => { a.set(b, o); o += b.length; }); return a; };
-    const all = m.q8 ? q8Model(join(bufs.slice(0, cut[1])), join(bufs.slice(cut[1]))) : join(bufs);
-    bufs.length = 0; if (m.q8) await nextFrame();
+    const RT = m.ort === 130 ? await loadOrt130() : (await loadOrt(), ort);
+    const pct = n => { got += n; say(`AI 모델 받는 중 ${Math.min(99, Math.round(got / (m.mb * 1048576) * 100))}% (처음 한 번만)`); };
+    let all;
+    if (m.cdn) {   // 사이트에 없으면 밖에서 받고, 지문을 확인하고, 저장해 둬요
+      const parts = await tbGetBigSet(m.cdn, m.files, m.sha ? [[m.files.map((_, i) => i), m.sha]] : null, pct);
+      say("AI 준비하는 중…");
+      all = m.q8 ? q8Model(parts[0], tbJoin(parts.slice(1))) : tbJoin(parts);
+    } else {
+      for (const f of m.files) {
+        cut.push(bufs.length);
+        const r = await fetch(f).catch(() => null); if (!r || !r.ok) throw new Error("AI 모델 파일을 받지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
+        if (r.body && r.body.getReader) {
+          const rd = r.body.getReader();
+          for (;;) { const {done, value} = await rd.read(); if (done) break; bufs.push(value); pct(value.length); }
+        } else { const b = new Uint8Array(await r.arrayBuffer()); bufs.push(b); got += b.length; }
+      }
+      say("AI 준비하는 중…");
+      all = m.q8 ? q8Model(tbJoin(bufs.slice(0, cut[1])), tbJoin(bufs.slice(cut[1]))) : tbJoin(bufs);
+      bufs.length = 0;
+    }
+    if (m.q8) await nextFrame();
     if (m.gpu && !window.__TB_FORCE_CPU) {
       try { const ss = await RT.InferenceSession.create(all, {executionProviders: ["webgpu"], graphOptimizationLevel: "all"}); ss.RT = RT; return ss; }
       catch (e) { console.warn("webgpu 세션 실패", e); throw new Error("TB_NOGPU"); }
     }
     const ss = await RT.InferenceSession.create(all, {executionProviders: ["wasm"], graphOptimizationLevel: "all"}); ss.RT = RT; return ss;
-  })().catch(e => { delete sessP[k]; throw e; });
+  })().then(v => { delete sessSay[k]; return v; }, e => { delete sessP[k]; delete sessSay[k]; throw e; });
   return sessP[k];
 }
-/* 얼굴 찾기(RetinaFace, 기기 안) — 캔버스/이미지에서 얼굴 상자(픽셀)와 눈·코·입 5점을 돌려줘요. 작은 얼굴(minSide px 미만)은 빼요 */
-async function tbDetectFaces(src, say, minSide = 40, maxN = 20) {
-  const W = src.width || src.naturalWidth, H = src.height || src.naturalHeight, S = 512, k = S / Math.max(W, H);
-  const det = await loadModel("face", say);
-  const dc = document.createElement("canvas"); dc.width = dc.height = S; const dx = dc.getContext("2d"); dx.imageSmoothingQuality = "high"; dx.drawImage(src, 0, 0, Math.round(W * k), Math.round(H * k));
-  const dd = dx.getImageData(0, 0, S, S).data, P = S * S, din = new Float32Array(3 * P);
-  for (let p = 0; p < P; p++) for (let c = 0; c < 3; c++) din[c * P + p] = dd[p * 4 + c];
-  const T = (det.RT || ort).Tensor, r = await det.run({[det.inputNames[0]]: new T("float32", din, [1, 3, S, S])});
-  const bx = r[det.outputNames[0]].data, sc = r[det.outputNames[1]].data, lm = r[det.outputNames[2]].data, cand = [];
-  for (let i = 0; i < sc.length; i++) if (sc[i] > .7) cand.push(i);
-  cand.sort((a, b) => sc[b] - sc[a]);
-  const box = i => [bx[i * 4] * S / k, bx[i * 4 + 1] * S / k, bx[i * 4 + 2] * S / k, bx[i * 4 + 3] * S / k], ar = q => (q[2] - q[0]) * (q[3] - q[1]), out = [];
-  for (const i of cand) { const a = box(i); if (Math.min(a[2] - a[0], a[3] - a[1]) < minSide) continue;
-    let dup = false; for (const o of out) { const b = o.box, ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1])), inter = ix * iy; if (inter / (ar(a) + ar(b) - inter) > .4) { dup = true; break; } }
-    if (dup) continue; const pts = []; for (let j = 0; j < 5; j++) pts.push([lm[i * 10 + j * 2] * S / k, lm[i * 10 + j * 2 + 1] * S / k]);
-    out.push({box: a, pts, score: sc[i]}); if (out.length >= maxN) break; }
+/* 얼굴 찾기(RetinaFace, 기기 안) — 캔버스/이미지에서 얼굴 상자(픽셀)와 눈·코·입 5점을 돌려줘요. 작은 얼굴(minSide px 미만)은 빼요.
+   deep=true: 큰 사진은 2~3등분한 조각으로도 한 번 더 찾아요(단체 사진의 작은 얼굴) */
+async function tbDetectFaces(src, say, minSide = 40, maxN = 20, deep = false) {
+  const W = src.width || src.naturalWidth, H = src.height || src.naturalHeight, S = 512;
+  const det = await loadModel("face", say), T = (det.RT || ort).Tensor;
+  const dc = document.createElement("canvas"); dc.width = dc.height = S; const dx = dc.getContext("2d", {willReadFrequently: true}); dx.imageSmoothingQuality = "high";
+  const P = S * S, din = new Float32Array(3 * P), all = [];
+  const pass = async (rx, ry, rw, rh) => {
+    const k = S / Math.max(rw, rh); dx.fillStyle = "#000"; dx.fillRect(0, 0, S, S); dx.drawImage(src, rx, ry, rw, rh, 0, 0, Math.round(rw * k), Math.round(rh * k));
+    const dd = dx.getImageData(0, 0, S, S).data; for (let p = 0; p < P; p++) for (let c = 0; c < 3; c++) din[c * P + p] = dd[p * 4 + c];
+    const r = await det.run({[det.inputNames[0]]: new T("float32", din, [1, 3, S, S])});
+    const bx = r[det.outputNames[0]].data, sc = r[det.outputNames[1]].data, lm = r[det.outputNames[2]].data, f = S / k;
+    for (let i = 0; i < sc.length; i++) { if (!(sc[i] > .7)) continue; const pts = []; for (let j = 0; j < 5; j++) pts.push([lm[i * 10 + j * 2] * f + rx, lm[i * 10 + j * 2 + 1] * f + ry]);
+      all.push({box: [bx[i * 4] * f + rx, bx[i * 4 + 1] * f + ry, bx[i * 4 + 2] * f + rx, bx[i * 4 + 3] * f + ry], pts, score: sc[i]}); }
+  };
+  await pass(0, 0, W, H);
+  const L = !deep ? 1 : Math.max(W, H) > 2400 ? 3 : Math.max(W, H) > 1100 ? 2 : 1;
+  if (L > 1) {
+    const t = Math.ceil(Math.max(W, H) / L), st = Math.ceil(t / 2), ax = n => { const a = []; for (let p = 0; p + t < n; p += st) a.push(p); a.push(Math.max(0, n - t)); return a; };
+    const tiles = []; for (const y of ax(H)) for (const x of ax(W)) tiles.push([x, y, Math.min(t, W - x), Math.min(t, H - y)]);
+    for (const [n, q] of tiles.entries()) { if (say && n % 3 === 0) say(`얼굴 찾는 중 ${Math.round(n / tiles.length * 100)}%`); await pass(...q); if (n % 4 === 3) await nextFrame(); }
+  }
+  all.sort((a, b) => b.score - a.score);
+  const ar = q => Math.max(0, q[2] - q[0]) * Math.max(0, q[3] - q[1]), out = [];
+  for (const c of all) { const a = c.box; if (Math.min(a[2] - a[0], a[3] - a[1]) < minSide) continue;
+    let dup = false; for (const o of out) { const b = o.box, ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1])), inter = ix * iy; if (inter / (ar(a) + ar(b) - inter) > .4 || inter / Math.min(ar(a), ar(b)) > .6) { dup = true; break; } }   // 조각 경계에서 잘린 얼굴(큰 상자 안의 작은 상자)도 같은 얼굴로 봐요
+    if (dup) continue; out.push(c); if (out.length >= maxN) break; }
   return out;
 }
 /* 8비트로 줄여 둔 가중치를 원래(32비트)로 풀어 모델 파일 뒤에 붙여요 — 다운로드 1/4, 결과는 원본과 같아요 */
@@ -6342,9 +6408,9 @@ function bgTool(v, o) {
   </div>`;
   const weak = !window.__TB_FORCE_CPU && (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.deviceMemory && navigator.deviceMemory < 4));
   let q = (() => { try { return localStorage.getItem("tb_bg_q"); } catch (e) { return null; } })() || (navigator.deviceMemory && navigator.deviceMemory < 3 ? "fast" : "hq");   // 폰도 고화질이 기본 (메모리가 아주 적은 기기만 빠르게)
-  const setQ = v => { q = v; document.querySelectorAll("#bQ button").forEach(x => x.setAttribute("aria-pressed", x.dataset.q === v)); $("#bQHint").textContent = v === "hq" ? (TB_NATIVE ? "머리카락·털·투명한 경계까지 정교하게 지워요. 폰의 AI 엔진으로 가장 정교한 모델을 써요." : !weak && HAS_GPU ? "머리카락·털·투명한 경계까지 정교하게 지워요. 이 PC는 그래픽카드로 가장 정교한 모델을 써요 (처음 한 번 약 47MB)." : "머리카락·팔 끝까지 정교하게 지워요. 처음 한 번 AI 모델(약 45MB)을 받고, 사진마다 5~15초쯤 걸려요.") : "1~2초 만에 지워요. 경계가 덜 정교할 수 있어요."; };
+  const setQ = v => { q = v; document.querySelectorAll("#bQ button").forEach(x => x.setAttribute("aria-pressed", x.dataset.q === v)); $("#bQHint").textContent = v === "hq" ? (TB_NATIVE ? "머리카락·털·투명한 경계까지 정교하게 지워요. 폰의 AI 엔진으로 가장 정교한 모델을 써요." : !weak && HAS_GPU ? "머리카락·털·투명한 경계까지 정교하게 지워요. 이 PC는 그래픽카드로 가장 정교한 모델을 써요 (처음 한 번 약 75MB)." : "머리카락·팔 끝까지 정교하게 지워요. 처음 한 번 AI 모델(약 45MB)을 받고, 사진마다 5~15초쯤 걸려요.") : "1~2초 만에 지워요. 경계가 덜 정교할 수 있어요."; };
   GPU_P.then(() => { if (q === "hq" && $("#bQHint")) setQ(q); });
-  let src = null, orig = null, mask = null, mode = "ai", brush = "none", name = "사진", undo = [], drawing = false, srcAlpha = null, flatLook = false, fewColors = false, flatI = null, autoSwitched = false;
+  let src = null, orig = null, mask = null, mode = "ai", brush = "none", name = "사진", undo = [], drawing = false, srcAlpha = null, flatLook = false, fewColors = false, flatI = null, autoSwitched = false, usedModel = "";
   const cv = $("#bCv"), ctx = cv.getContext("2d"), msg = t => $("#bMsg").innerHTML = t ? thinking(t) : "";
   async function use(f) {
     if (!f) return;
@@ -6424,6 +6490,7 @@ function bgTool(v, o) {
     const full = {x: 0, y: 0, w: src.width, h: src.height}; let r1;
     try { r1 = await netAlpha(sess, hq, full); }
     catch (e) { if (!sess.pro) throw e; console.warn("bgPro 실행 실패 → 기존 고화질로", e); delete sessP.bgPro; window.__tbNoPro = true; sess = await loadModel("bgHQ", msg); msg("배경 찾는 중…"); r1 = await netAlpha(sess, hq, full); }
+    usedModel = sess.pro ? "pro" : hq ? ((!weak || TB_NATIVE) && HAS_GPU ? "hq-nopro" : "hq") : "fast";   // 결과 아래에 어떤 모델로 지웠는지 알려 줘요
     const m = document.createElement("canvas"); m.width = src.width; m.height = src.height; const mxc = m.getContext("2d"); mxc.imageSmoothingQuality = "high";
     let done = false;
     if (hq) {                                          // 주인공이 작으면 잘라서 한 번 더
@@ -6518,6 +6585,7 @@ function bgTool(v, o) {
       undo = []; msg(""); render();
       if (srcAlpha && mode === "ai") $("#bMsg").innerHTML = `<p class="sub" style="font-size:13px">이 그림은 이미 배경이 투명해서 그 부분을 그대로 뒀어요. 더 지울 곳은 '지우기' 붓으로 문지르면 돼요.</p>`;
       else if (flatLook && mode === "ai") $("#bMsg").innerHTML = `<p class="sub" style="font-size:13px">화면 캡처·도표·목업처럼 색이 몇 가지 안 되는 그림은 AI가 주인공을 잘 못 찾아요. 배경이 한 가지 색이면 위에서 단색 배경으로 바꿔 보세요.</p>`;
+      else if (mode === "ai" && (usedModel === "pro" || usedModel === "hq-nopro")) $("#bMsg").innerHTML = `<p class="sub" style="font-size:13px">${usedModel === "pro" ? "가장 정교한 모델(BiRefNet)로 지웠어요." : "고화질 모델(IS-Net)로 지웠어요. 가장 정교한 모델은 이번에 받지 못해서 쓰지 않았어요."}</p>`;
       else if (autoSwitched && mode === "flat") $("#bMsg").innerHTML = `<p class="sub" style="font-size:13px">화면 캡처·로고처럼 배경이 한 가지 색이라 <b>단색 배경</b> 방식으로 가장자리 색만 지웠어요. 너무 많이·적게 지워졌으면 '비슷한 정도'를 조절하고, 사진이면 AI 자동으로 바꿔 보세요.</p>`; $("#bWait").classList.add("hidden"); $("#bEd").classList.remove("hidden"); $("#bPrev").classList.add("hidden");
       cv.scrollIntoView({behavior: "smooth", block: "center"});
     } catch (e) { console.warn("bg 실패", e); $("#bMsg").innerHTML = `<p class="note">${esc(aiErr(e, "배경을 지우지 못했어요. 다시 눌러 주세요."))}</p>`; }
@@ -6585,7 +6653,7 @@ function eraseTool(v, o) {
     pickErase().then(k => loadModel(k)).catch(() => {});
   }
   /* PC 그래픽카드·앱이면 새 모델(LaMa), 아니면 기존 모델(MI-GAN) */
-  async function pickErase() { if (window.__tbNoEPro) return "erase"; await GPU_P; return (HAS_GPU || window.__TB_FORCE_CPU) && !window.__tbNoEPro ? "erasePro" : "erase"; }
+  async function pickErase() { if (window.__tbNoEPro) return "erase"; await GPU_P; return tbBigOK() && !window.__tbNoEPro ? "erasePro" : "erase"; }
   const pt = e => { const r = cv.getBoundingClientRect(); return {x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height, k: cv.width / r.width}; };
   function paint(p) {
     const x = mk.getContext("2d"); x.strokeStyle = x.fillStyle = markCol(); x.lineCap = x.lineJoin = "round"; x.lineWidth = +$("#eSize").value * p.k;
@@ -6603,6 +6671,7 @@ function eraseTool(v, o) {
   $("#eGo").onclick = async () => {
     const btn = $("#eGo"); btn.disabled = true;
     try {
+      msg("AI 준비하는 중…");
       let kind = await pickErase(), sess;
       try { sess = await loadModel(kind, msg); }
       catch (e) { if (kind === "erase") throw e; if (!/TB_NOGPU/.test(String(e && e.message))) console.warn("erasePro 실패", e); window.__tbNoEPro = true; kind = "erase"; sess = await loadModel(kind, msg); }
@@ -9276,11 +9345,11 @@ JSON 하나로만 답하세요: {"items":[{"label":"전화번호","box_2d":[ymin
   $("#miFace").onclick = async () => {   // 기기 안에서 얼굴만 찾아 가려요(서버로 안 보냄)
     const msg = $("#miMsg"); if (!img) return; $("#miFace").disabled = true; msg.innerHTML = thinking("얼굴 찾는 중…");
     try {
-      const fs = await tbDetectFaces(img, t => msg.innerHTML = thinking(t), 16, 40);
+      const fs = await tbDetectFaces(img, t => msg.innerHTML = thinking(t), 14, 80, true);
       if (!fs.length) { msg.innerHTML = `<p class="note">얼굴을 찾지 못했어요. 끌어서 직접 가려 주세요.</p>`; return; }
       hist.push(boxes.slice());
       fs.forEach(f => { const [x0, y0, x1, y1] = f.box, w = x1 - x0, h = y1 - y0; boxes.push({x1: Math.max(0, x0 - w * .12), y1: Math.max(0, y0 - h * .18), x2: Math.min(cv.width, x1 + w * .12), y2: Math.min(cv.height, y1 + h * .1)}); });
-      draw(); msg.innerHTML = `<p class="sub" style="font-size:13px">얼굴 ${fs.length}개를 가렸어요 (이 기기에서 처리). 위치가 어긋나면 눌러서 빼고 끌어서 다시 가려요.</p>`;
+      draw(); msg.innerHTML = `<p class="sub" style="font-size:13px">얼굴 ${fs.length}개를 가렸어요 (이 기기에서 처리). 아주 작은 얼굴·옆얼굴·가려진 얼굴은 놓칠 수 있으니 <b>꼭 한 번 확인</b>하고, 빠진 곳은 끌어서 가려 주세요.</p>`;
     } catch (e) { msg.innerHTML = `<p class="note">${esc(aiErr(e, "얼굴을 찾지 못했어요."))} 끌어서 직접 가릴 수 있어요.</p>`; }
     finally { $("#miFace").disabled = false; }
   };
@@ -9857,7 +9926,7 @@ function exifTool(v, o) {
   const fmtDate = s => s ? String(s).replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1.$2.$3") : "";
   const rows = (m) => {
     const r = [];
-    if (m.lat != null) r.push(["찍은 위치", `<b class="warn-t">${m.lat.toFixed(5)}, ${m.lon.toFixed(5)}</b><br><a class="link" href="https://www.openstreetmap.org/?mlat=${m.lat}&mlon=${m.lon}#map=16/${m.lat}/${m.lon}" target="_blank" rel="noopener">지도에서 보기 ↗</a>`]);
+    if (m.lat != null) r.push(["찍은 위치", `<b class="warn-t">${m.lat.toFixed(5)}, ${m.lon.toFixed(5)}</b><br><a class="link" href="https://www.openstreetmap.org/?mlat=${m.lat}&mlon=${m.lon}#map=16/${m.lat}/${m.lon}" target="_blank" rel="noopener" title="누르면 이 좌표가 지도 사이트(OpenStreetMap)로 전달돼요">지도에서 보기 ↗</a> <span class="sub" style="font-size:12px">(누르면 좌표가 지도 사이트로 가요)</span>`]);
     const dev = [m.make, m.model].filter(Boolean).join(" ").replace(/^(\w+) \1/i, "$1"); if (dev) r.push(["촬영 기기", esc(dev)]);
     if (m.lens) r.push(["렌즈", esc(m.lens)]);
     if (m.dateOrig || m.date) r.push(["찍은 날짜", esc(fmtDate(m.dateOrig || m.date))]);
@@ -10036,7 +10105,7 @@ function upscaleTool(v, o) {
   let mode = "photo", q = (() => { try { return localStorage.getItem("tb_up_q") === "hq" && HAS_GPU ? "hq" : "fast"; } catch (e) { return "fast"; } })();
   const setMode = m => { mode = m; document.querySelectorAll("#upMode button").forEach(x => x.setAttribute("aria-pressed", x.dataset.m === m));
     $("#upModeHint").textContent = m === "text" ? "화면 캡처·문서·도표처럼 글자가 있는 그림은 AI 대신 글자가 뭉개지지 않는 방식으로 또렷하게 키워요." : "사진 속 디테일을 AI가 채워 넣어요. 글자가 많은 캡처는 '캡처·글자'가 더 깨끗해요.";
-    $("#upQ").classList.toggle("hidden", m !== "photo"); $("#upQHint").classList.toggle("hidden", m !== "photo"); const fl = $("#upFaceL"); if (fl) fl.classList.toggle("hidden", !!(m !== "photo" || !(HAS_GPU || TB_NATIVE) || window.__tbNoFace)); const mix = $("#upMix"); if (mix) mix.closest("label").classList.toggle("hidden", m !== "photo"); upPlan(); };
+    $("#upQ").classList.toggle("hidden", m !== "photo"); $("#upQHint").classList.toggle("hidden", m !== "photo"); const fl = $("#upFaceL"); if (fl) fl.classList.toggle("hidden", !!(m !== "photo" || !tbBigOK() || window.__tbNoFace)); const mix = $("#upMix"); if (mix) mix.closest("label").classList.toggle("hidden", m !== "photo"); upPlan(); };
   const setQ = v => { q = v; document.querySelectorAll("#upQ button").forEach(x => x.setAttribute("aria-pressed", x.dataset.q === v));
     $("#upQHint").textContent = v === "hq" ? (TB_NATIVE ? "큰 AI 모델로 더 정교하게 채워요. 폰의 AI 엔진으로 처리해요." : HAS_GPU ? "큰 AI 모델로 더 정교하게 채워요. 처음 한 번 약 16MB를 받고, 그래픽카드로 처리해요." : "고화질은 그래픽카드(WebGPU)가 되는 PC 크롬·엣지에서 쓸 수 있어요. 이 기기에선 빠른 모드로 키워요.") : "작은 AI 모델로 빠르게 키워요. 폰에서도 돼요."; upPlan(); };
   document.querySelectorAll("#upMode button").forEach(b => b.onclick = () => setMode(b.dataset.m));
@@ -10079,7 +10148,7 @@ function upscaleTool(v, o) {
       if (!sess) sess = await loadModel("upscale", msg);
       const inp = document.createElement("canvas"); inp.width = z.w; inp.height = z.h; const ix = inp.getContext("2d"); ix.imageSmoothingQuality = "high"; ix.drawImage(src, 0, 0, z.w, z.h);
       const W = z.w, H = z.h, d = ix.getImageData(0, 0, W, H).data;
-      const T = (q === "hq" && HAS_GPU && !TB_NATIVE) ? 256 : 128, PAD = 16, out = document.createElement("canvas"); out.width = W * K; out.height = H * K; const ox = out.getContext("2d");   // 그래픽카드면 한 번에 큰 조각(호출 횟수↓ → 2~3배 빠름)
+      const T = (q === "hq" && HAS_GPU && !TB_NATIVE && !TB_WEAK) ? 256 : 128, PAD = 16, out = document.createElement("canvas"); out.width = W * K; out.height = H * K; const ox = out.getContext("2d");   // 그래픽카드면 한 번에 큰 조각(호출 횟수↓ → 2~3배 빠름)
       const tiles = []; for (let y = 0; y < H; y += T) for (let x = 0; x < W; x += T) tiles.push([x, y]);
       const t0 = Date.now();
       for (const [n, [tx, ty]] of tiles.entries()) {
