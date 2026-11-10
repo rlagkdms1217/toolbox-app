@@ -6253,11 +6253,11 @@ function loadOrt130() {
   })().catch(e => { ort130P = null; console.warn("새 AI 엔진 실패", e); throw new Error("AI 엔진을 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); });
   return ort130P;
 }
-const MODELS = {bg: {files: ["models/u2netp.wasm"], mb: 4.6}, bgHQ: {files: ["models/isnet-g.wasm", "models/isnet-1.wasm", "models/isnet-2.wasm", "models/isnet-3.wasm", "models/isnet-4.wasm", "models/isnet-5.wasm", "models/isnet-6.wasm", "models/isnet-7.wasm", "models/isnet-8.wasm", "models/isnet-9.wasm"], mb: 44.6, q8: true}, erase: {files: ["models/migan-g.wasm", "models/migan-1.wasm", "models/migan-2.wasm"], mb: 6.9, q8: true}, upscale: {files: ["models/upscale-g.wasm", "models/upscale-1.wasm"], mb: 1.3, q8: true}, upscaleHQ: {files: ["models/esr-g.wasm", "models/esr-1.wasm", "models/esr-2.wasm", "models/esr-3.wasm", "models/esr-4.wasm"], mb: 16.3, q8: true, gpu: true},
+const MODELS = {bg: {files: ["models/u2netp.wasm"], mb: 4.6}, bgHQ: {files: ["models/isnet-g.wasm", "models/isnet-1.wasm", "models/isnet-2.wasm", "models/isnet-3.wasm", "models/isnet-4.wasm", "models/isnet-5.wasm", "models/isnet-6.wasm", "models/isnet-7.wasm", "models/isnet-8.wasm", "models/isnet-9.wasm"], mb: 44.6, q8: true}, erase: {files: ["models/migan-g.wasm", "models/migan-1.wasm", "models/migan-2.wasm"], mb: 6.9, q8: true}, upscale: {files: ["models/upscale-g.wasm", "models/upscale-1.wasm"], mb: 1.3, q8: true}, upscaleG: {files: ["models/upscale-g.wasm", "models/upscale-1.wasm"], mb: 1.3, q8: true, gpu: true, ort: 130}, upscaleHQ: {files: ["models/esr-g.wasm", "models/esr-1.wasm", "models/esr-2.wasm", "models/esr-3.wasm", "models/esr-4.wasm"], mb: 16.3, q8: true, gpu: true, ort: 130},
   bgPro: {files: ["models/bir-g.wasm"].concat(Array.from({length: 10}, (_, i) => `models/bir-${i + 1}.wasm`)), mb: 45.2, q8: true, gpu: true, big: true, ort: 130, cdn: "bir", sha: "a659e770ce314b96c2bc6a11d9c4eb8dcae4c6e117b17560005f0dbe47d0dc6a"},   // BiRefNet(MIT) — 머리카락·털·투명한 경계까지, PC 그래픽카드 전용
   face: {files: ["models/retina.wasm"], mb: 1.9},   // RetinaFace mobile0.25(MIT) — 얼굴 위치·눈코입 5점 찾기
-  facePro: {files: ["models/gfp-g.wasm"].concat(Array.from({length: 18}, (_, i) => `models/gfp-${i + 1}.wasm`)), mb: 87.1, q8: true, gpu: true, big: true, cdn: "gfp", sha: "de8414930ce9989a10de81669efe200078d0f3ea5e6a1e5af6da8997a35ea400"},   // GFPGAN v1.4(Apache-2.0) — 얼굴 복원, PC 그래픽카드·앱 전용
-  erasePro: {files: ["models/lama-g.wasm"].concat(Array.from({length: 11}, (_, i) => `models/lama-${i + 1}.wasm`)), mb: 58.8, q8: true, gpu: true, big: true, cdn: "lama", sha: "aa766dc912f9f8a748ea0727f50cc956d2296bd522a01d60c23d95ca8e976eb9"}};   // LaMa(Apache-2.0) — 큰 물체도 주변 무늬를 이어서 자연스럽게, PC 그래픽카드·앱 전용
+  facePro: {files: ["models/gfp-g.wasm"].concat(Array.from({length: 18}, (_, i) => `models/gfp-${i + 1}.wasm`)), mb: 87.1, q8: true, gpu: true, big: true, ort: 130, cdn: "gfp", sha: "de8414930ce9989a10de81669efe200078d0f3ea5e6a1e5af6da8997a35ea400"},   // GFPGAN v1.4(Apache-2.0) — 얼굴 복원, PC 그래픽카드·앱 전용
+  erasePro: {files: ["models/lama-g.wasm"].concat(Array.from({length: 11}, (_, i) => `models/lama-${i + 1}.wasm`)), mb: 58.8, q8: true, gpu: true, big: true, ort: 130, cdn: "lama", sha: "aa766dc912f9f8a748ea0727f50cc956d2296bd522a01d60c23d95ca8e976eb9"}};   // LaMa(Apache-2.0) — 큰 물체도 주변 무늬를 이어서 자연스럽게, PC 그래픽카드·앱 전용
 /* 그래픽카드(WebGPU)로 돌릴 수 있는 브라우저인지 — 큰 모델(고화질 화질 개선)은 이게 있어야 쓸 만한 속도가 나와요 */
 let HAS_GPU = false;
 const GPU_P = (async () => { if (TB_NATIVE) return HAS_GPU = true;   /* 앱은 폰 AI 엔진이 있어서 큰 모델도 돼요 */ try { HAS_GPU = !!(navigator.gpu && window.isSecureContext && await navigator.gpu.requestAdapter()); } catch (e) { HAS_GPU = false; } return HAS_GPU; })();
@@ -6309,6 +6309,7 @@ function loadModel(k, say0) {
       all = m.q8 ? q8Model(tbJoin(bufs.slice(0, cut[1])), tbJoin(bufs.slice(cut[1]))) : tbJoin(bufs);
       bufs.length = 0;
     }
+    if (k === "upscale") tbUpBytes = all;   // 화질 개선 작업자(여러 코어)에게 같은 모델을 나눠 줘요
     if (m.q8) await nextFrame();
     if (m.gpu && !window.__TB_FORCE_CPU) {
       try { const ss = await RT.InferenceSession.create(all, {executionProviders: ["webgpu"], graphOptimizationLevel: "all"}); ss.RT = RT; return ss; }
@@ -6374,6 +6375,68 @@ const AI_ERR_MSG = {mem: "이 기기 메모리가 모자라서 멈췄어요. 다
 window.__tbAiErr = (e, d) => aiErr(e, d);   // 자동 점검용
 const aiErr = (e, d) => { const m = e && e.message ? String(e.message) : ""; if (/[가-힣]/.test(m)) return m; if (IN_CLAUDE) return "Claude 앱 안에서는 이 AI 엔진이 막혀 있을 수 있어요. 웹 버전에서 열어 주세요."; const k = aiErrKind(e); return k ? AI_ERR_MSG[k] : d; };
 const nextFrame = () => new Promise(r => setTimeout(r, 30));
+/* 화질 개선(빠른 모드) 작업자 묶음: 조각을 여러 코어가 나눠 처리해요. 예전엔 한 코어가 한 조각씩만 했어요.
+   실패하면 null 을 돌려주고, 부르는 쪽은 예전 방식(한 줄)으로 처리해요. */
+let tbUpBytes = null, tbUpPoolP = null, tbUpPoolT = 0;
+const tbUpWorkers = () => { const hc = navigator.hardwareConcurrency || 2; return window.__tbUpW || Math.max(1, Math.min(TB_WEAK ? 3 : 6, hc > 2 ? hc - 1 : hc)); };   // 화면이 멈추지 않게 코어 하나는 남겨요 (2코어 기기는 둘 다)
+function tbUpPool(say) {
+  clearTimeout(tbUpPoolT);
+  if (tbUpPoolP) return tbUpPoolP;
+  const n = tbUpWorkers();
+  if (n < 2 || TB_NATIVE || IS_FILE || typeof Worker !== "function" || window.__tbNoUpPool) return Promise.resolve(null);
+  const P = tbUpPoolP = (async () => {
+    await loadModel("upscale", say);
+    if (!tbUpBytes) return null;
+    const lib = new URL("lib/", location.href).href;
+    const code = `let sess = null;
+onmessage = async e => { const m = e.data;
+  try {
+    if (m.t === "init") { importScripts(m.lib + "ort.wasm.min.js"); ort.env.wasm.wasmPaths = m.lib; ort.env.wasm.numThreads = 1; ort.env.wasm.proxy = false;
+      sess = await ort.InferenceSession.create(m.model, {executionProviders: ["wasm"], graphOptimizationLevel: "all"}); postMessage({t: "ready"}); }
+    else if (m.t === "run") { const r = await sess.run({[sess.inputNames[0]]: new ort.Tensor("float32", m.arr, m.dims)}); const d = r[sess.outputNames[0]].data; postMessage({t: "out", id: m.id, data: d}, [d.buffer]); }
+  } catch (err) { postMessage({t: "err", id: m.id, msg: String((err && err.message) || err)}); } };`;
+    const url = URL.createObjectURL(new Blob([code], {type: "text/javascript"})), ws = [];
+    try {
+      await Promise.all(Array.from({length: n}, () => new Promise((res, rej) => {
+        const w = new Worker(url); ws.push(w); const to = setTimeout(() => rej(new Error("작업자 준비 시간 초과")), 40000);
+        w.onmessage = e => { clearTimeout(to); e.data.t === "ready" ? res() : rej(new Error(e.data.msg || "작업자 준비 실패")); };
+        w.onerror = e => { clearTimeout(to); rej(new Error((e && e.message) || "작업자 오류")); };
+        w.postMessage({t: "init", lib, model: tbUpBytes});
+      })));
+    } catch (e) { ws.forEach(w => w.terminate()); console.warn("화질 개선 작업자 준비 실패 → 한 줄로 처리", e); window.__tbNoUpPool = true; tbUpPoolP = null; return null; }
+    finally { URL.revokeObjectURL(url); }
+    const idle = ws.slice(), wait = [], jobs = new Map(); let seq = 0, dead = false;
+    const fail = msg => { dead = true; for (const j of jobs.values()) j.rej(new Error(msg)); jobs.clear(); wait.splice(0).forEach(q => q.rej(new Error(msg))); };
+    for (const w of ws) {
+      w.onmessage = e => { const m = e.data, j = jobs.get(m.id); if (!j) return; jobs.delete(m.id);
+        const nx = wait.shift(); if (nx) send(w, nx); else idle.push(w);
+        m.t === "out" ? j.res(m.data) : j.rej(new Error(m.msg || "작업자 실패")); };
+      w.onerror = e => fail((e && e.message) || "작업자 오류");
+    }
+    function send(w, q) { const id = ++seq; jobs.set(id, q); w.postMessage({t: "run", id, arr: q.arr, dims: q.dims}, [q.arr.buffer]); }
+    return {size: n,
+      run: (arr, dims) => new Promise((res, rej) => { if (dead) return rej(new Error("작업자가 멈췄어요")); const q = {arr, dims, res, rej}, w = idle.pop(); if (w) send(w, q); else wait.push(q); }),
+      close: () => { fail("작업자를 닫았어요"); ws.forEach(w => w.terminate()); if (tbUpPoolP === P) tbUpPoolP = null; }};
+  })();
+  return P;
+}
+window.__tbUpPoolNow = () => tbUpPoolP;   // 자동 점검용
+const tbUpPoolRest = () => { clearTimeout(tbUpPoolT); tbUpPoolT = setTimeout(() => { const p = tbUpPoolP; if (p) p.then(x => x && x.close()).catch(() => {}); }, 90000); };   // 1분 반 안 쓰면 메모리를 돌려줘요
+/* 빠른 모델을 그래픽카드로 돌려도 되는지: 작은 조각을 그래픽카드와 일반 방식으로 각각 돌려 결과가 같은지 한 번 확인해요 (브라우저에 기억) */
+async function tbUpGpuSess(say) {
+  if (!HAS_GPU || TB_NATIVE || TB_WEAK || window.__tbNoUpGpu || lsGet("tb_up_gpu2", "") === "bad") return null;
+  try {
+    const g = await loadModel("upscaleG", say);
+    if (lsGet("tb_up_gpu2", "") !== "ok") {
+      const c = await loadModel("upscale", say), N = 40, x = new Float32Array(3 * N * N); for (let i = 0; i < x.length; i++) x[i] = ((i * 37 + (i >> 5) * 11) % 97) / 96;
+      const run = async ss => (await ss.run({[ss.inputNames[0]]: new (ss.RT || ort).Tensor("float32", x.slice(), [1, 3, N, N])}))[ss.outputNames[0]].data;
+      const a = await run(g), b = await run(c); let mx = 0; for (let i = 0; i < a.length; i++) { const d = Math.abs(a[i] - b[i]); if (!(d <= mx)) mx = d; }
+      if (!(a.length === b.length && mx < .02)) { console.warn("그래픽카드 결과가 달라요 → 일반 방식으로", mx); lsSet("tb_up_gpu2", "bad"); delete sessP.upscaleG; g.release && g.release(); return null; }
+      lsSet("tb_up_gpu2", "ok");
+    }
+    return g;
+  } catch (e) { console.warn("빠른 모델 그래픽카드 실패 → 일반 방식으로", e); delete sessP.upscaleG; window.__tbNoUpGpu = true; return null; }
+}
 function drawScaled(x, img, w, h) {   // 많이 줄일 때는 반씩 여러 번 줄여야 글자·선이 뭉개지지 않아요
   let sw = img.naturalWidth || img.width, sh = img.naturalHeight || img.height, cur = img;
   while (sw / 2 > w && sh / 2 > h) { const t = document.createElement("canvas"); t.width = Math.round(sw / 2); t.height = Math.round(sh / 2); const tx = t.getContext("2d"); tx.imageSmoothingQuality = "high"; tx.drawImage(cur, 0, 0, t.width, t.height); cur = t; sw = t.width; sh = t.height; }
@@ -10138,10 +10201,19 @@ function upscaleTool(v, o) {
     const inL = Math.min(L, Math.floor(UP_MAX / k)), f = inL / L;
     return {W0, H0, k, w: Math.max(1, Math.round(W0 * f)), h: Math.max(1, Math.round(H0 * f)), shrunk: f < 1};
   }
+  /* 예상 시간(초): 이 기기에서 잰 속도(100만 화소당 초)가 있으면 그것으로, 없으면 어림값으로 */
+  function upGuess(z) {
+    const mp = z.w * z.h / 1e6, gpu = HAS_GPU && !TB_NATIVE && !TB_WEAK;
+    const kind = q === "hq" ? "h" : gpu && !window.__tbNoUpGpu && lsGet("tb_up_gpu2", "") !== "bad" ? "g" : (tbUpWorkers() > 1 && !TB_NATIVE && !window.__tbNoUpPool) ? "p" : "c";
+    const seen = +lsGet("tb_up_spd_" + kind, 0);
+    const base = seen > 0 ? seen : kind === "h" ? 40 : kind === "g" ? 6 : TB_NATIVE ? 25 : (TB_WEAK ? 180 : 100) / (kind === "p" ? Math.max(1, tbUpWorkers() * .8) : 1);
+    return {sec: mp * base + 3, sure: seen > 0};
+  }
+  const upSay = s => s < 8 ? "몇 초" : s < 50 ? `약 ${Math.round(s / 10) * 10 || 10}초` : s < 100 ? "1분 안팎" : `약 ${Math.round(s / 60)}분`;
   function upPlan() {
-    const el = $("#upPlan"); if (!el || !src) return; const z = upSize(), tiles = Math.ceil(z.w / 128) * Math.ceil(z.h / 128);
+    const el = $("#upPlan"); if (!el || !src) return; const z = upSize(), g = mode === "text" ? {sec: 2} : upGuess(z);
     el.textContent = Math.max(z.W0, z.H0) >= UP_MAX ? "이미 충분히 큰 사진이에요. 더 키우면 파일만 커지고 선명해지지 않아요." :
-      `${z.W0}×${z.H0} → ${z.w * z.k}×${z.h * z.k}${z.shrunk ? " (결과가 너무 커지지 않게 맞췄어요)" : ""} · 예상 ${mode === "text" ? "몇 초" : q === "hq" ? (tiles < 30 ? "10초 안팎" : tiles < 150 ? "1분 안팎" : "몇 분") : (tiles < 20 ? "몇 초" : tiles < 120 ? "1분 안팎" : "몇 분")}`;
+      `${z.W0}×${z.H0} → ${z.w * z.k}×${z.h * z.k}${z.shrunk ? " (결과가 너무 커지지 않게 맞췄어요)" : ""} · 예상 ${upSay(g.sec)}${g.sec >= 180 ? " · 큰 사진이라 오래 걸려요" : ""}`;
   }
   $("#upScale").onchange = upPlan;
   $("#upIn").onchange = e => use(e.target.files[0]); dropZone($("#upDrop"), fs => use(fs[0]));
@@ -10152,20 +10224,22 @@ function upscaleTool(v, o) {
       const z = upSize(); if (Math.max(z.W0, z.H0) >= UP_MAX) throw new Error("이미 충분히 큰 사진이에요. 더 키우면 파일만 커지고 선명해지지 않아요.");
       const K = z.k, MIX = +$("#upMix").value;
       if (mode === "text") { msg("또렷하게 키우는 중…"); await nextFrame(); const out = sharpUp(src, z.w, z.h, K); outCv = out; msg(""); showOut(z, out, K); return; }
-      let sess;
-      if (q === "hq") { try { sess = await loadModel("upscaleHQ", msg); } catch (e) { if (!/TB_NOGPU/.test(String(e && e.message))) throw e; delete sessP.upscaleHQ; setQ("fast"); try { localStorage.setItem("tb_up_q", "fast"); } catch (x) {} toast("이 기기에선 그래픽카드를 쓸 수 없어 빠른 모드로 키웠어요."); } }
+      let sess, pool = null, kind = "c";   // kind: h=고화질(그래픽카드) · g=빠른 모델(그래픽카드) · p=여러 코어 · c=한 코어
+      if (q === "hq") { try { sess = await loadModel("upscaleHQ", msg); kind = "h"; } catch (e) { const em = String(e && e.message), net = /AI 엔진|모델 파일을 받지/.test(em); if (!net && !/TB_NOGPU/.test(em)) throw e; delete sessP.upscaleHQ; setQ("fast");
+        if (net) toast("고화질 AI 엔진을 받지 못해 빠른 모드로 키웠어요. 인터넷 연결을 확인해 주세요."); else { try { localStorage.setItem("tb_up_q", "fast"); } catch (x) {} toast("이 기기에선 그래픽카드를 쓸 수 없어 빠른 모드로 키웠어요."); } } }
+      if (!sess) { sess = await tbUpGpuSess(msg); if (sess) kind = "g"; }
+      if (!sess) { pool = await tbUpPool(msg); if (pool) kind = "p"; }
       if (!sess) sess = await loadModel("upscale", msg);
       const inp = document.createElement("canvas"); inp.width = z.w; inp.height = z.h; const ix = inp.getContext("2d"); ix.imageSmoothingQuality = "high"; ix.drawImage(src, 0, 0, z.w, z.h);
       const W = z.w, H = z.h, d = ix.getImageData(0, 0, W, H).data;
-      const T = (q === "hq" && HAS_GPU && !TB_NATIVE && !TB_WEAK) ? 256 : 128, PAD = 16, out = document.createElement("canvas"); out.width = W * K; out.height = H * K; const ox = out.getContext("2d");   // 그래픽카드면 한 번에 큰 조각(호출 횟수↓ → 2~3배 빠름)
-      const tiles = []; for (let y = 0; y < H; y += T) for (let x = 0; x < W; x += T) tiles.push([x, y]);
-      const t0 = Date.now();
-      for (const [n, [tx, ty]] of tiles.entries()) {
-        const el = (Date.now() - t0) / 1000, left = n ? Math.round(el / n * (tiles.length - n)) : 0;
-        msg(`선명하게 만드는 중 ${Math.round(n / tiles.length * 100)}%${n > 2 && left > 5 ? ` · 약 ${left > 90 ? Math.round(left / 60) + "분" : left + "초"} 남음` : ""}`); await nextFrame();
+      const PAD = 16, out = document.createElement("canvas"); out.width = W * K; out.height = H * K; const ox = out.getContext("2d");
+      const prep = (tx, ty, T) => {
         const x0 = Math.max(0, tx - PAD), y0 = Math.max(0, ty - PAD), x1 = Math.min(W, tx + T + PAD), y1 = Math.min(H, ty + T + PAD), w = x1 - x0, h = y1 - y0, P = w * h, arr = new Float32Array(3 * P);
         for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) { const s = ((y0 + yy) * W + x0 + xx) * 4, p = yy * w + xx; arr[p] = d[s] / 255; arr[P + p] = d[s + 1] / 255; arr[2 * P + p] = d[s + 2] / 255; }
-        const r = await sess.run({[sess.inputNames[0]]: new (sess.RT || ort).Tensor("float32", arr, [1, 3, h, w])}), od = r[sess.outputNames[0]].data, OW = w * 4, OH = h * 4, OP = OW * OH;
+        return {x0, y0, w, h, arr};
+      };
+      const paint = (tx, ty, T, g, od) => {
+        const {x0, y0, w, h} = g, OW = w * 4, OH = h * 4, OP = OW * OH;
         /* 일반 확대본과 섞어 자연스럽게 (MIX=1이면 AI 그대로) */
         const sm = document.createElement("canvas"); sm.width = OW; sm.height = OH; const sx = sm.getContext("2d"); sx.imageSmoothingQuality = "high"; sx.drawImage(inp, x0, y0, w, h, 0, 0, OW, OH);
         const img = sx.getImageData(0, 0, OW, OH), q = img.data;
@@ -10173,7 +10247,33 @@ function upscaleTool(v, o) {
         sx.putImageData(img, 0, 0);
         const cx = (tx - x0) * 4, cy = (ty - y0) * 4, cw = Math.min(T, W - tx) * 4, ch = Math.min(T, H - ty) * 4;
         ox.imageSmoothingQuality = "high"; ox.drawImage(sm, cx, cy, cw, ch, tx * K, ty * K, cw * K / 4, ch * K / 4);
+      };
+      const t0 = Date.now();
+      const pass = async how => {
+        const T = (how === "h" || how === "g") ? 256 : 128;   // 그래픽카드면 한 번에 큰 조각(호출 횟수↓)
+        const tiles = []; for (let y = 0; y < H; y += T) for (let x = 0; x < W; x += T) tiles.push([x, y]);
+        let done = 0; const s0 = Date.now(), total = tiles.length;
+        const tick = () => { const el = (Date.now() - s0) / 1000, left = done ? Math.round(el / done * (total - done)) : 0;
+          msg(`선명하게 만드는 중 ${Math.round(done / total * 100)}%${done > 2 && left > 5 ? ` · 약 ${left > 90 ? Math.round(left / 60) + "분" : left + "초"} 남음` : ""}`); };
+        if (how === "p") {   // 여러 코어: 작업자 수만큼 동시에
+          tick(); await nextFrame(); let i = 0;
+          await Promise.all(Array.from({length: pool.size}, async () => { while (i < total) { const [tx, ty] = tiles[i++], g = prep(tx, ty, T); const od = await pool.run(g.arr, [1, 3, g.h, g.w]); paint(tx, ty, T, g, od); done++; tick(); } }));
+        } else for (const [tx, ty] of tiles) {
+          tick(); await nextFrame(); const g = prep(tx, ty, T);
+          const r = await sess.run({[sess.inputNames[0]]: new (sess.RT || ort).Tensor("float32", g.arr, [1, 3, g.h, g.w])}); paint(tx, ty, T, g, r[sess.outputNames[0]].data); done++;
+        }
+        return total;
+      };
+      let nTiles;
+      try { nTiles = await pass(kind); }
+      catch (e) {   // 그래픽카드·작업자가 도중에 멈추면 예전 방식(한 코어)으로 처음부터 다시
+        if (kind === "c" || kind === "h") throw e;
+        console.warn("화질 개선 빠른 길 실패 → 한 코어로 다시", e);
+        if (kind === "p") { window.__tbNoUpPool = true; try { pool.close(); } catch (x) {} } else { window.__tbNoUpGpu = true; delete sessP.upscaleG; }
+        kind = "c"; sess = await loadModel("upscale", msg); nTiles = await pass("c");
       }
+      if (pool) tbUpPoolRest();
+      { const sec = (Date.now() - t0) / 1000, mp = W * H / 1e6; if (mp > .05) lsSet("tb_up_spd_" + kind, Math.round(sec / mp * 10) / 10); window.__tbUpStat = {kind, workers: kind === "p" ? pool.size : 1, tiles: nTiles, sec: Math.round(sec * 10) / 10, mp: Math.round(mp * 100) / 100}; }
       let faces = 0;
       if ($("#upFace") && $("#upFace").checked && !$("#upFaceL").classList.contains("hidden")) { try { faces = await restoreFaces(out, MIX >= 1 ? 1 : .8, msg); } catch (e) { console.warn("얼굴 복원 실패", e); if (/TB_NOGPU/.test(String(e && e.message))) { window.__tbNoFace = true; $("#upFaceL").classList.add("hidden"); } } }
       outCv = out; msg(""); showOut(z, out, K, faces);
