@@ -55,6 +55,7 @@ public class TbEngine {
     private OrtEnvironment env;
     private final Map<String, OrtSession> sessions = new HashMap<>();
     private final Map<String, String> accels = new HashMap<>();
+    private final java.util.Set<String> heavyNames = new java.util.HashSet<>();   // 지금 올라가 있는 큰 모델
 
     public TbEngine(Context ctx) { this.ctx = ctx; }
 
@@ -78,6 +79,9 @@ public class TbEngine {
         if (heavy && totalMemory() < HEAVY_MIN_MEMORY) throw new Exception("TB_LOWMEM");
         OrtSession s = sessions.get(name);
         if (s == null) {
+            // 큰 모델은 한 번에 하나만 올려 둬요 (누끼→지우기→얼굴 복원을 이어 쓰면 메모리가 쌓여 앱이 꺼질 수 있어요).
+            // 내려간 모델을 다시 쓰면 화면 쪽이 'not loaded'를 보고 다시 올려요.
+            if (heavy) for (String k : new ArrayList<>(heavyNames)) if (!k.equals(name)) unload(k);
             if (env == null) env = OrtEnvironment.getEnvironment();
             File f = modelFile(name, files, q8);
             // XNNPACK(ARM 최적화)은 큰 모델(BiRefNet)에서 확인됨. 작은 모델(u2netp 등)은 Resize 연산에서 에뮬레이터가 죽는 일이 있어 CPU 멀티코어로.
@@ -91,6 +95,7 @@ public class TbEngine {
             }
             sessions.put(name, s);
             accels.put(name, accel);
+            if (heavy) heavyNames.add(name);
         }
         return new Loaded(new ArrayList<>(s.getInputNames()), new ArrayList<>(s.getOutputNames()), accels.get(name));
     }
@@ -99,6 +104,7 @@ public class TbEngine {
     public synchronized void unload(String name) {
         OrtSession s = sessions.remove(name);
         accels.remove(name);
+        heavyNames.remove(name);
         if (s != null) try { s.close(); } catch (Throwable ignore) { }
     }
 

@@ -25,6 +25,7 @@ public class TbAIPlugin: CAPPlugin, CAPBridgedPlugin {
     private var env: ORTEnv?
     private var sessions: [String: ORTSession] = [:]
     private var accels: [String: String] = [:]
+    private var heavyNames = Set<String>()   // 지금 올라가 있는 큰 모델
     private let queue = DispatchQueue(label: "kr.toolboxapp.tbai", qos: .userInitiated)
 
     // MARK: - 앱 링크(kr.toolboxapp.app://login#…) — 브라우저에서 로그인하고 돌아올 때
@@ -118,6 +119,11 @@ public class TbAIPlugin: CAPPlugin, CAPBridgedPlugin {
                 if let s = self.sessions[name] {
                     call.resolve(try self.describe(s, accel: self.accels[name] ?? "cpu")); return
                 }
+                // 큰 모델은 한 번에 하나만 올려 둬요 (이어 쓰면 메모리가 쌓여 앱이 꺼질 수 있어요). 내려간 모델을 다시 쓰면 화면 쪽이 'not loaded'를 보고 다시 올려요.
+                if heavy {
+                    for k in self.heavyNames where k != name { self.sessions[k] = nil; self.accels[k] = nil }
+                    self.heavyNames = self.heavyNames.filter { $0 == name }
+                }
                 if self.env == nil { self.env = try ORTEnv(loggingLevel: ORTLoggingLevel.warning) }
                 let url = try self.modelFile(name: name, files: files, q8: q8)
                 var accel = "coreml"
@@ -132,6 +138,7 @@ public class TbAIPlugin: CAPPlugin, CAPBridgedPlugin {
                 }
                 self.sessions[name] = session
                 self.accels[name] = accel
+                if heavy { self.heavyNames.insert(name) }
                 call.resolve(try self.describe(session, accel: accel))
             } catch {
                 call.reject("load failed: \(error.localizedDescription)")

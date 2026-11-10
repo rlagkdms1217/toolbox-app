@@ -126,6 +126,24 @@ public class EngineTest {
         for (int i = 0; i < o.data.length; i += 4096) assertTrue(o.data[i] >= 0f && o.data[i] <= 1f);
     }
 
+    /** 큰 모델은 한 번에 하나만: 다른 큰 모델을 올리면 앞의 것은 내려가고, 다시 올리면 또 돼요 */
+    @Test
+    public void w_heavyModelsOneAtATime() throws Exception {
+        TbEngine e = engine();
+        List<String> lama = new ArrayList<>(); lama.add("models/lama-g.wasm"); for (int i = 1; i <= 11; i++) lama.add("models/lama-" + i + ".wasm");
+        List<String> gfp = new ArrayList<>(); gfp.add("models/gfp-g.wasm"); for (int i = 1; i <= 18; i++) gfp.add("models/gfp-" + i + ".wasm");
+        e.load("erasePro", lama, true, true);
+        e.load("facePro", gfp, true, true);
+        boolean gone = false;
+        try { e.run("erasePro", new HashMap<>()); } catch (Exception x) { gone = String.valueOf(x.getMessage()).contains("not loaded"); }
+        assertTrue("앞의 큰 모델이 내려가야 해요", gone);
+        TbEngine.Loaded l2 = e.load("erasePro", lama, true, true);   // 다시 올리면 또 돼요 (이번엔 얼굴 모델이 내려가요)
+        assertEquals(2, l2.inputs.size());
+        gone = false;
+        try { e.run("facePro", new HashMap<>()); } catch (Exception x) { gone = String.valueOf(x.getMessage()).contains("not loaded"); }
+        assertTrue(gone);
+    }
+
     /** 새 누끼 모델(BiRefNet) — DeformConv 연산이 이 엔진에서 되는지가 핵심 */
     @Test
     public void z_proBackgroundModel() throws Exception {
