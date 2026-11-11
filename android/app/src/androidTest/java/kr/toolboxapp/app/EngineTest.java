@@ -86,6 +86,30 @@ public class EngineTest {
         assertEquals(3 * 512 * 512, out.get(l.outputs.get(0)).data.length);
     }
 
+    /** 화질 개선: 2배 전용 빠른 모델(SPAN) + 고화질 모델(ESRGAN NomosWebPhoto). 크기가 정해지지 않은 입력으로 돌아요 */
+    @Test
+    public void d_upscaleModels() throws Exception {
+        TbEngine e = engine();
+        TbEngine.Loaded l = e.load("upscale2", Arrays.asList("models/span2.wasm"), false, false);
+        long t = System.currentTimeMillis();
+        Map<String, TbEngine.Tensor> out = e.run("upscale2", one(l.inputs.get(0), new long[]{1, 3, 96, 80}, 0.4f));
+        Log.i(TAG, "span2 " + l.accel + " " + (System.currentTimeMillis() - t) + "ms");
+        TbEngine.Tensor o = out.get(l.outputs.get(0));
+        assertEquals(3 * 192 * 160, o.data.length);
+        for (int i = 0; i < o.data.length; i += 997) assertTrue(o.data[i] > -0.5f && o.data[i] < 1.5f);
+        e.unloadAll();
+        List<String> files = new ArrayList<>();
+        files.add("models/esrw-g.wasm");
+        for (int i = 1; i <= 4; i++) files.add("models/esrw-" + i + ".wasm");
+        TbEngine.Loaded h = e.load("upscaleHQ", files, true, false);
+        t = System.currentTimeMillis();
+        Map<String, TbEngine.Tensor> o2 = e.run("upscaleHQ", one(h.inputs.get(0), new long[]{1, 3, 48, 48}, 0.4f));
+        Log.i(TAG, "esrw " + h.accel + " " + (System.currentTimeMillis() - t) + "ms");
+        TbEngine.Tensor oh = o2.get(h.outputs.get(0));
+        assertEquals(3 * 192 * 192, oh.data.length);
+        for (int i = 0; i < oh.data.length; i += 997) assertTrue(oh.data[i] > -0.5f && oh.data[i] < 1.5f);
+    }
+
     /** 새 지우기 모델(LaMa) — 입력 2개(image, mask), 푸리에 변환을 MatMul로 바꾼 그래프 */
     @Test
     public void y_proEraseModel() throws Exception {

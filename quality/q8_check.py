@@ -37,6 +37,7 @@ def feeds(kind, path):
         return np.concatenate([(0.5 - m)[None], x.transpose(2, 0, 1) * (1 - m)])[None].astype(np.float32), m > 0
     if kind == 'gfp': return (img(path, 512) / 255).transpose(2, 0, 1)[None].astype(np.float32), None
     if kind == 'isnet': return (img(path, 1024) / 255 - 0.5).transpose(2, 0, 1)[None].astype(np.float32), None
+    if kind == 'esrw': return (img(path, 128) / 255).transpose(2, 0, 1)[None].astype(np.float32), None   # 화질 개선 고화질 모델: 128 → 512
     if kind == 'bir': return ((img(path, 1024) / 255 - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]).transpose(2, 0, 1)[None].astype(np.float32), None
 
 MODELS = {   # 이름: (원본 경로, 조각 접두어, 조각 수, 종류, 기준)
@@ -45,6 +46,7 @@ MODELS = {   # 이름: (원본 경로, 조각 접두어, 조각 수, 종류, 기
     'migan': (S + '/q8pk/migan.onnx', 'migan', 2, 'fill', dict(mean=0.03)),
     'isnet': (S + '/mdl/isnet.onnx', 'isnet', 9, 'mask', dict(mean=0.01, iou=0.985)),
     'bir':   (S + '/mdl/bir_dc.onnx', 'bir', 10, 'mask', dict(mean=0.01, iou=0.985)),
+    'esrw':  (S + '/sr/onnx/esrw_fp32.onnx', 'esrw', 4, 'image', dict(mean=0.006)),
 }
 def run(name):
     ref_path, prefix, n, kind, lim = MODELS[name]
