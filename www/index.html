@@ -240,6 +240,23 @@ nav.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:
 .sheet-bg{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.38)}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:10px 10px 0 0;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));max-width:560px;margin:0 auto}
 .sheet .grab{width:36px;height:4px;border-radius:2px;background:var(--line-strong);margin:4px auto 12px}
+.sheet.rs{max-height:88vh;overflow-y:auto}
+.rs-file{display:flex;gap:12px;align-items:center;margin:2px 2px 14px}
+.rs-file .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rs-file b{font-size:14.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rs-file small{font-size:12.5px;color:var(--muted)}
+.rs-th{width:48px;height:48px;border-radius:var(--r);background:var(--sunken);color:var(--fg-2);flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rs-th img{width:100%;height:100%;object-fit:cover}
+.rs-top{display:flex;flex-direction:column;gap:8px}
+.rs-big{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:none;width:100%;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.rs-big:hover{border-color:var(--line-strong);background:var(--sunken)}
+.rs-big.first{border-color:var(--ink);box-shadow:inset 0 0 0 .5px var(--ink)}
+.rs-big .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rs-big .t b{font-size:15px;font-weight:600}
+.rs-big .t small{font-size:12.5px;color:var(--muted)}
+.rs-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;background:var(--ink);color:var(--on-ink);flex:none}
+.rs-more{display:flex;justify-content:space-between;gap:12px;margin:8px 2px 0}
+.rs-rest{margin-top:4px;border-top:1px solid var(--line)}
 .drawer{position:fixed;top:0;bottom:0;left:0;z-index:21;width:min(320px,86vw);background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 10px calc(16px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));overflow-y:auto}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--on-ink);padding:10px 14px;border-radius:var(--r);font-size:13px;max-width:calc(100% - 32px)}
 .thinking{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
@@ -1221,7 +1238,7 @@ const TBI = (() => {
     else {
       const h0 = cnt(t);
       let o = t.replace(/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/g, (m, y, a, b) => `${MON[+a - 1]} ${+b}, ${y}`).replace(/(\d{1,2})월\s*(\d{1,2})일/g, (m, a, b) => `${MON[+a - 1]} ${+b}`).replace(/(\d{1,2})월(?![가-힣])/g, (m, a) => MON[+a - 1] || m);
-      o = o.replace(/\((\d+)일 후\)/g, "(in $1 days)").replace(/에 다시 채워져요/g, " refill");
+      o = o.replace(/\((\d+)일 후\)/g, "(in $1 days)").replace(/다른 작업 (\d+)개 보기/g, "$1 more actions").replace(/^ 외 (\d+)개$/, " +$1 more").replace(/에 다시 채워져요/g, " refill");
       o = o.replace(/(^|\s)1년\s+/g, "$1");
       o = o.replace(RE, m => D[m]);
       o = o.replace(/(\d[\d,.]*)\s?(시간|분|초|명|개|건|쪽|장|번|일|회|원|주|자|줄|배)(?![가-힣])/g, (m, n, u) => n + UNIT[u]);
@@ -7853,27 +7870,69 @@ function bindTodo() {
 /* ---------- quick sheet (＋) & file recommendations ---------- */
 function recommendFor(f) {
   const e = extOf(f), t = f.type || "";
-  if (/^image\//.test(t) || ["heic", "heif"].includes(e)) return [["bg", "누끼 따기"], ["erase", "사람·물체 지우기"], ["capture", "캡처 편집"], ["ocr", "글자 추출"], ["mask", "개인정보 가리기"], ["upscale", "화질 개선"], ["convert", "형식 변환·PDF로"], ["exif", "위치·촬영 정보 지우기"], ["color", "색상 추출"]];
-  if (e === "pdf") return [["pdfedit", "편집하기 (쪽 정리·내용 고치기)"], ["summary", "요약·질문하기"], ["convert", "PDF 변환·나누기"], ["sign", "서명 넣기"], ["pdf", "다른 PDF와 합치기"]];
-  if (["docx", "hwp", "hwpx", "txt", "md"].includes(e)) return [["summary", "요약·질문하기"], ["convert", "형식 변환"], ["diff", "다른 버전과 비교"]];
-  if (["xlsx", "xls", "csv", "tsv", "json", "ods"].includes(e)) return [["data", "병합·중복 제거·비교"], ["chart", "차트 만들기"], ["convert", "형식 변환"], ["formula", "수식 도우미"]];
-  if (/^(audio|video)\//.test(t) || ["m4a", "mp3", "wav", "mov", "mp4", "webm", "ogg"].includes(e)) return [["meeting", "회의록으로 정리"], ["video", "영상 요약"], ["audio", "자르기·합치기"], ["convert", "형식 변환·소리 추출"]];
-  if (e === "zip") return [["zip", "압축 풀기"]];
-  return [["zip", "ZIP으로 묶기"], ["rename", "파일명 바꾸기"]];
+  if (/^image\//.test(t) || ["heic", "heif"].includes(e)) return [["bg", "누끼 따기"], ["erase", "사람·물체 지우기"], ["capture", "캡처 편집"], ["ocr", "글자 추출"], ["mask", "개인정보 가리기"], ["upscale", "화질 개선"], ["convert", "형식 변환·PDF로", "다른 사진 형식이나 PDF로 바꿔요"], ["exif", "위치·촬영 정보 지우기"], ["color", "색상 추출"]];
+  if (e === "pdf") return [["pdfedit", "편집하기 (쪽 정리·내용 고치기)"], ["summary", "요약·질문하기"], ["convert", "PDF 변환·나누기", "워드·이미지로 바꾸거나 쪽을 나눠요"], ["sign", "서명 넣기"], ["pdf", "다른 PDF와 합치기"]];
+  if (["hwp", "hwpx"].includes(e)) return [["convert", "PDF·워드로 바꾸기", "한글이 없는 사람도 열 수 있게 바꿔요"], ["summary", "요약·질문하기"], ["diff", "다른 버전과 비교"]];
+  if (["docx", "txt", "md"].includes(e)) return [["summary", "요약·질문하기"], ["convert", "형식 변환", "PDF·워드·텍스트로 바꿔요"], ["diff", "다른 버전과 비교"]];
+  if (["xlsx", "xls", "csv", "tsv", "json", "ods"].includes(e)) return [["data", "병합·중복 제거·비교"], ["chart", "차트 만들기"], ["convert", "형식 변환", "엑셀·CSV·JSON으로 서로 바꿔요"], ["formula", "수식 도우미"]];
+  if (/^(audio|video)\//.test(t) || ["m4a", "mp3", "wav", "mov", "mp4", "webm", "ogg"].includes(e)) return [["meeting", "회의록으로 정리"], ["video", "영상 요약"], ["audio", "자르기·합치기"], ["convert", "형식 변환·소리 추출", "MP4·MP3로 바꾸거나 소리만 꺼내요"]];
+  if (e === "zip") return [["zip", "압축 풀기", "안에 든 파일을 꺼내요"]];
+  return [["zip", "ZIP으로 묶기", "여러 파일을 한 파일로 묶어요"], ["rename", "파일명 바꾸기"]];
 }
+/* 파일 시트에서 도구마다 보여 줄 한 줄 설명 (제목을 되풀이하지 않게) */
+const REC_WHY = {bg: "배경을 지우고 사람·물건만 남겨요", erase: "지울 곳을 칠하면 배경으로 메워요", capture: "화살표·박스·모자이크를 넣고 잘라요", ocr: "사진 속 글자를 복사할 수 있게 꺼내요", mask: "전화번호·이메일·얼굴을 가려요", upscale: "작고 흐린 사진을 선명하게 키워요", exif: "찍은 위치·기기·날짜를 지워요", color: "대표 색과 색상 코드를 뽑아요", pdfedit: "쪽 순서를 바꾸고 내용을 고쳐요", summary: "요약하고 내용을 물어볼 수 있어요", sign: "손글씨 서명이나 도장을 넣어요", pdf: "여러 PDF를 한 파일로 만들어요", diff: "두 글에서 달라진 곳을 찾아요", data: "여러 표를 합치고 중복을 지워요", chart: "표를 보고서용 차트로 만들어요", formula: "말로 적으면 엑셀 수식을 써 줘요", meeting: "받아쓰고 요약·할 일·메일까지 정리해요", video: "영상 내용을 요약 노트로 만들어요", audio: "앞뒤를 자르거나 여러 파일을 이어요", rename: "번호를 붙이거나 찾아 바꿔요"};
+/* 파일을 보고 먼저 권할 순서를 정해요. 이유(why)는 파일에서 근거를 찾았을 때만 붙여요. info = 사진 크기 {w, h} */
+function recPlan(files, info) {
+  const f = files[0], e = extOf(f), t = f.type || "", n = files.length, recs = recommendFor(f).slice();
+  const front = ids => ids.slice().reverse().forEach(id => { const i = recs.findIndex(r => r[0] === id); if (i > 0) recs.unshift(recs.splice(i, 1)[0]); });
+  let why = "", kind = "파일";
+  if (/^image\//.test(t) || ["heic", "heif"].includes(e)) {
+    const shot = /screen ?shot|스크린샷|캡처|capture|snapshot/i.test(f.name), small = !!(info && info.w && Math.max(info.w, info.h) < 1000);
+    kind = shot ? "화면 캡처" : small ? "작은 사진" : "사진";
+    if (shot) { front(["capture", "ocr", "mask"]); why = "화면 캡처 같아서 이걸 먼저 권해요"; }
+    else if (small && n === 1) { front(["upscale", "bg", "erase"]); why = "사진이 작아서 이걸 먼저 권해요"; }
+    else front(["bg", "erase", "upscale"]);
+  } else if (e === "pdf") { kind = "PDF 문서"; if (n > 1 && files.every(x => extOf(x) === "pdf")) { front(["pdf"]); why = "PDF가 여러 개라 합치기를 먼저 권해요"; } }
+  else if (["hwp", "hwpx"].includes(e)) kind = "한글 문서";
+  else if (e === "docx") kind = "워드 문서";
+  else if (["txt", "md"].includes(e)) kind = "텍스트 파일";
+  else if (["xlsx", "xls", "csv", "tsv", "json", "ods"].includes(e)) { kind = "표 파일"; if (n > 1) why = "표가 여러 개라 합치기를 먼저 권해요"; }
+  else if (/^video\//.test(t) || ["mov", "mp4", "webm"].includes(e)) { kind = "영상 파일"; front(["video", "meeting", "convert"]); }
+  else if (/^audio\//.test(t) || ["m4a", "mp3", "wav", "ogg"].includes(e)) { kind = "녹음 파일"; why = "녹음 파일이라 회의록 정리를 먼저 권해요"; }
+  else if (e === "zip") kind = "압축 파일";
+  return {recs, why, kind};
+}
+/* 파일을 넣으면: 먼저 권하는 3개만 크게, 나머지는 '다른 작업 보기'로 접어 둬요 */
 function recommendSheet(files) {
-  const f = files[0], recs = recommendFor(f);
-  $("#layer").innerHTML = `<div class="sheet-bg" id="lbg"></div><div class="sheet" role="dialog" aria-label="이 파일로 할 일"><div class="grab"></div>
-    <p class="eyebrow" style="margin:0 4px 2px">이 파일로 무엇을 할까요</p><p class="sub" style="margin:0 4px 8px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}${files.length > 1 ? ` 외 ${files.length - 1}개` : ""} · ${kb(files.reduce((s, x) => s + x.size, 0))}</p>
-    <div class="list">${recs.map((r, i) => `<button class="item" data-r="${i}"><span class="ico">${ic(TOOL_META[r[0]] ? TOOL_META[r[0]].icon : "doc")}</span><span class="t"><b>${esc(r[1])}</b><small>${esc(TOOL_TITLE[r[0]] || "")}</small></span></button>`).join("")}</div></div>`;
+  const f = files[0], tok = recommendSheet.tok = (recommendSheet.tok || 0) + 1;
+  const isImg = /^image\//.test(f.type || "") || ["heic", "heif"].includes(extOf(f));
+  const canAsk = files.length <= CHAT_REFS && files.every(x => /\.(pdf|docx|hwpx?|txt|md|csv|xlsx?|json|srt|vtt|jpe?g|png|webp)$/i.test(x.name));
+  const size = kb(files.reduce((s, x) => s + x.size, 0)), icon = id => TOOL_META[id] ? TOOL_META[id].icon : "doc";
+  let open = false;
+  $("#layer").innerHTML = `<div class="sheet-bg" id="lbg"></div><div class="sheet rs" role="dialog" aria-label="이 파일로 할 일"><div class="grab"></div>
+    <div class="rs-file"><span class="rs-th" id="rsTh">${ic(isImg ? "image" : "doc", 22, 1.7)}</span><span class="t"><b>${esc(f.name)}${files.length > 1 ? `<span> 외 ${files.length - 1}개</span>` : ""}</b><small id="rsInfo"></small></span></div><div id="rsBody"></div></div>`;
   $("#lbg").onclick = closeLayer;
-  const sh = document.querySelector("#layer .sheet .list");
-  if (sh && files.length <= CHAT_REFS && files.every(x => /\.(pdf|docx|hwpx?|txt|md|csv|xlsx?|json|srt|vtt|jpe?g|png|webp)$/i.test(x.name))) { const b = document.createElement("button"); b.className = "item"; b.innerHTML = `<span class="ico">${ic("sparkle")}</span><span class="t"><b>AI에게 이 파일 물어보기</b><small>내용을 읽고 질문에 답해요</small></span>`; b.onclick = () => go("chat", null, {fresh: 1, files}); sh.prepend(b); }
-  document.querySelectorAll("[data-r]").forEach(b => b.onclick = () => {
-    const id = recs[+b.dataset.r][0];
-    if (id === "meeting") { if (IN_CLAUDE) { closeLayer(); toast("녹음 파일 회의록은 웹 버전에서 돼요."); return; } handoffToMeeting(f); return; }
-    openTool(id, {files});
-  });
+  const draw = info => {
+    const P = recPlan(files, info), nTop = P.recs.length <= 4 ? P.recs.length : 3, top = P.recs.slice(0, nTop), rest = P.recs.slice(nTop);   // 하나만 남으면 접지 않고 다 보여 줘요
+    $("#rsInfo").textContent = [P.kind, info && info.w ? `${info.w}×${info.h}` : "", size].filter(Boolean).join(" · ");
+    $("#rsBody").innerHTML = `<div class="rs-top">${top.map((r, i) => { const hit = i === 0 && P.why; return `<button class="rs-big${hit ? " first" : ""}" data-r="${i}"><span class="ico">${ic(icon(r[0]))}</span><span class="t"><b>${esc(r[1])}</b><small>${esc(hit ? P.why : r[2] || REC_WHY[r[0]] || "")}</small></span>${hit ? `<span class="rs-badge">추천</span>` : ""}</button>`; }).join("")}</div>
+      ${rest.length || canAsk ? `<div class="rs-more">${rest.length ? `<button class="link" id="rsMore" aria-expanded="${open}">${open ? "다른 작업 접기" : `다른 작업 ${rest.length}개 보기`}</button>` : "<span></span>"}${canAsk ? `<button class="link" id="rsAsk">AI에게 이 파일 물어보기</button>` : ""}</div>` : ""}
+      ${rest.length ? `<div class="list rs-rest${open ? "" : " hidden"}" id="rsRest">${rest.map((r, i) => `<button class="item" data-r="${i + nTop}"><span class="ico">${ic(icon(r[0]))}</span><span class="t"><b>${esc(r[1])}</b><small>${esc(r[2] || REC_WHY[r[0]] || "")}</small></span></button>`).join("")}</div>` : ""}`;
+    const m = $("#rsMore"); if (m) m.onclick = () => { open = !open; $("#rsRest").classList.toggle("hidden", !open); m.setAttribute("aria-expanded", open); m.textContent = open ? "다른 작업 접기" : `다른 작업 ${rest.length}개 보기`; };
+    const a = $("#rsAsk"); if (a) a.onclick = () => go("chat", null, {fresh: 1, files});
+    document.querySelectorAll("#rsBody [data-r]").forEach(b => b.onclick = () => {
+      const id = P.recs[+b.dataset.r][0];
+      if (id === "meeting") { if (IN_CLAUDE) { closeLayer(); toast("녹음 파일 회의록은 웹 버전에서 돼요."); return; } handoffToMeeting(f); return; }
+      openTool(id, {files});
+    });
+  };
+  draw(null);
+  if (isImg) {   // 사진이면 작은 그림을 보여 주고, 크기를 알면 권하는 순서를 다시 정해요
+    const im = new Image(), u = URL.createObjectURL(f); im.alt = "";
+    im.onload = () => { URL.revokeObjectURL(u); const th = $("#rsTh"); if (recommendSheet.tok !== tok || !th) return; th.innerHTML = ""; th.appendChild(im); if (files.length === 1 && im.naturalWidth) draw({w: im.naturalWidth, h: im.naturalHeight}); };
+    im.onerror = () => URL.revokeObjectURL(u);
+    im.src = u;
+  }
 }
 /* 아이폰 '파일' 앱은 accept에 맞는 형식만 고를 수 있게 해서, 음성 메모(.qta 등)가 회색으로 막혀요 → 아이폰에선 음성 칸의 형식 제한을 풀고 고른 뒤에 확인해요 */
 const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
