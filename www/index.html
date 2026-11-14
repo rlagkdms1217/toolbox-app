@@ -553,6 +553,8 @@ body{margin:0}
 .dz-tile b{font-size:16px}.dz-tile small{font-size:13px;line-height:1.45}.dz-tile .ico{width:40px;height:40px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center}
 .dz-tile.hot{border-style:solid;border-color:var(--fg);background:var(--bg);transform:scale(1.02)}
 .dz-tile.any{min-height:0;padding:14px;flex-direction:row;gap:10px}.dz-tile.any b{font-size:14.5px}
+.dz-cv{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:12px 14px 14px}.dz-cv>p{display:flex;gap:8px;align-items:baseline;margin:0 0 10px;font-size:14.5px}.dz-cv>p small{font-size:12.5px}
+.dz-cvrow{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}.dz-tile.cv{min-height:64px;padding:12px 8px}.dz-tile.cv b{font-size:15px}
 @media (min-width:768px) and (max-width:1023.98px){
   .app{max-width:720px}
   nav.tabbar .in{max-width:720px}
@@ -5036,7 +5038,7 @@ function convertTool(v, o) {
   const add = fs => { files = files.concat(fs); refresh(); };
   $("#cvIn").onchange = e => { add([...e.target.files]); e.target.value = ""; };
   dropZone($("#cvDrop"), add);
-  if (o.files) add(o.files);
+  if (o.files) { add(o.files); if (o.auto && o.target) setTimeout(() => { const g2 = $("#cvGo"); if (g2 && !g2.disabled && target === o.target) g2.click(); }, 120); }   // 끌어다 놓기에서 형식 칸에 놓았으면 바로 바꿔요
   $("#cvGo").onclick = async () => {
     const btn = $("#cvGo"), out = $("#cvOut"); btn.disabled = true;
     const opt = {w: +($("#cvW") || {}).value || 0, ...Object.fromEntries([...document.querySelectorAll("#cvOpts [data-o]")].map(el => [el.dataset.o, el.type === "checkbox" ? el.checked : el.value])), q: ($("#cvQ") ? +$("#cvQ").value / 100 : .9), pages: ($("#cvPages") || {}).value || "", deg: ($("#cvDeg") || {}).value || 90, sheet: ($("#cvSheet") || {}).value || "", level: ($("#cvLevel") || {}).value || "normal"};
@@ -8078,16 +8080,24 @@ function recPlan(files, info) {
   return {recs, why, kind};
 }
 /* 끌어오는 동안에는 파일 이름을 알 수 없고 종류(MIME)만 알 수 있어요 → 종류로 '놓을 칸' 3개를 정해요. 모르는 종류·섞인 종류·여러 장 사진은 null (예전처럼 한 칸) */
-const DRAG_EXT = [[/^image\//, "jpg"], [/^application\/pdf$/, "pdf"], [/^audio\//, "m4a"], [/^video\//, "mp4"], [/spreadsheetml|ms-excel|^text\/csv$|opendocument\.spreadsheet/, "xlsx"], [/wordprocessingml/, "docx"], [/^text\/(plain|markdown)$/, "txt"], [/hwp/, "hwp"], [/zip/, "zip"]];
+const DRAG_EXT = [[/^image\//, "jpg"], [/^application\/pdf$/, "pdf"], [/^audio\//, "m4a"], [/^video\//, "mp4"], [/^text\/csv$/, "csv"], [/spreadsheetml|ms-excel|opendocument\.spreadsheet/, "xlsx"], [/wordprocessingml/, "docx"], [/^text\/(plain|markdown)$/, "txt"], [/hwp/, "hwp"], [/zip/, "zip"]];
 const DROP_NOW = {bg: "놓으면 바로 배경을 지워요", upscale: "놓으면 바로 선명하게 키워요"};
+/* 어떤 파일이든 '파일 변환'은 항상 같이 떠요: 종류별로 자주 쓰는 형식 칸 (놓으면 바로 바꿔요) */
+const DROP_CV = {image: [["jpg", "JPG"], ["png", "PNG"], ["webp", "WEBP"], ["pdf", "PDF"]], pdf: [["docx", "워드"], ["pptx", "PPT"], ["jpg", "이미지"], ["compress", "용량 줄이기"]], audio: [["mp3", "MP3"], ["m4a", "M4A"], ["wav", "WAV"]], video: [["mp4", "MP4"], ["mp3", "소리만 MP3"], ["gif", "움짤 GIF"]],
+  sheet: [["csv", "CSV"], ["xlsx", "엑셀"], ["pdf", "PDF"], ["json", "JSON"]], csv: [["xlsx", "엑셀"], ["pdf", "PDF"], ["json", "JSON"]], docx: [["pdf", "PDF"], ["txt", "TXT"], ["html", "HTML"]], text: [["pdf", "PDF"], ["docx", "워드"], ["html", "HTML"]], hwp: [["pdf", "PDF"], ["docx", "워드"], ["png", "이미지"]]};
+const MIME_OWN = [[/jpe?g/, "jpg"], [/png/, "png"], [/webp/, "webp"], [/audio\/(mpeg|mp3)/, "mp3"], [/audio\/(x-)?wav/, "wav"], [/audio\/(x-)?(m4a|mp4)/, "m4a"], [/video\/mp4/, "mp4"], [/spreadsheetml/, "xlsx"]];
 function dragPlan(dt) {
   let its; try { its = [...(dt.items || [])].filter(i => i.kind === "file"); } catch (e) { return null; }
   if (!its.length) return null;
   const exts = its.map(i => { const r = DRAG_EXT.find(x => x[0].test(i.type || "")); return r ? r[1] : ""; });
   if (exts.some(x => !x) || new Set(exts).size > 1) return null;
-  if (its.length > 1 && !["pdf", "xlsx"].includes(exts[0])) return null;   // 한 장씩 처리하는 도구가 많아서, 여러 개는 PDF·표일 때만 칸을 보여 줘요
-  const P = recPlan(its.map((i, k) => ({name: "f" + k + "." + exts[0], type: i.type || "", size: 0})), null);
-  return {kind: P.kind, n: its.length, recs: P.recs.slice(0, 3)};
+  const fake = its.map((i, k) => ({name: "f" + k + "." + exts[0], type: i.type || "", size: 0})), P = recPlan(fake, null), gr = groupOf2(fake[0]);
+  const own = its.length === 1 ? (MIME_OWN.find(x => x[0].test(its[0].type || "")) || [])[1] : null, T = TARGETS[gr] || [];
+  const cv = (DROP_CV[gr] || []).filter(c => c[0] !== own && T.some(t => t[0] === c[0]));
+  /* 한 장씩 처리하는 도구가 많아서, 여러 개일 때 도구 칸은 PDF·표만 보여 줘요. 변환 칸은 여러 개도 한 번에 돼요 */
+  const acts = its.length > 1 && !["pdf", "xlsx", "csv"].includes(exts[0]) ? [] : P.recs.filter(r => r[0] !== "convert").slice(0, 3);
+  if (!acts.length && !cv.length) return null;
+  return {kind: P.kind, n: its.length, recs: acts, cv};
 }
 /* 파일을 넣으면: 먼저 권하는 3개만 크게, 나머지는 '다른 작업 보기'로 접어 둬요 */
 function recommendSheet(files) {
@@ -8100,7 +8110,8 @@ function recommendSheet(files) {
     <div class="rs-file"><span class="rs-th" id="rsTh">${ic(isImg ? "image" : "doc", 22, 1.7)}</span><span class="t"><b>${esc(f.name)}${files.length > 1 ? `<span> 외 ${files.length - 1}개</span>` : ""}</b><small id="rsInfo"></small></span></div><div id="rsBody"></div></div>`;
   $("#lbg").onclick = closeLayer;
   const draw = info => {
-    const P = recPlan(files, info), nTop = P.recs.length <= 4 ? P.recs.length : 3, top = P.recs.slice(0, nTop), rest = P.recs.slice(nTop);   // 하나만 남으면 접지 않고 다 보여 줘요
+    const P = recPlan(files, info); { const ci = P.recs.findIndex(r => r[0] === "convert"); if (ci > 3) P.recs.splice(3, 0, P.recs.splice(ci, 1)[0]); }   // 파일 변환은 접힌 목록에 숨기지 않고 항상 같이 보여 줘요
+    const cvAt = P.recs.findIndex(r => r[0] === "convert"), nTop = P.recs.length <= 4 || cvAt === 3 ? Math.min(4, P.recs.length) : 3, top = P.recs.slice(0, nTop), rest = P.recs.slice(nTop);   // 하나만 남으면 접지 않고 다 보여 줘요
     $("#rsInfo").textContent = [P.kind, info && info.w ? `${info.w}×${info.h}` : "", size].filter(Boolean).join(" · ");
     $("#rsBody").innerHTML = `<div class="rs-top">${top.map((r, i) => { const hit = i === 0 && P.why; return `<button class="rs-big${hit ? " first" : ""}" data-r="${i}"><span class="ico">${ic(icon(r[0]))}</span><span class="t"><b>${esc(r[1])}</b><small>${esc(hit ? P.why : r[2] || REC_WHY[r[0]] || "")}</small></span>${hit ? `<span class="rs-badge">추천</span>` : ""}</button>`; }).join("")}</div>
       ${rest.length || canAsk ? `<div class="rs-more">${rest.length ? `<button class="link" id="rsMore" aria-expanded="${open}">${open ? "다른 작업 접기" : `다른 작업 ${rest.length}개 보기`}</button>` : "<span></span>"}${canAsk ? `<button class="link" id="rsAsk">AI에게 이 파일 물어보기</button>` : ""}</div>` : ""}
@@ -11079,7 +11090,8 @@ function deskMark(v) {
     plan = tiles(e);
     if (plan) {
       $("#dzBox").innerHTML = `<p class="dz-h"><b>${esc(plan.kind)}</b>${plan.n > 1 ? `<span> ${plan.n}개</span>` : ""}<span> · 놓을 칸을 고르세요</span></p>
-        <div class="dz-row">${plan.recs.map((r, i) => `<div class="dz-tile" data-dz="${i}"><span class="ico">${ic(TOOL_META[r[0]] ? TOOL_META[r[0]].icon : "doc", 22, 1.7)}</span><b>${esc(r[1])}</b><small>${esc(DROP_NOW[r[0]] || r[2] || REC_WHY[r[0]] || "")}</small></div>`).join("")}</div>
+        ${plan.recs.length ? `<div class="dz-row" style="grid-template-columns:repeat(${plan.recs.length},1fr)">${plan.recs.map((r, i) => `<div class="dz-tile" data-dz="${i}"><span class="ico">${ic(TOOL_META[r[0]] ? TOOL_META[r[0]].icon : "doc", 22, 1.7)}</span><b>${esc(r[1])}</b><small>${esc(DROP_NOW[r[0]] || r[2] || REC_WHY[r[0]] || "")}</small></div>`).join("")}</div>` : ""}
+        ${plan.cv.length ? `<div class="dz-cv"><p><b>파일 변환</b><small>놓으면 바로 바꿔요</small></p><div class="dz-cvrow">${plan.cv.map(c => `<div class="dz-tile cv" data-dz="cv" data-t="${esc(c[0])}"><b>${esc(c[1])}</b></div>`).join("")}</div></div>` : ""}
         <div class="dz-tile any" data-dz="any"><b>다른 작업 고르기</b><small>여기에 놓으면 추천 창이 떠요</small></div>`;
     } else $("#dcHint").textContent = S.view === "tool" && document.querySelector("#view input[type=file]") ? `${curTitle(S.tool)}에 넣어요` : "파일에 맞는 도구를 골라 드려요";
     cover.classList.toggle("act", !!plan); cover.classList.add("on");
@@ -11088,11 +11100,12 @@ function deskMark(v) {
   addEventListener("dragover", e => { if (!hasFiles(e)) return; e.preventDefault(); if (plan) { const t = e.target && e.target.closest && e.target.closest(".dz-tile"); hot(t); if (t) t.classList.add("hot"); } });
   addEventListener("dragend", off);
   addEventListener("drop", e => {
-    const P = plan, tile = P && e.target && e.target.closest && e.target.closest(".dz-tile[data-dz]"), pick = tile && tile.dataset.dz !== "any" ? P.recs[+tile.dataset.dz] : null;
+    const P = plan, tile = P && e.target && e.target.closest && e.target.closest(".dz-tile[data-dz]"), cvT = tile && tile.dataset.dz === "cv" ? tile.dataset.t : null, pick = tile && !cvT && tile.dataset.dz !== "any" ? P.recs[+tile.dataset.dz] : null;
     off();
     if (e.defaultPrevented || !hasFiles(e) || S.recording) return;
     e.preventDefault();
     const fs = e.dataTransfer.files; if (!fs || !fs.length) return;
+    if (cvT) { try { tbTrack("dropgo", "convert:" + cvT); } catch (x) {} openTool("convert", {files: [...fs], target: cvT, auto: 1}); return; }   // 형식 칸: 바로 바꾸기
     if (pick) {   // 칸에 놓았으면 추천 창을 건너뛰고 그 도구로 바로
       const files = [...fs], id = pick[0];
       try { tbTrack("dropgo", id); } catch (x) {}
