@@ -553,6 +553,39 @@ body{margin:0}
 .dz-tile b{font-size:16px}.dz-tile small{font-size:13px;line-height:1.45}.dz-tile .ico{width:40px;height:40px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center}
 .dz-tile.hot{border-style:solid;border-color:var(--fg);background:var(--bg);transform:scale(1.02)}
 .dz-tile.any{min-height:0;padding:14px;flex-direction:row;gap:10px}.dz-tile.any b{font-size:14.5px}
+.steps.cv-quick>section.step:nth-of-type(1),.steps.cv-quick>section.step:nth-of-type(2),.steps.cv-quick>details{display:none}.steps.cv-quick>section.step:nth-of-type(3) .step-h{display:none}
+.cv-qh{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:14px 16px}.cv-qh .ico{width:40px;height:40px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex:none}.cv-qh .t{display:flex;flex-direction:column;min-width:0;flex:1}.cv-qh .t small{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cv-qh .t b{font-size:18px}.cv-qh .link{flex:none;font-size:13px}
+.steps.cv-quick #cvOut .thinking{font-size:15.5px;color:var(--fg);padding:6px 0}
+.cv-prev{background:var(--sunken);border-radius:12px;min-height:150px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:10px;padding:14px}
+.cv-prev img,.cv-prev video,.cv-prev canvas{max-width:100%;max-height:46vh;border-radius:6px;display:block}.cv-prev canvas{box-shadow:0 1px 0 var(--line),0 8px 24px rgba(24,24,27,.10);background:#fff}.cv-prev video{width:100%;background:#000}
+.cv-pico{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--muted);width:100%}.cv-pico b{font-size:13px;letter-spacing:.02em}.cv-pico audio{width:100%;max-width:420px}
+.cv-res{background:var(--sunken);border-radius:12px;padding:12px;display:flex;justify-content:center;margin-bottom:10px}.cv-res img{max-width:100%;max-height:260px;border-radius:6px;display:block}
+.cv-pn{position:absolute;right:10px;bottom:10px;font-size:12.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px 10px}
+.cv-tops{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cv-opt{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:11px 13px;min-height:48px;color:inherit;font:inherit;cursor:pointer}
+.cv-opt i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--muted);flex:none}.cv-opt b{font-size:15px;white-space:nowrap}.cv-opt small{color:var(--muted);font-size:12.5px;margin-left:auto;text-align:right;line-height:1.3}
+.cv-opt[aria-pressed="true"]{border:2px solid var(--fg);padding:10px 12px}.cv-opt[aria-pressed="true"] i{border:5.5px solid var(--fg)}
+.cv-gl{font-size:12.5px;color:var(--muted);margin:14px 0 6px}
+.cv-chip{border:1px solid var(--line);border-radius:99px;background:var(--surface);padding:7px 12px;font-size:13.5px;color:inherit;font-family:inherit;cursor:pointer;min-height:34px}.cv-chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.steps.cv-desk .cv-tg{display:flex;flex-wrap:wrap;gap:6px}
+.steps.cv-desk.has #cvDrop{padding:10px;min-height:0;flex-direction:row;gap:10px;border-style:dashed}.steps.cv-desk.has #cvDrop>svg,.steps.cv-desk.has #cvDrop>p{display:none}
+.steps.cv-desk.has .step-h .num{display:none}.steps.cv-desk.has>section.step:nth-of-type(1) .step-h{display:none}
+.vr{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;background:var(--surface)}.vr-top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:8px}.vr-top span{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+.vr-bar{position:relative;height:30px;margin:2px 0 8px}.vr-bar:before{content:"";position:absolute;left:0;right:0;top:12px;height:6px;border-radius:3px;background:var(--line)}.vr-bar i{position:absolute;top:12px;height:6px;border-radius:3px;background:var(--fg)}
+.vr-bar input{position:absolute;left:0;top:0;width:100%;height:30px;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none}
+.vr-bar input::-webkit-slider-runnable-track{background:none;height:30px}.vr-bar input::-moz-range-track{background:none}
+.vr-bar input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:20px;height:20px;border-radius:50%;background:var(--surface);border:2px solid var(--fg);margin-top:5px;cursor:grab}
+.vr-bar input::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--surface);border:2px solid var(--fg);cursor:grab}
+.vr-btns{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:560px){.cv-tops{grid-template-columns:1fr}}
+@media (min-width:1180px){
+  #view:has(.steps.cv-desk.has){max-width:1080px!important}main:has(.steps.cv-desk.has){max-width:1120px!important}
+  .steps.cv-desk.has{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
+  .steps.cv-desk.has>section.step:nth-of-type(1){grid-column:1;grid-row:1 / span 3;position:sticky;top:72px}
+  .steps.cv-desk.has>section.step:nth-of-type(2){grid-column:2;grid-row:1}.steps.cv-desk.has>section.step:nth-of-type(3){grid-column:2;grid-row:2}
+  .steps.cv-desk.has>details,.steps.cv-desk.has>.cont,.steps.cv-desk.has>div{grid-column:2}
+  .steps.cv-desk.has .cv-prev{min-height:300px}
+}
 .dz-cv{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:12px 14px 14px}.dz-cv>p{display:flex;gap:8px;align-items:baseline;margin:0 0 10px;font-size:14.5px}.dz-cv>p small{font-size:12.5px}
 .dz-cvrow{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}.dz-tile.cv{min-height:64px;padding:12px 8px}.dz-tile.cv b{font-size:15px}
 @media (min-width:768px) and (max-width:1023.98px){
@@ -4975,12 +5008,26 @@ const CV_DROP = {"pdf:lock": "암호를 걸거나 풀 PDF를 고르거나 끌어
   "image:pdf": "PDF로 묶을 사진을 고르거나 끌어다 놓으세요 (여러 장 가능)", image: "바꿀 이미지를 고르거나 끌어다 놓으세요", "hwp:hwp": "바꿀 HWP·HWPX 파일을 고르거나 끌어다 놓으세요", hwp: "HWP·HWPX 파일을 고르거나 끌어다 놓으세요", docx: "워드(.docx) 파일을 고르거나 끌어다 놓으세요",
   sheet: "엑셀·CSV·JSON 파일을 고르거나 끌어다 놓으세요", vcf: "연락처(VCF) 파일이나 엑셀 명단을 고르거나 끌어다 놓으세요", "video:mp4": "줄이거나 MP4로 바꿀 영상을 고르거나 끌어다 놓으세요", "video:mp3": "소리를 뽑을 영상을 고르거나 끌어다 놓으세요", "video:gif": "움짤·장면 사진으로 만들 영상을 고르거나 끌어다 놓으세요", video: "영상 파일을 고르거나 끌어다 놓으세요",
   sub: "자막 파일(SMI·SRT·VTT)을 고르거나 끌어다 놓으세요", audio: "바꿀 녹음·음악 파일을 고르거나 끌어다 놓으세요"};
+/* 파일 변환 화면: 자주 쓰는 형식은 크게(짧은 이름 + 한 줄 설명), 나머지는 쓰임새별로 묶어 작게 */
+const CV_TOP = {
+  pdf: [["docx", "워드", "글자를 고칠 수 있게"], ["jpg", "이미지 (JPG)", "쪽마다 사진 한 장"], ["compress", "용량 줄이기", "메일로 보내기 좋게"], ["pptx", "PPT", "발표 자료로"]],
+  image: [["jpg", "JPG", "사진에 알맞고 용량이 작아요"], ["png", "PNG", "화질 그대로, 투명 배경"], ["webp", "WEBP", "웹에 올리기 좋게 가장 작게"], ["pdf", "PDF", "여러 장이면 한 파일로"]],
+  video: [["mp4", "MP4", "용량 줄이기·구간 자르기"], ["gif", "움짤 (GIF)", "원하는 구간만 짧게"], ["mp3", "소리만 MP3", "영상에서 소리 꺼내기"], ["png", "장면 캡처", "한 장면을 사진으로"]],
+  audio: [["mp3", "MP3", "어디서나 열려요"], ["m4a", "M4A", "용량이 작아요"], ["wav", "WAV", "편집용 원음"], ["ogg", "OGG", "웹용"]],
+  docx: [["pdf", "PDF", "모양 그대로"], ["txt", "텍스트", "글자만"], ["html", "웹페이지", ""], ["md", "마크다운", ""]],
+  hwp: [["pdf", "PDF", "원본 모양 그대로"], ["docx", "워드", "글자만 옮겨요"], ["png", "이미지", "쪽마다 한 장"], ["txt", "텍스트", "글자만"]],
+  sheet: [["csv", "CSV", ""], ["pdf", "PDF 표", "인쇄·공유용"], ["json", "JSON", ""], ["xlsx", "엑셀", ""]],
+  csv: [["xlsx", "엑셀", "엑셀에서 바로 열리게"], ["pdf", "PDF 표", "인쇄·공유용"], ["json", "JSON", ""], ["fixkr", "한글 깨짐 고치기", "엑셀에서 글자가 깨질 때"]]
+};
+const cvGroupOf = (gr, t) => gr === "pdf" ? (/쪽|암호|흑백|합치기/.test(t[1]) ? "쪽 정리·보안" : /이미지|그림/.test(t[1]) ? "다른 이미지로" : "다른 문서로") : gr === "video" ? (/사진|캡처|장면/.test(t[1]) ? "사진으로" : "다른 영상·소리로") : "다른 형식";
+const cvGoLabel = lab => { if (TB_LANG === "en") return "바꾸기"; const l = String(lab || "").replace(/\s*\(.*\)$/, ""); return /로$/.test(l) ? l + " 바꾸기" : l || "바꾸기"; };   // 영어 화면은 조합한 말이 어색해서 '바꾸기'만
 function convertTool(v, o) {
-  let files = [], target = o.target || null;
+  let files = [], target = o.target || null, prevOf = null, prevUrl = null, prevTok = 0;
   const dropText = CV_DROP[o.group + ":" + o.target] || CV_DROP[o.group] || "바꿀 파일을 고르거나 끌어다 놓으세요";
   v.innerHTML = `${toolHead("convert")}
-  <div class="steps">
+  <div class="steps cv-desk">
   ${step(1, "파일 넣기", "여러 개를 한 번에 넣어도 돼요. 파일은 이 기기 안에서만 바뀌어요", `
+    <div class="cv-prev hidden" id="cvPrev"></div>
     <div class="drop" id="cvDrop">${ic("swap", 26, 1.5)}<p>${esc(dropText)}</p><span class="btn file">파일 고르기<input type="file" id="cvIn" multiple accept="${esc(ACCEPT[o.group] || "")}" aria-label="파일 고르기"></span></div>
     <div class="card list files hidden" id="cvList"></div>`)}
   ${step(2, "무엇으로 바꿀까요", "", `<div id="cvTargets">${ph("파일을 넣으면 바꿀 수 있는 형식이 여기 나와요")}</div><div id="cvOpts" class="sect"></div><button class="btn pri block" id="cvGo" disabled>바꾸기</button>`)}
@@ -4994,8 +5041,57 @@ function convertTool(v, o) {
     L.innerHTML = files.map((f, i) => `<div class="item"><span class="ico">${ic("doc")}</span><span class="t"><b>${esc(f.name)}</b><small>${GROUP_NAME[groupOf2(f)]} · ${kb(f.size)}</small></span><button class="ib" data-x="${i}" aria-label="빼기">${ic("x", 18)}</button></div>`).join("");
     L.querySelectorAll("[data-x]").forEach(b => b.onclick = () => { files.splice(+b.dataset.x, 1); refresh(); });
   }
+  /* 넣은 파일을 실제로 보여 줘요: 사진·영상·소리는 그대로, PDF는 첫 쪽 */
+  async function cvPreview() {
+    const box = $("#cvPrev"), f = files[0]; if (!box) return;
+    if (f === prevOf) return; prevOf = f; const tok = ++prevTok;
+    if (prevUrl) { try { URL.revokeObjectURL(prevUrl); } catch (e) {} prevUrl = null; }
+    box.classList.toggle("hidden", !f); if (!f) { box.innerHTML = ""; return; }
+    const gr = groupOf2(f), ext = extOf(f), plain = () => { box.innerHTML = `<div class="cv-pico">${ic(gr === "audio" ? "mic" : gr === "video" ? "video" : "doc", 34, 1.4)}<b>${esc((ext || "").toUpperCase())}</b></div>`; };
+    try {
+      if (gr === "image" && !["heic", "heif", "tif", "tiff"].includes(ext)) { prevUrl = URL.createObjectURL(f); box.innerHTML = `<img src="${prevUrl}" alt="">`; box.firstChild.onerror = plain; }
+      else if (gr === "video") { prevUrl = URL.createObjectURL(f); box.innerHTML = `<video id="cvPV" src="${prevUrl}" controls playsinline muted preload="metadata"></video>`; box.firstChild.onerror = plain; }
+      else if (gr === "audio") { prevUrl = URL.createObjectURL(f); box.innerHTML = `<div class="cv-pico">${ic("mic", 34, 1.4)}<audio src="${prevUrl}" controls preload="metadata"></audio></div>`; }
+      else if (gr === "pdf") { plain(); await loadLib("pdfjs"); pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER();
+        const pdf = await pdfjsLib.getDocument({data: new Uint8Array(await f.arrayBuffer())}).promise, pg = await pdf.getPage(1), vp0 = pg.getViewport({scale: 1}), vp = pg.getViewport({scale: Math.min(2, 520 / vp0.width)});
+        const c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height); await pg.render({canvasContext: c.getContext("2d"), viewport: vp}).promise;
+        if (tok !== prevTok || !$("#cvPrev")) return; box.innerHTML = `<span class="cv-pn">1 / ${pdf.numPages}쪽</span>`; box.prepend(c); }
+      else plain();
+    } catch (e) { if (tok === prevTok) plain(); }
+  }
+  /* 영상: 숫자(초)를 적는 대신 영상을 보면서 구간을 고르게 해요. 고른 값은 원래 칸(start·len·from·to·at)에 넣어요 */
+  function videoRange() {
+    const O = $("#cvOpts"), vid = $("#cvPV"); if (!O || !vid || g() !== "video" || !["gif", "mp4", "webm", "png"].includes(target) || $("#cvVR")) return;
+    const one = target === "png", gif = target === "gif", q = n => O.querySelector(`[data-o="${n}"]`), hideRow = el => { const r = el && (el.closest(".row") || el.closest("label")); if (r) r.style.display = "none"; };
+    if (gif) { const L = q("len"); if (L && L.tagName === "SELECT") { const h = document.createElement("input"); h.type = "hidden"; h.dataset.o = "len"; h.value = L.value; L.replaceWith(h); } hideRow(q("start")); }
+    else if (one) hideRow(q("at")); else hideRow(q("from"));
+    O.insertAdjacentHTML("afterbegin", `<div class="vr" id="cvVR"><div class="vr-top"><b>${one ? "저장할 장면" : "쓸 구간"}</b><span id="vrInfo"></span></div>
+      <div class="vr-bar"><i id="vrSel"></i><input type="range" id="vrA" min="0" max="1000" value="0" aria-label="${one ? "장면" : "시작"}">${one ? "" : `<input type="range" id="vrB" min="0" max="1000" value="1000" aria-label="끝">`}</div>
+      <div class="vr-btns">${one ? `<button type="button" class="btn sm" id="vrNowA">지금 보는 장면으로</button>` : `<button type="button" class="btn sm" id="vrNowA">지금 장면부터</button><button type="button" class="btn sm" id="vrNowB">지금 장면까지</button><button type="button" class="btn sm" id="vrPlay">구간 미리보기</button>`}</div></div>`);
+    const A = $("#vrA"), B = $("#vrB"), mm = t => { t = Math.max(0, t); const m = Math.floor(t / 60), s2 = t - m * 60; return `${m}:${s2 < 10 ? "0" : ""}${s2.toFixed(1).replace(/\.0$/, "")}`; };
+    let D = 0, stopAt = null;
+    const put = (n, v2) => { const el = q(n); if (el) el.value = v2; };
+    const upd = who => { if (!D) return; let a = A.value / 1000 * D, b = B ? B.value / 1000 * D : a;
+      if (B) { const MIN = Math.min(.5, D), MAX = gif ? 15 : Infinity;
+        if (b - a < MIN) { if (who === "b") a = Math.max(0, b - MIN); else b = Math.min(D, a + MIN); }
+        if (b - a > MAX) { if (who === "b") a = b - MAX; else b = a + MAX; }
+        A.value = Math.round(a / D * 1000); B.value = Math.round(b / D * 1000); }
+      a = Math.round(a * 10) / 10; b = Math.round(b * 10) / 10;
+      if (gif) { put("start", a); put("len", Math.round((b - a) * 10) / 10); } else if (one) put("at", a); else { put("from", a <= .05 ? "" : a); put("to", b >= D - .05 ? "" : b); }
+      $("#vrInfo").textContent = one ? mm(a) : `${mm(a)} ~ ${mm(b)} (${Math.round((b - a) * 10) / 10}초)`;
+      const sel = $("#vrSel"); sel.style.left = (one ? 0 : a / D * 100) + "%"; sel.style.width = (one ? a / D * 100 : (b - a) / D * 100) + "%";
+      if (who) { try { vid.pause(); vid.currentTime = who === "b" ? b : a; } catch (e) {} } };
+    const setup = () => { D = vid.duration; if (!isFinite(D) || !D) return; if (gif) B.value = Math.round(Math.min(D, 5) / D * 1000); if (one) A.value = 500; upd(null); if (one) { try { vid.currentTime = D / 2; } catch (e) {} } };
+    A.oninput = () => upd("a"); if (B) B.oninput = () => upd("b");
+    $("#vrNowA").onclick = () => { if (D) { A.value = Math.round(vid.currentTime / D * 1000); upd("a"); } };
+    if ($("#vrNowB")) $("#vrNowB").onclick = () => { if (D) { B.value = Math.round(vid.currentTime / D * 1000); upd("b"); } };
+    if ($("#vrPlay")) { $("#vrPlay").onclick = () => { if (!D) return; const a = A.value / 1000 * D; stopAt = B.value / 1000 * D; try { vid.currentTime = a; vid.play().catch(() => {}); } catch (e) {} };
+      vid.addEventListener("timeupdate", () => { if (stopAt != null && vid.currentTime >= stopAt) { vid.pause(); stopAt = null; } }); }
+    if (vid.readyState >= 1) setup(); else vid.addEventListener("loadedmetadata", setup, {once: true});
+  }
   function refresh() {
     renderFiles();
+    { const st = v.querySelector(".steps"); if (st) st.classList.toggle("has", !!files.length); cvPreview(); }
     const gr = g(), box = $("#cvTargets");
     $("#cvOut").innerHTML = ph("바꾼 파일이 여기에 나와요");
     if (!gr) { box.innerHTML = ph("파일을 넣으면 바꿀 수 있는 형식이 여기 나와요"); $("#cvOpts").innerHTML = ""; target = null; $("#cvGo").disabled = true; return; }
@@ -5003,10 +5099,15 @@ function convertTool(v, o) {
     const own = extOf(files[0]).replace("yml", "yaml"), ts = (TARGETS[gr] || []).filter(t => !(t[0] === "merge" && files.length < 2) && (gr === "image" || t[0] !== own));
     if (!ts.length) { box.innerHTML = `<p class="note">이 형식은 아직 바꿀 수 없어요.</p>`; $("#cvGo").disabled = true; return; }
     if (!ts.find(t => t[0] === target)) target = ts[0][0];
-    box.innerHTML = `<p class="sub" style="font-size:13px;margin-bottom:8px">${GROUP_NAME[gr]} ${files.length}개</p><div class="cv-tg">${ts.map(t => `<button class="btn sm ${t[0] === target ? "pri" : ""}" data-t="${t[0]}" aria-pressed="${t[0] === target}">${t[1]}</button>`).join("")}</div>`;
+    { const top = (CV_TOP[gr] || ts.slice(0, 4).map(t => [t[0], t[1].replace(/\s*\(.*\)$/, ""), ""])).filter(x => ts.some(t => t[0] === x[0])), rest = ts.filter(t => !top.some(x => x[0] === t[0])), groups = [];
+      rest.forEach(t => { const n = cvGroupOf(gr, t); let G = groups.find(x => x[0] === n); if (!G) groups.push(G = [n, []]); G[1].push(t); });
+      const full = id => (ts.find(t => t[0] === id) || [])[1] || "";
+      box.innerHTML = `<p class="sub" style="font-size:13px;margin-bottom:8px">${GROUP_NAME[gr]} ${files.length}개</p><div class="cv-tops">${top.map(x => `<button class="cv-opt" data-t="${x[0]}" aria-pressed="${x[0] === target}" aria-label="${esc(full(x[0]))}"><i></i><b>${esc(x[1])}</b>${x[2] ? `<small>${esc(x[2])}</small>` : ""}</button>`).join("")}</div>
+        ${groups.map(G => `<p class="cv-gl">${esc(G[0])}</p><div class="cv-tg">${G[1].map(t => `<button class="cv-chip" data-t="${t[0]}" aria-pressed="${t[0] === target}">${t[1]}</button>`).join("")}</div>`).join("")}`; }
     box.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { target = b.dataset.t; refresh();
       if (innerWidth < 1024) setTimeout(() => { const o = $("#cvOpts"), el = o && o.textContent.trim() ? o : $("#cvGo"); if (el) el.scrollIntoView({behavior: "smooth", block: "start"}); }, 250); });   // 폰: 형식을 고르면 아래 설정(쪽 고르기 등)으로 내려가요
-    renderOpts(gr); $("#cvGo").disabled = false;
+    Promise.resolve(renderOpts(gr)).then(() => { try { videoRange(); } catch (e) { console.warn(e); } });
+    $("#cvGo").disabled = false; $("#cvGo").textContent = cvGoLabel(((TARGETS[gr] || []).find(t => t[0] === target) || [])[1]);
   }
   async function renderOpts(gr) {
     const O = $("#cvOpts"); let h = "";
@@ -5038,7 +5139,15 @@ function convertTool(v, o) {
   const add = fs => { files = files.concat(fs); refresh(); };
   $("#cvIn").onchange = e => { add([...e.target.files]); e.target.value = ""; };
   dropZone($("#cvDrop"), add);
-  if (o.files) { add(o.files); if (o.auto && o.target) setTimeout(() => { const g2 = $("#cvGo"); if (g2 && !g2.disabled && target === o.target) g2.click(); }, 120); }   // 끌어다 놓기에서 형식 칸에 놓았으면 바로 바꿔요
+  if (o.files) { add(o.files);
+    if (o.auto && o.target && target === o.target && !$("#cvGo").disabled) {   // 끌어다 놓기에서 형식 칸에 놓았으면 바로 바꿔요
+      /* 바로 바꾸기 화면: 형식 목록·설정을 늘어놓지 않고 '무엇을 → 무엇으로'와 결과만 보여 줘요. 다른 형식이 필요하면 링크로 전체 화면을 펴요 */
+      const st = v.querySelector(".steps"), lab = ((TARGETS[g()] || []).find(t => t[0] === target) || ["", target])[1].replace(/\s*\(.*\)$/, "");
+      st.classList.add("cv-quick"); st.classList.remove("cv-desk");
+      st.insertAdjacentHTML("afterbegin", `<div class="cv-qh" id="cvQh"><span class="ico">${ic("swap", 20, 1.7)}</span><span class="t"><small>${esc(files[0].name)}${files.length > 1 ? `<span> 외 ${files.length - 1}개</span>` : ""}</small><b>${esc(lab)}</b></span><button type="button" class="link" id="cvQMore">다른 형식으로 바꾸기</button></div>`);
+      $("#cvQMore").onclick = () => { st.classList.remove("cv-quick"); st.classList.add("cv-desk"); const h = $("#cvQh"); if (h) h.remove(); };
+      setTimeout(() => { const g2 = $("#cvGo"); if (g2 && !g2.disabled && target === o.target) g2.click(); }, 120);
+    } }
   $("#cvGo").onclick = async () => {
     const btn = $("#cvGo"), out = $("#cvOut"); btn.disabled = true;
     const opt = {w: +($("#cvW") || {}).value || 0, ...Object.fromEntries([...document.querySelectorAll("#cvOpts [data-o]")].map(el => [el.dataset.o, el.type === "checkbox" ? el.checked : el.value])), q: ($("#cvQ") ? +$("#cvQ").value / 100 : .9), pages: ($("#cvPages") || {}).value || "", deg: ($("#cvDeg") || {}).value || 90, sheet: ($("#cvSheet") || {}).value || "", level: ($("#cvLevel") || {}).value || "normal"};
@@ -5055,6 +5164,9 @@ function convertTool(v, o) {
       out.innerHTML = `<div class="sect">${notes.map(n => `<p class="note">${esc(n)}</p>`).join("")}<p class="sub" style="font-size:13px">파일 ${res.length}개 · 모두 ${kb(total)}${["mp4", "webm"].includes(target) ? ` (원본 ${kb(inSize)})` : ""}</p>
         <div class="card list">${res.slice(0, 30).map((r, i) => `<div class="item" style="cursor:default"><span class="ico">${ic("doc")}</span><span class="t"><b>${esc(r.name)}</b><small>${kb(r.blob.size)}</small></span>${res.length > 1 ? `<button class="btn sm" data-s="${i}">저장</button>` : ""}</div>`).join("")}${res.length > 30 ? `<div class="empty">외 ${res.length - 30}개</div>` : ""}</div>
         ${res.length > 1 ? `<button class="btn pri block" id="cvZip">${ic("save", 16)}모두 한 번에 저장 (ZIP)</button>` : `<button class="btn pri block" id="cvOne">${ic("save", 16)}저장</button>`}</div>`;
+      /* 사진·움짤 한 장이면 결과를 바로 보여 줘요 */
+      if (res.length === 1 && /\.(gif|png|jpe?g|webp)$/i.test(res[0].name) && res[0].blob.size < 3e7) { try { if (convertTool.resUrl) URL.revokeObjectURL(convertTool.resUrl); const u = convertTool.resUrl = URL.createObjectURL(res[0].blob); out.querySelector(".sect").insertAdjacentHTML("afterbegin", `<div class="cv-res"><img src="${u}" alt=""></div>`); } catch (e) {} }
+      if (innerWidth >= 1180 && v.querySelector(".steps.cv-desk.has")) setTimeout(() => { try { out.scrollIntoView({block: "nearest", behavior: "smooth"}); } catch (e) {} }, 60);
       out.querySelectorAll("[data-s]").forEach(b => b.onclick = () => saveFile(res[+b.dataset.s].name, res[+b.dataset.s].blob));
       const one = $("#cvOne"); if (one) one.onclick = () => saveFile(res[0].name, res[0].blob);
       const zb = $("#cvZip"); if (zb) zb.onclick = async () => {
